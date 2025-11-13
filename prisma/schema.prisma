@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,80 +8,180 @@ datasource db {
 }
 
 model Shop {
-  id           String         @id @default(uuid())
+  id           String        @id @default(uuid())
   name         String
   address      String
   ownerId      String
-  isActive     Boolean        @default(true)
+  createdAt    DateTime      @default(now())
+  projectId    String
+  isActive     Boolean       @default(true)
   phone        String
-  createdAt    DateTime       @default(now())
-  projectId    String 
+  taxAddress   String?
+  taxCondition String?
+  taxIdNumber  String?
   employees    Employee[]
-  sales        Sale[]
-  incomes      Income[]
   expenses     Expense[]
+  incomes      Income[]
+  purchases    Purchase[]
+  sales        Sale[]
   shopProducts ShopProduct[]
+supplierShop SupplierShop[]
 }
 
 model Employee {
-  id         String   @id @default(uuid())
-  fullName   String
-  email      String   @unique
-  role       String
-  hireDate   DateTime?
-  salary     Float?
-  shopId     String
-  shop       Shop     @relation(fields: [shopId], references: [id])
+  id               String    @id @default(uuid())
+  fullName         String
+  email            String    @unique
+  role             String
+  hireDate         DateTime?
+  salary           Float?
+  shopId           String
+  address          String?
+  createdAt        DateTime  @default(now())
+  dni              String?
+  emergencyContact String?
+  isActive         Boolean   @default(true)
+  notes            String?
+  phone            String?
+  profileImage     String?
+  shop             Shop      @relation(fields: [shopId], references: [id])
 }
 
-
 model Sale {
-  id        String    @id @default(uuid())
-  amount    Float
-  date      DateTime  @default(now())
-  shopId    String
-  shop      Shop      @relation(fields: [shopId], references: [id])
+  id     String   @id @default(uuid())
+  amount Float
+  date   DateTime @default(now())
+  shopId String
+  shop   Shop     @relation(fields: [shopId], references: [id])
 }
 
 model Income {
   id          String   @id @default(uuid())
   description String
   amount      Float
-  date        DateTime  @default(now())
+  date        DateTime @default(now())
   shopId      String
-  shop        Shop      @relation(fields: [shopId], references: [id])
+  shop        Shop     @relation(fields: [shopId], references: [id])
 }
 
 model Expense {
-  id          String       @id @default(uuid())
+  id          String   @id @default(uuid())
   description String
   amount      Float
-  date        DateTime  @default(now())
+  date        DateTime @default(now())
   shopId      String
-  shop        Shop      @relation(fields: [shopId], references: [id])
+  shop        Shop     @relation(fields: [shopId], references: [id])
 }
 
 model Product {
-  id           String             @id @default(uuid())
+  id           String        @id @default(uuid())
   name         String
   description  String?
-  barcode      String? 
-  createdAt    DateTime        @default(now())
+  barcode      String?
+  createdAt    DateTime      @default(now())
+  taxCategory  String?
+  taxRate      Float?
   shopProducts ShopProduct[]
 }
 
 model ShopProduct {
-  id           String             @id @default(uuid())
-  shopId       String
-  productId    String
+  id               String           @id @default(uuid())
+  shopId           String
+  productId        String
+  costPrice        Float
+  salePrice        Float
+  stock            Int?
+  createdAt        DateTime         @default(now())
+  createdBy        String?
+  currency         String           @default("ARS")
+  isActive         Boolean          @default(true) 
+  productHistories ProductHistory[]
+  purchaseItems    PurchaseItem[]
+  product          Product          @relation(fields: [productId], references: [id])
+  shop             Shop             @relation(fields: [shopId], references: [id])
 
-  costPrice    Float            // 💰 Precio de costo
-  salePrice    Float            // 🛒 Precio de venta
-  stock        Int?             // 📦 Stock disponible (opcional)
-  createdAt    DateTime         @default(now())
 
-  shop         Shop             @relation(fields: [shopId], references: [id])
-  product      Product          @relation(fields: [productId], references: [id])
-
-  @@unique([shopId, productId]) // evita duplicados
+  @@unique([shopId, productId])
 }
+
+model Supplier {
+  id          String     @id @default(uuid())
+  name        String
+  ownerId     String
+  contactName String?
+  phone       String?
+  email       String?
+  address     String?
+  notes       String?
+  createdAt   DateTime   @default(now())
+  purchases   Purchase[]
+  supplierShop    SupplierShop[]
+}
+
+model SupplierShop {
+  id         String   @id @default(uuid())
+  supplierId String
+  shopId     String
+
+  supplier   Supplier @relation(fields: [supplierId], references: [id])
+  shop       Shop     @relation(fields: [shopId], references: [id])
+
+  @@unique([supplierId, shopId])
+}
+
+model Purchase {
+  id           String           @id @default(uuid())
+  supplierId   String
+  shopId       String
+  totalAmount  Float
+  purchaseDate DateTime         @default(now())
+  notes        String?
+  histories    ProductHistory[]
+  shop         Shop             @relation(fields: [shopId], references: [id])
+  supplier     Supplier         @relation(fields: [supplierId], references: [id])
+  items        PurchaseItem[]
+}
+
+model PurchaseItem {
+  id            String      @id @default(uuid())
+  purchaseId    String
+  shopProductId String
+  quantity      Int
+  unitCost      Float
+  subtotal      Float
+  includesTax   Boolean     @default(true)
+  purchase      Purchase    @relation(fields: [purchaseId], references: [id])
+  shopProduct   ShopProduct @relation(fields: [shopProductId], references: [id])
+}
+
+model ProductHistory {
+  id            String      @id @default(uuid())
+  shopProductId String
+  userId        String?
+  purchaseId    String?
+  changeType    String
+  previousCost  Float?
+  newCost       Float?
+  previousStock Int?
+  newStock      Int?
+  note          String?
+  createdAt     DateTime    @default(now())
+  purchase      Purchase?   @relation(fields: [purchaseId], references: [id])
+  shopProduct   ShopProduct @relation(fields: [shopProductId], references: [id])
+}
+
+
+// model StockTransfer {
+//   id             String   @id @default(uuid())
+//   productId      String   // referencia global al producto
+//   fromShopId     String   // tienda origen
+//   toShopId       String   // tienda destino
+//   quantity       Int
+//   userId         String   // quién realizó la transferencia
+//   note           String?
+//   createdAt      DateTime @default(now())
+
+//   product        Product  @relation(fields: [productId], references: [id])
+//   fromShop       Shop     @relation("FromShop", fields: [fromShopId], references: [id])
+//   toShop         Shop     @relation("ToShop", fields: [toShopId], references: [id])
+// }
