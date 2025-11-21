@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
@@ -22,65 +23,83 @@ export class CategoryService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createCategoryDto: CreateCategoryDto, user: JwtPayload) {
-    const { id: userId, role, email } = user;
+    const { id: userId, role } = user;
+    const { shopIds, name } = createCategoryDto;
 
-    // Verificar que la tienda existe
-    const shop = await this.prisma.shop.findUnique({
-      where: { id: createCategoryDto.shopId },
-    });
-    if (!shop) throw new NotFoundException('La tienda no existe');
+    let targetShopIds: string[] = [];
+    let ownerShopNames = new Map<string, string>();
 
-    // Verificar permisos
-    if (role === 'OWNER' && shop.ownerId !== userId) {
-      throw new ForbiddenException('No tenés permiso para crear categorías en esta tienda');
-    } else if (role === 'EMPLOYEE') {
-      const employee = await this.prisma.employee.findFirst({
-        where: { email: user.email, shopId: createCategoryDto.shopId },
+    if (role === 'OWNER') {
+      if (!shopIds || shopIds.length === 0)
+        throw new BadRequestException('Debe especificar al menos una tienda');
+
+      const uniqueIds = Array.from(new Set(shopIds));
+      const ownerShops = await this.prisma.shop.findMany({
+        where: { ownerId: userId, id: { in: uniqueIds } },
+        select: { id: true, name: true },
       });
-      if (!employee) {
-        throw new ForbiddenException('No tenés permiso para crear categorías en esta tienda');
+
+      if (ownerShops.length !== uniqueIds.length) {
+        throw new ForbiddenException('Alguna tienda no pertenece al propietario');
       }
+
+      ownerShopNames = new Map(ownerShops.map((s) => [s.id, s.name]));
+      targetShopIds = uniqueIds;
+    } else {
+      const employee = await this.prisma.employee.findFirst({
+        where: { email: user.email },
+        select: { shopId: true },
+      });
+
+      if (!employee) {
+        throw new ForbiddenException('No tenés permiso para crear categorías');
+      }
+
+      targetShopIds = [employee.shopId];
     }
 
     // Verificar que no exista una categoría con el mismo nombre en la tienda
-    const existingCategory = await this.prisma.category.findUnique({
+    const existingCategory = await this.prisma.category.findMany({
       where: {
-        name_shopId: {
-          name: createCategoryDto.name,
-          shopId: createCategoryDto.shopId,
-        },
+        name,
+        shopId: { in: targetShopIds },
       },
+      include: { shop: { select: { name: true } } },
     });
 
-    if (existingCategory) {
+    if (existingCategory.length) {
+      const shopNames = existingCategory.map((c) => c.shop.name).join(', ');
       throw new ConflictException(
-        `Ya existe una categoría con el nombre "${createCategoryDto.name}" en esta tienda`,
+        `Ya existe una categoría con el nombre "${name}" en: ${shopNames}`,
       );
     }
 
-    const category = await this.prisma.category.create({
-      data: {
-        name: createCategoryDto.name,
-        shopId: createCategoryDto.shopId,
-        createdBy: userId,
-      },
-      include: {
-        shop: {
-          select: { name: true },
-        },
-      },
+    const created = await Promise.all(
+      targetShopIds.map((id) =>
+        this.prisma.category.create({
+          data: { name, shopId: id, createdBy: userId },
+          include: { shop: { select: { name: true } } },
+        }),
+      ),
+    );
+
+    const message =
+      created.length === 1
+        ? 'Categoría creada correctamente'
+        : `Categoría creada en ${created.length} tienda(s)`;
+
+    const format = (cat: (typeof created)[number]) => ({
+      id: cat.id,
+      name: cat.name,
+      shopId: cat.shopId,
+      shopName: cat.shop.name ?? ownerShopNames.get(cat.shopId),
+      createdAt: cat.createdAt,
+      isActive: cat.isActive,
     });
 
     return {
-      message: 'Categoría creada correctamente',
-      data: {
-        id: category.id,
-        name: category.name,
-        shopId: category.shopId,
-        shopName: category.shop.name,
-        createdAt: category.createdAt,
-        isActive: category.isActive,
-      },
+      message,
+      data: created.length === 1 ? format(created[0]) : created.map(format),
     };
   }
 

@@ -10,8 +10,8 @@ import {
   Query,
 } from '@nestjs/common';
 import { SupplierCategoryService } from './supplier-category.service';
-import { CreateSupplierCategoryDto } from './dto/create-supplier-category.dto';
-import { UpdateSupplierCategoryDto } from './dto/update-supplier-category.dto';
+import { CreateSupplierCategoryDto } from './dtos/create-supplier-category.dto';
+import { UpdateSupplierCategoryDto } from './dtos/update-supplier-category.dto';
 import { GetUser } from '../auth-client/decorators/get-user.decorator';
 import type { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface';
 import { JwtAuthGuard } from '../auth-client/guards/jwt-auth.guard';
@@ -29,10 +29,7 @@ export class SupplierCategoryController {
     @Body() createSupplierCategoryDto: CreateSupplierCategoryDto,
     @GetUser() user: JwtPayload,
   ) {
-    return this.supplierCategoryService.create(
-      createSupplierCategoryDto,
-      user,
-    );
+    return this.supplierCategoryService.create(createSupplierCategoryDto, user);
   }
 
   @Get()

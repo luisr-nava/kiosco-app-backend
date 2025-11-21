@@ -1,9 +1,16 @@
-import { IsString, IsUUID } from 'class-validator';
+import {
+  IsArray,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 export class CreateCategoryDto {
   @IsString()
   name: string;
 
-  @IsUUID()
-  shopId: string;
+  @IsOptional()
+  @IsArray()
+  @IsUUID('all', { each: true })
+  shopIds?: string[];
 }

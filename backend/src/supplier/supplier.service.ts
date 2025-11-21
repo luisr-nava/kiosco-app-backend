@@ -10,13 +10,17 @@ import { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 
-type SupplierWithShops = Prisma.SupplierGetPayload<{
-  include: { supplierShop: { select: { shopId: true } } };
-}>;
-
-type SupplierWithShopsAndPurchases = Prisma.SupplierGetPayload<{
+type SupplierWithRelations = Prisma.SupplierGetPayload<{
   include: {
     supplierShop: { select: { shopId: true } };
+    category: { select: { id: true; name: true } };
+  };
+}>;
+
+type SupplierWithRelationsAndPurchases = Prisma.SupplierGetPayload<{
+  include: {
+    supplierShop: { select: { shopId: true } };
+    category: { select: { id: true; name: true } };
     purchases: { select: { shopId: true } };
   };
 }>;
@@ -26,7 +30,7 @@ export class SupplierService {
   constructor(private readonly prisma: PrismaService) {}
 
   // ───────────────────────────────────────────────
-  // HELPERS 
+  // HELPERS
   // ───────────────────────────────────────────────
 
   private async getOwnerAndShopFromUser(user: JwtPayload) {
@@ -52,17 +56,17 @@ export class SupplierService {
   private async getSupplierOrFail(
     id: string,
     withPurchases = false,
-  ): Promise<SupplierWithShops | SupplierWithShopsAndPurchases> {
+  ): Promise<SupplierWithRelations | SupplierWithRelationsAndPurchases> {
+    const baseInclude = {
+      supplierShop: { select: { shopId: true } },
+      category: { select: { id: true, name: true } },
+    };
+
     const supplier = await this.prisma.supplier.findUnique({
       where: { id },
       include: withPurchases
-        ? {
-            supplierShop: { select: { shopId: true } },
-            purchases: { select: { shopId: true } },
-          }
-        : {
-            supplierShop: { select: { shopId: true } },
-          },
+        ? { ...baseInclude, purchases: { select: { shopId: true } } }
+        : baseInclude,
     });
 
     if (!supplier) throw new NotFoundException('Proveedor no encontrado.');
@@ -71,7 +75,7 @@ export class SupplierService {
   }
 
   private ensureSupplierBelongsToUser(
-    supplier: SupplierWithShops,
+    supplier: SupplierWithRelations,
     ownerId: string,
     shopId: string | null,
     role: string,
@@ -96,6 +100,28 @@ export class SupplierService {
 
     if (shops.length !== shopIds.length)
       throw new BadRequestException('Algunas tiendas no existen.');
+  }
+
+  private async validateCategoryOwnership(
+    categoryId: string | null | undefined,
+    ownerId: string,
+  ) {
+    if (!categoryId) return;
+
+    const category = await this.prisma.supplierCategory.findUnique({
+      where: { id: categoryId },
+      select: { id: true, ownerId: true, isActive: true },
+    });
+
+    if (!category || category.ownerId !== ownerId)
+      throw new BadRequestException(
+        'La categoría de proveedor no existe o no pertenece al propietario.',
+      );
+
+    if (!category.isActive)
+      throw new BadRequestException(
+        'La categoría de proveedor está deshabilitada.',
+      );
   }
 
   private resolveShopIdsForAction(
@@ -156,16 +182,25 @@ export class SupplierService {
 
     await this.checkUniqueSupplier(dto, ownerId);
 
+    await this.validateCategoryOwnership(dto.categoryId, ownerId);
+
     const shopIds = this.resolveShopIdsForAction(dto.shopIds, user, shopId);
     if (shopIds.length === 0)
       throw new BadRequestException('Debe asignar al menos una tienda.');
 
     await this.validateShopsExist(shopIds);
 
+    // 🔥 Extraer shopIds para que NO vaya a Prisma
+    const { shopIds: _, ...supplierData } = dto;
+
     const supplier = await this.prisma.supplier.create({
-      data: { ownerId, ...dto },
+      data: {
+        ownerId,
+        ...supplierData, // shopIds ya NO está acá
+      },
     });
 
+    // 🟢 Relacionar con las tiendas via pivot
     await this.assignShopsToSupplier(
       supplier.id,
       shopIds,
@@ -187,6 +222,9 @@ export class SupplierService {
 
     await this.checkUniqueSupplier(dto, ownerId, id);
 
+    if (dto.categoryId !== undefined)
+      await this.validateCategoryOwnership(dto.categoryId, ownerId);
+
     const newShopIds = this.resolveShopIdsForAction(dto.shopIds, user, shopId);
     if (newShopIds.length === 0)
       throw new BadRequestException(
@@ -195,7 +233,9 @@ export class SupplierService {
 
     await this.validateShopsExist(newShopIds);
 
-    for (const sId of (supplier as SupplierWithShopsAndPurchases).purchases.map(
+    for (const sId of (
+      supplier as SupplierWithRelationsAndPurchases
+    ).purchases.map(
       (p) => p.shopId,
     )) {
       if (!newShopIds.includes(sId))
@@ -205,10 +245,11 @@ export class SupplierService {
     }
 
     const currentShops = supplier.supplierShop.map((s) => s.shopId);
+    const { shopIds: _, ...supplierData } = dto;
 
     const updated = await this.prisma.supplier.update({
       where: { id },
-      data: dto,
+      data: supplierData,
     });
 
     await this.assignShopsToSupplier(
@@ -237,7 +278,10 @@ export class SupplierService {
               isActive: true,
               supplierShop: { some: { shopId: shopId! } },
             },
-      include: { supplierShop: { select: { shopId: true } } },
+      include: {
+        supplierShop: { select: { shopId: true } },
+        category: { select: { id: true, name: true } },
+      },
       orderBy: { name: 'asc' },
     });
   }
@@ -266,7 +310,10 @@ export class SupplierService {
     return this.prisma.supplier.update({
       where: { id },
       data: { isActive: !supplier.isActive },
-      include: { supplierShop: { select: { shopId: true } } },
+      include: {
+        supplierShop: { select: { shopId: true } },
+        category: { select: { id: true, name: true } },
+      },
     });
   }
 }

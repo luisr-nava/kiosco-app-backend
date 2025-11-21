@@ -4,8 +4,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateSupplierCategoryDto } from './dto/create-supplier-category.dto';
-import { UpdateSupplierCategoryDto } from './dto/update-supplier-category.dto';
+import { CreateSupplierCategoryDto } from './dtos/create-supplier-category.dto';
+import { UpdateSupplierCategoryDto } from './dtos/update-supplier-category.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface';
 

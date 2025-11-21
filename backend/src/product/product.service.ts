@@ -304,6 +304,9 @@ export class ProductService {
               category: {
                 select: { id: true, name: true },
               },
+              supplier: {
+                select: { name: true },
+              },
             },
           },
           shop: { select: { name: true } },
@@ -336,6 +339,7 @@ export class ProductService {
         barcode: sp.product.barcode,
         categoryId: sp.product.categoryId,
         categoryName: sp.product.category?.name,
+        supplierName: sp.product.supplier?.name,
         costPrice: sp.costPrice,
         salePrice: sp.salePrice,
         stock: sp.stock,
@@ -412,6 +416,9 @@ export class ProductService {
             category: {
               select: { id: true, name: true },
             },
+            supplier: {
+              select: { name: true },
+            },
           },
         },
       },
@@ -433,6 +440,7 @@ export class ProductService {
         barcode: shopProduct.product.barcode,
         categoryId: shopProduct.product.categoryId,
         categoryName: shopProduct.product.category?.name,
+        supplierName: shopProduct.product.supplier?.name,
         salePrice: shopProduct.salePrice,
         costPrice: shopProduct.costPrice,
         stock: shopProduct.stock,

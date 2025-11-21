@@ -2,6 +2,7 @@ import {
   ForbiddenException,
   HttpException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
@@ -60,10 +61,15 @@ export class EmployeeService {
         authEmployeeDto,
         token,
       );
-
+      const userId = authUser.id ?? authUser.userId ?? authUser.user?.id;
+      if (!userId) {
+        throw new InternalServerErrorException(
+          'Auth Service no devolvió userId',
+        );
+      }
       const kioskEmployee = await this.prisma.employee.create({
         data: {
-          id: authUser.id || authUser.userId,
+          id: userId,
           fullName: dto.fullName,
           email: dto.email,
           role: dto.role ?? 'EMPLOYEE',
@@ -134,7 +140,7 @@ export class EmployeeService {
     };
 
     try {
-      await this.authClientService.updateUser(id, authData);
+      await this.authClientService.updateEmployee(id, authData, token);
     } catch (error) {
       console.log(error);
       throw new HttpException(

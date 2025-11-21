@@ -1,0 +1,10 @@
+version: '3.9'
+
+services:
+  kiosco-service:
+    command: ["npm", "run", "start:dev"]
+    volumes:
+      - ./src:/app/src
+      - ./prisma:/app/prisma
+      - ./tsconfig.json:/app/tsconfig.json
+      - ./package.json:/app/package.json

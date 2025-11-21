@@ -4,13 +4,13 @@ import { ApiProperty } from '@nestjs/swagger';
 export class VerifyCodeDto {
   @ApiProperty({
     description: 'Código de verificación de 6 dígitos',
-    example: '123456',
-    minLength: 6,
-    maxLength: 6,
+    example: '12345678',
+    minLength: 8,
+    maxLength: 8,
   })
   @IsString()
-  @Length(6, 6, {
-    message: 'El código de verificación debe tener 6 dígitos',
+  @Length(8, 8, {
+    message: 'El código de verificación debe tener 8 dígitos',
   })
   code: string;
 }

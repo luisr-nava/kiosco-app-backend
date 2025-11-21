@@ -24,5 +24,9 @@ export class CreateSupplierDto {
   notes: string;
 
   @IsOptional()
+  @IsString()
+  categoryId?: string | null;
+
+  @IsOptional()
   shopIds?: string[];
 }

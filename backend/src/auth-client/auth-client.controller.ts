@@ -82,8 +82,14 @@ export class AuthClientController {
       'Autentica un usuario verificado y devuelve un token JWT con projectId. Bloqueado tras 5 intentos fallidos.',
   })
   @ApiResponse({ status: 200, description: 'Login exitoso' })
-  @ApiResponse({ status: 401, description: 'Credenciales inválidas o cuenta no verificada' })
-  @ApiResponse({ status: 429, description: 'Demasiados intentos fallidos. Cuenta bloqueada temporalmente' })
+  @ApiResponse({
+    status: 401,
+    description: 'Credenciales inválidas o cuenta no verificada',
+  })
+  @ApiResponse({
+    status: 429,
+    description: 'Demasiados intentos fallidos. Cuenta bloqueada temporalmente',
+  })
   @ApiBody({ type: LoginDto })
   async login(@Body() loginUserDto: LoginDto, @Req() req) {
     try {
@@ -125,15 +131,17 @@ export class AuthClientController {
   @ApiResponse({ status: 200, description: 'Logout exitoso' })
   @ApiResponse({ status: 401, description: 'No autorizado' })
   @ApiBody({ type: LogoutDto })
-  async logout(@GetUser() user: JwtPayload, @Req() req, @Body() logoutDto: LogoutDto) {
+  async logout(
+    @GetUser() user: JwtPayload,
+    @Req() req,
+    @Body() logoutDto: LogoutDto,
+  ) {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
       throw new UnauthorizedException('Token de autorización no proporcionado');
     }
 
     const token = authHeader.split(' ')[1];
-
-    // Calcular fecha de expiración (15 minutos desde ahora)
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
     this.tokenBlacklistService.blacklistToken(
@@ -211,7 +219,8 @@ export class AuthClientController {
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Obtener información del usuario actual',
-    description: 'Devuelve la información del usuario autenticado y sus tiendas',
+    description:
+      'Devuelve la información del usuario autenticado y sus tiendas',
   })
   @ApiResponse({ status: 200, description: 'Información del usuario obtenida' })
   @ApiResponse({ status: 401, description: 'No autorizado' })
@@ -254,7 +263,7 @@ export class AuthClientController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Patch('profile')
+  @Patch('profile/:id')
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Actualizar perfil propio',
@@ -266,13 +275,14 @@ export class AuthClientController {
   async updateProfile(
     @Body() updateProfileDto: UpdateProfileDto,
     @Req() req,
+    @Param('id', ParseUUIDPipe) id: string,
   ) {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
       throw new UnauthorizedException('Token de autorización no proporcionado');
     }
     const token = authHeader.split(' ')[1];
-    return this.authClientService.updateProfile(updateProfileDto, token);
+    return this.authClientService.updateProfile(updateProfileDto, token, id);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -287,7 +297,10 @@ export class AuthClientController {
     description: 'Empleado actualizado correctamente',
   })
   @ApiResponse({ status: 401, description: 'No autorizado' })
-  @ApiResponse({ status: 403, description: 'Solo OWNER puede actualizar empleados' })
+  @ApiResponse({
+    status: 403,
+    description: 'Solo OWNER puede actualizar empleados',
+  })
   @ApiParam({
     name: 'id',
     description: 'ID del empleado a actualizar',
@@ -362,7 +375,10 @@ export class AuthClientController {
     status: 200,
     description: 'Autenticación exitosa, retorna token y usuario',
   })
-  @ApiResponse({ status: 400, description: 'Error en autenticación con Google' })
+  @ApiResponse({
+    status: 400,
+    description: 'Error en autenticación con Google',
+  })
   @ApiQuery({
     name: 'code',
     description: 'Código de autorización de Google',
@@ -414,6 +430,7 @@ export class AuthClientController {
     return this.authClientService.resetPassword(resetPasswordDto);
   }
 
+  //! TODO:  solicitar explicacion
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
@@ -438,12 +455,16 @@ export class AuthClientController {
       },
     },
   })
-  @ApiResponse({ status: 401, description: 'Refresh token inválido o expirado' })
+  @ApiResponse({
+    status: 401,
+    description: 'Refresh token inválido o expirado',
+  })
   @ApiBody({ type: RefreshTokenDto })
   async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
     return this.authClientService.refreshToken(refreshTokenDto);
   }
 
+  //! TODO:  solicitar explicacion
   @UseGuards(JwtAuthGuard)
   @Post('2fa/enable')
   @ApiBearerAuth('JWT-auth')
@@ -482,6 +503,8 @@ export class AuthClientController {
     return this.authClientService.enable2FA(token);
   }
 
+  //! TODO:  solicitar explicacion
+
   @UseGuards(JwtAuthGuard)
   @Post('2fa/verify')
   @ApiBearerAuth('JWT-auth')
@@ -506,6 +529,7 @@ export class AuthClientController {
     return this.authClientService.verify2FA(verify2FADto, token);
   }
 
+  //! TODO:  solicitar explicacion
   @UseGuards(JwtAuthGuard)
   @Post('2fa/disable')
   @ApiBearerAuth('JWT-auth')
@@ -530,6 +554,7 @@ export class AuthClientController {
     return this.authClientService.disable2FA(disable2FADto, token);
   }
 
+  //! TODO:  solicitar explicacion
   @Post('2fa/verify-login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
@@ -555,7 +580,10 @@ export class AuthClientController {
       },
     },
   })
-  @ApiResponse({ status: 400, description: 'Código inválido o token temporal expirado' })
+  @ApiResponse({
+    status: 400,
+    description: 'Código inválido o token temporal expirado',
+  })
   @ApiBody({ type: Verify2FALoginDto })
   async verify2FALogin(@Body() verify2FALoginDto: Verify2FALoginDto) {
     return this.authClientService.verify2FALogin(verify2FALoginDto);

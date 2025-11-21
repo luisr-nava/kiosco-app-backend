@@ -36,7 +36,11 @@ services:
     networks:
       - kiosco-network
       - microservices-network
-    command: ['npm', 'run', 'start:prod']
+    command: >
+      sh -c "
+        npx prisma migrate deploy &&
+        node dist/main
+      "
 networks:
   kiosco-network:
     driver: bridge

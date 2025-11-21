@@ -1,5 +1,10 @@
 import { HttpModule, HttpService } from '@nestjs/axios';
-import { ForbiddenException, HttpException, Injectable, Logger } from '@nestjs/common';
+import {
+  ForbiddenException,
+  HttpException,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import axios from 'axios';
 import { LoginDto } from './dto/login.dto';
 import { CreateUserDto } from './dto/create.dto';
@@ -145,17 +150,18 @@ export class AuthClientService {
         const { status, data } = error.response;
         throw new HttpException(data, status);
       }
-      throw new HttpException(
-        { message: 'Error al actualizar empleado' },
-        500,
-      );
+      throw new HttpException({ message: 'Error al actualizar empleado' }, 500);
     }
   }
 
-  async updateProfile(updateProfileDto: UpdateProfileDto, token: string) {
+  async updateProfile(
+    updateProfileDto: UpdateProfileDto,
+    token: string,
+    id: string,
+  ) {
     try {
       const { data } = await this.http.axiosRef.patch(
-        `${this.baseUrl}/profile`,
+        `${this.baseUrl}/profile/${id}`,
         updateProfileDto,
         { headers: { Authorization: `Bearer ${token}` } },
       );
@@ -165,10 +171,7 @@ export class AuthClientService {
         const { status, data } = error.response;
         throw new HttpException(data, status);
       }
-      throw new HttpException(
-        { message: 'Error al actualizar perfil' },
-        500,
-      );
+      throw new HttpException({ message: 'Error al actualizar perfil' }, 500);
     }
   }
 
@@ -184,10 +187,7 @@ export class AuthClientService {
         const { status, data } = error.response;
         throw new HttpException(data, status);
       }
-      throw new HttpException(
-        { message: 'Error al actualizar usuario' },
-        500,
-      );
+      throw new HttpException({ message: 'Error al actualizar usuario' }, 500);
     }
   }
 
@@ -286,7 +286,10 @@ export class AuthClientService {
       );
       return data;
     } catch (error) {
-      this.handleError(error, 'Error al habilitar autenticación de dos factores');
+      this.handleError(
+        error,
+        'Error al habilitar autenticación de dos factores',
+      );
     }
   }
 
@@ -312,7 +315,10 @@ export class AuthClientService {
       );
       return data;
     } catch (error) {
-      this.handleError(error, 'Error al desactivar autenticación de dos factores');
+      this.handleError(
+        error,
+        'Error al desactivar autenticación de dos factores',
+      );
     }
   }
 

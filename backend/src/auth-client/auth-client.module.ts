@@ -11,12 +11,13 @@ import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { TokenBlacklistService } from './services/token-blacklist.service';
 import { ShopModule } from '../shop/shop.module';
 import { FailedAttemptsGuard } from '../common/guards/failed-attempts.guard';
+import { envs } from '../config/envs';
 
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
-      secret: process.env.JWT_SECRET,
+      secret: envs.jwtSecret,
       signOptions: { expiresIn: '15m' }, // Reducido a 15 minutos para mayor seguridad
     }),
     HttpModule,
