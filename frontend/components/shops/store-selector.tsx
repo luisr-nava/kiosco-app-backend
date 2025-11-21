@@ -1,0 +1,236 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import {
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { toast } from "sonner";
+import { shopApi } from "@/lib/api/shop.api";
+import type { Shop } from "@/lib/types/shop";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  CheckCircle2,
+  PlusCircle,
+  Store,
+} from "lucide-react";
+
+const MAX_SHOPS = 3;
+
+interface StoreSelectorProps {
+  shops: Shop[];
+  onSelect: (shopId: string) => void;
+  onCreateSuccess?: (shopId: string) => void;
+}
+
+/**
+ * Muestra un overlay para seleccionar o crear tienda
+ */
+export function StoreSelector({
+  shops,
+  onSelect,
+  onCreateSuccess,
+}: StoreSelectorProps) {
+  const queryClient = useQueryClient();
+  const [selectedShopId, setSelectedShopId] = useState<string | null>(null);
+  const [name, setName] = useState("");
+  const [address, setAddress] = useState("");
+  const [phone, setPhone] = useState("");
+
+  const hasShops = shops.length > 0;
+  const hasReachedLimit = shops.length >= MAX_SHOPS;
+
+  const getShopId = (shop: Shop | any) => shop?.id ?? shop?._id ?? null;
+
+  useEffect(() => {
+    if (hasShops && !selectedShopId) {
+      setSelectedShopId(getShopId(shops[0]));
+    }
+  }, [hasShops, selectedShopId, shops]);
+
+  const createShopMutation = useMutation({
+    mutationFn: () =>
+      shopApi.createShop({
+        name: name.trim(),
+        address: address.trim() || undefined,
+        phone: phone.trim() || undefined,
+        isActive: true,
+      }),
+    onSuccess: (shop) => {
+      const newShopId = getShopId(shop);
+      if (!newShopId) {
+        toast.error("Error al crear", {
+          description: "No pudimos identificar la nueva tienda.",
+        });
+        return;
+      }
+
+      const normalizedShop = { ...shop, id: newShopId };
+
+      queryClient.setQueryData<Shop[] | undefined>(["my-shops"], (prev) =>
+        prev ? [...prev, normalizedShop] : [normalizedShop],
+      );
+      setSelectedShopId(newShopId);
+      toast.success("Tienda creada", {
+        description: "Seleccionamos tu nueva tienda para continuar",
+      });
+      queryClient.invalidateQueries({ queryKey: ["my-shops"] });
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message || "No pudimos crear la tienda";
+      toast.error("Error al crear", {
+        description: message,
+      });
+    },
+  });
+
+  const canCreate = useMemo(
+    () => name.trim().length >= 4 && !hasReachedLimit,
+    [name, hasReachedLimit],
+  );
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+      <Card className="w-full max-w-5xl shadow-xl">
+        <CardHeader className="flex flex-col gap-2">
+          <CardTitle className="text-2xl">Selecciona tu tienda</CardTitle>
+          <CardDescription>
+            {hasShops
+              ? "Elige una tienda para continuar o crea una nueva."
+              : "No encontramos tiendas. Crea tu primera tienda para comenzar."}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-6 md:grid-cols-2">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Store className="h-5 w-5" />
+              <h3 className="font-semibold">Tus tiendas</h3>
+            </div>
+
+            {hasShops ? (
+              <div className="space-y-3">
+                {shops.map((shop, index) => {
+                  const shopId = getShopId(shop) ?? `temp-${index}`;
+                  const isActive = selectedShopId === shopId;
+                  return (
+                    <button
+                      key={shopId}
+                      onClick={() => setSelectedShopId(shopId)}
+                      className={`w-full text-left border rounded-lg p-4 transition hover:border-primary ${
+                        isActive ? "border-primary bg-primary/5" : "border-muted"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-start gap-3">
+                          <Store className="h-5 w-5 text-primary mt-1" />
+                          <div>
+                            <p className="font-semibold">{shop.name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {shop.address || "Sin dirección"}
+                            </p>
+                            {shop.phone && (
+                              <p className="text-xs text-muted-foreground">
+                                Tel: {shop.phone}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        {isActive && (
+                          <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+
+                <Button
+                  className="w-full"
+                  onClick={() => selectedShopId && onSelect(selectedShopId)}
+                  disabled={!selectedShopId}
+                >
+                  Usar tienda seleccionada
+                </Button>
+              </div>
+            ) : (
+              <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+                Aún no tienes tiendas creadas.
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <PlusCircle className="h-5 w-5" />
+              <h3 className="font-semibold">Crear nueva tienda</h3>
+            </div>
+
+            <div className="space-y-3">
+              {hasReachedLimit && (
+                <div className="rounded-md border border-yellow-300 bg-yellow-50 p-3 text-sm text-yellow-900">
+                  Ya alcanzaste el máximo de {MAX_SHOPS} tiendas. Selecciona una existente para continuar.
+                </div>
+              )}
+              <div className="space-y-1.5">
+                <Label htmlFor="store-name">Nombre *</Label>
+                <Input
+                  id="store-name"
+                  placeholder="Mi Kiosco"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  minLength={4}
+                  maxLength={20}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="store-address">Dirección</Label>
+                <Input
+                  id="store-address"
+                  placeholder="Av. Principal #123"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  maxLength={60}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="store-phone">Teléfono</Label>
+                <Input
+                  id="store-phone"
+                  placeholder="+1234567890"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  maxLength={20}
+                />
+              </div>
+
+              <Button
+                className="w-full"
+                onClick={() => {
+                  if (hasReachedLimit) {
+                    toast.error("Límite de tiendas alcanzado", {
+                      description: `Solo puedes tener hasta ${MAX_SHOPS} tiendas.`,
+                    });
+                    return;
+                  }
+                  createShopMutation.mutate();
+                }}
+                disabled={!canCreate || createShopMutation.isPending}
+              >
+                {createShopMutation.isPending ? "Creando..." : "Crear tienda"}
+              </Button>
+
+              <p className="text-xs text-muted-foreground">
+                El nombre debe tener al menos 4 caracteres.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

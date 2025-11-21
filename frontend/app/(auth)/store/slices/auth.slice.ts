@@ -12,7 +12,7 @@ export const useAuthStore = create<AuthState>()(
       refreshToken: null,
       projectId: null,
       isAuthenticated: false,
-      isLoading: false,
+      isLoading: true,
 
       // Guardar datos de autenticación
       setAuth: (data) => {

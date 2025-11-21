@@ -24,8 +24,8 @@ export interface AuthState {
     projectId: string;
   }) => void;
   setUser: (user: User) => void;
+  setProjectId: (projectId: string) => void;
   clearAuth: () => void;
   checkAuth: () => void;
   hydrate: () => void;
 }
-

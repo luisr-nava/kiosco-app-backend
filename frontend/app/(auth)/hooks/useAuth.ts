@@ -10,6 +10,7 @@ export const useAuth = () => {
   const projectId = useAuthStore((state) => state.projectId);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isLoading = useAuthStore((state) => state.isLoading);
+  const setProjectId = useAuthStore((state) => state.setProjectId);
 
   return {
     user,
@@ -17,5 +18,6 @@ export const useAuth = () => {
     projectId,
     isAuthenticated,
     isLoading,
+    setProjectId,
   };
 };
