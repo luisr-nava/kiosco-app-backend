@@ -23,6 +23,8 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { LoggerModule } from './common/logger/logger.module';
 import { SecurityHeadersMiddleware } from './common/middleware/security-headers.middleware';
+import { PaymentMethodModule } from './payment-method/payment-method.module';
+import { CashRegisterModule } from './cash-register/cash-register.module';
 
 @Module({
   imports: [
@@ -50,6 +52,8 @@ import { SecurityHeadersMiddleware } from './common/middleware/security-headers.
     CustomerModule,
     SaleModule,
     ReportsModule,
+    PaymentMethodModule,
+    CashRegisterModule,
   ],
   controllers: [AppController],
   providers: [

@@ -8,6 +8,7 @@ import { CreatePurchaseDto, PurchaseItemDto } from './dto/create-purchase.dto';
 import { UpdatePurchaseDto } from './dto/update-purchase.dto';
 import { DeletePurchaseDto } from './dto/delete-purchase.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { CashRegisterService } from '../cash-register/cash-register.service';
 import { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface';
 import { Prisma } from '@prisma/client';
 
@@ -23,7 +24,10 @@ interface PurchaseQuery {
 
 @Injectable()
 export class PurchaseService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cashRegisterService: CashRegisterService,
+  ) {}
 
   async createPurchase(dto: CreatePurchaseDto, user: JwtPayload) {
     await this.validateShopAccess(dto.shopId, user);
@@ -89,6 +93,32 @@ export class PurchaseService {
             previousCost: sp.costPrice,
             newCost: item.unitCost,
             note: dto.notes,
+          },
+        });
+      }
+
+      // Crear movimiento de caja si hay caja abierta (pago en efectivo)
+      const openCashRegister = await tx.cashRegister.findFirst({
+        where: {
+          shopId: dto.shopId,
+          status: 'OPEN',
+        },
+      });
+
+      if (openCashRegister && purchase.totalAmount) {
+        const supplier = dto.supplierId
+          ? await tx.supplier.findUnique({ where: { id: dto.supplierId } })
+          : null;
+
+        await tx.cashMovement.create({
+          data: {
+            cashRegisterId: openCashRegister.id,
+            shopId: dto.shopId,
+            type: 'PURCHASE',
+            amount: purchase.totalAmount,
+            description: `Pago a proveedor${supplier ? ` - ${supplier.name}` : ''}`,
+            userId: user.id,
+            purchaseId: purchase.id,
           },
         });
       }
@@ -223,6 +253,7 @@ export class PurchaseService {
 
     const filters: any = {
       shopId: { in: targetShopIds },
+      status: 'COMPLETED', // Por defecto solo mostrar compras completadas
     };
 
     if (supplierId) {
@@ -282,6 +313,7 @@ export class PurchaseService {
         totalAmount: p.totalAmount,
         itemsCount: p.items.length,
         purchaseDate: p.purchaseDate,
+        status: p.status,
         notes: p.notes,
         items: p.items.map((item) => ({
           id: item.id,
@@ -376,6 +408,10 @@ export class PurchaseService {
         supplier: purchase.supplier,
         totalAmount: purchase.totalAmount,
         purchaseDate: purchase.purchaseDate,
+        status: purchase.status,
+        cancelledAt: purchase.cancelledAt,
+        cancelledBy: purchase.cancelledBy,
+        cancellationReason: purchase.cancellationReason,
         notes: purchase.notes,
         items: purchase.items.map((item) => ({
           id: item.id,
@@ -401,11 +437,21 @@ export class PurchaseService {
       where: { id },
       include: {
         shop: { select: { ownerId: true } },
+        items: {
+          include: {
+            shopProduct: true,
+          },
+        },
       },
     });
 
     if (!purchase) {
       throw new NotFoundException('La compra no existe');
+    }
+
+    // Verificar que no esté cancelada
+    if (purchase.status === 'CANCELLED') {
+      throw new BadRequestException('No se puede actualizar una compra cancelada');
     }
 
     // Verificar permisos
@@ -425,8 +471,12 @@ export class PurchaseService {
       await this.validateSupplierIfExists(updatePurchaseDto.supplierId, user);
     }
 
-    // Por ahora solo permitimos actualizar notas y proveedor
-    // No permitimos modificar los items porque ya se procesó el stock
+    // Si se envían items, actualizar los items y el stock
+    if (updatePurchaseDto.items && updatePurchaseDto.items.length > 0) {
+      return this.updateWithItems(id, purchase, updatePurchaseDto, user);
+    }
+
+    // Si no se envían items, solo actualizar notas y proveedor
     const updated = await this.prisma.purchase.update({
       where: { id },
       data: {
@@ -460,6 +510,197 @@ export class PurchaseService {
         itemsCount: updated.items.length,
       },
     };
+  }
+
+  private async updateWithItems(
+    purchaseId: string,
+    purchase: any,
+    updatePurchaseDto: UpdatePurchaseDto,
+    user: JwtPayload,
+  ) {
+    const newItems = updatePurchaseDto.items!;
+    const currentItems = purchase.items;
+
+    return this.prisma.$transaction(async (tx) => {
+      // 1. Procesar items existentes: comparar y actualizar o eliminar
+      for (const currentItem of currentItems) {
+        const newItem = newItems.find(
+          (ni) => ni.shopProductId === currentItem.shopProductId,
+        );
+
+        if (!newItem) {
+          // Item eliminado: revertir stock completamente
+          const shopProduct = currentItem.shopProduct;
+          const revertedStock = shopProduct.stock - currentItem.quantity;
+
+          await tx.shopProduct.update({
+            where: { id: currentItem.shopProductId },
+            data: { stock: revertedStock },
+          });
+
+          await tx.productHistory.create({
+            data: {
+              shopProductId: currentItem.shopProductId,
+              purchaseId: purchase.id,
+              userId: user.id,
+              changeType: 'STOCK_ADJUSTMENT',
+              previousStock: shopProduct.stock,
+              newStock: revertedStock,
+              previousCost: shopProduct.costPrice,
+              newCost: shopProduct.costPrice,
+              note: `Item eliminado de compra - Se revirtió stock de ${currentItem.quantity} unidades`,
+            },
+          });
+
+          // Eliminar el item de la compra
+          await tx.purchaseItem.delete({
+            where: { id: currentItem.id },
+          });
+        } else {
+          // Item existe: verificar si cambió quantity o unitCost
+          const quantityChanged = newItem.quantity !== currentItem.quantity;
+          const costChanged = newItem.unitCost !== currentItem.unitCost;
+
+          if (quantityChanged || costChanged) {
+            const shopProduct = currentItem.shopProduct;
+            const quantityDiff = newItem.quantity - currentItem.quantity;
+            const newStock = shopProduct.stock + quantityDiff;
+
+            // Actualizar stock y costo del producto
+            await tx.shopProduct.update({
+              where: { id: currentItem.shopProductId },
+              data: {
+                stock: newStock,
+                costPrice: newItem.unitCost,
+              },
+            });
+
+            // Actualizar el item de compra
+            await tx.purchaseItem.update({
+              where: { id: currentItem.id },
+              data: {
+                quantity: newItem.quantity,
+                unitCost: newItem.unitCost,
+                subtotal: newItem.subtotal,
+                includesTax: newItem.includesTax ?? currentItem.includesTax,
+              },
+            });
+
+            // Crear registro en historial
+            await tx.productHistory.create({
+              data: {
+                shopProductId: currentItem.shopProductId,
+                purchaseId: purchase.id,
+                userId: user.id,
+                changeType: 'UPDATE',
+                previousStock: shopProduct.stock,
+                newStock: newStock,
+                previousCost: shopProduct.costPrice,
+                newCost: newItem.unitCost,
+                note: `Compra actualizada - Cantidad: ${currentItem.quantity} → ${newItem.quantity}, Costo: ${currentItem.unitCost} → ${newItem.unitCost}`,
+              },
+            });
+          }
+        }
+      }
+
+      // 2. Procesar items nuevos
+      for (const newItem of newItems) {
+        const exists = currentItems.find(
+          (ci) => ci.shopProductId === newItem.shopProductId,
+        );
+
+        if (!exists) {
+          // Item nuevo: agregarlo y sumar stock
+          const shopProduct = await tx.shopProduct.findUnique({
+            where: { id: newItem.shopProductId },
+          });
+
+          if (!shopProduct) {
+            throw new BadRequestException(
+              `Producto ${newItem.shopProductId} no encontrado`,
+            );
+          }
+
+          const previousStock = shopProduct.stock ?? 0;
+          const newStock = previousStock + newItem.quantity;
+
+          // Crear el nuevo item
+          await tx.purchaseItem.create({
+            data: {
+              purchaseId: purchase.id,
+              shopProductId: newItem.shopProductId,
+              quantity: newItem.quantity,
+              unitCost: newItem.unitCost,
+              subtotal: newItem.subtotal,
+              includesTax: newItem.includesTax,
+            },
+          });
+
+          // Actualizar stock y costo
+          await tx.shopProduct.update({
+            where: { id: newItem.shopProductId },
+            data: {
+              stock: newStock,
+              costPrice: newItem.unitCost,
+            },
+          });
+
+          // Crear historial
+          await tx.productHistory.create({
+            data: {
+              shopProductId: newItem.shopProductId,
+              purchaseId: purchase.id,
+              userId: user.id,
+              changeType: 'STOCK_IN',
+              previousStock,
+              newStock,
+              previousCost: shopProduct.costPrice,
+              newCost: newItem.unitCost,
+              note: `Item agregado a compra existente`,
+            },
+          });
+        }
+      }
+
+      // 3. Actualizar totalAmount de la compra
+      const newTotalAmount = newItems.reduce((acc, item) => acc + item.subtotal, 0);
+
+      const updated = await tx.purchase.update({
+        where: { id: purchaseId },
+        data: {
+          notes: updatePurchaseDto.notes ?? purchase.notes,
+          supplierId: updatePurchaseDto.supplierId ?? purchase.supplierId,
+          totalAmount: newTotalAmount,
+        },
+        include: {
+          shop: { select: { name: true } },
+          supplier: { select: { name: true } },
+          items: {
+            include: {
+              shopProduct: {
+                include: {
+                  product: { select: { name: true } },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      return {
+        message: 'Compra e items actualizados correctamente',
+        data: {
+          id: updated.id,
+          shopName: updated.shop.name,
+          supplierName: updated.supplier?.name,
+          totalAmount: updated.totalAmount,
+          purchaseDate: updated.purchaseDate,
+          notes: updated.notes,
+          itemsCount: updated.items.length,
+        },
+      };
+    });
   }
 
   async getDeletionHistory(user: JwtPayload, query: PurchaseQuery) {
@@ -535,18 +776,7 @@ export class PurchaseService {
         supplier: { select: { id: true, name: true } },
         items: {
           include: {
-            shopProduct: {
-              include: {
-                product: {
-                  select: {
-                    id: true,
-                    name: true,
-                    description: true,
-                    barcode: true,
-                  },
-                },
-              },
-            },
+            shopProduct: true,
           },
         },
       },
@@ -556,72 +786,68 @@ export class PurchaseService {
       throw new NotFoundException('La compra no existe');
     }
 
-    // Solo los OWNER pueden eliminar
-    if (user.role !== 'OWNER' || purchase.shop.ownerId !== user.id) {
-      throw new ForbiddenException('No tenés permiso para eliminar esta compra');
+    // Verificar que no esté ya cancelada
+    if (purchase.status === 'CANCELLED') {
+      throw new BadRequestException('La compra ya está cancelada');
     }
 
-    // Preparar snapshot de los items en formato JSON
-    const itemsSnapshot = JSON.stringify(
-      purchase.items.map((item) => ({
-        shopProductId: item.shopProductId,
-        productName: item.shopProduct.product.name,
-        productBarcode: item.shopProduct.product.barcode,
-        quantity: item.quantity,
-        unitCost: item.unitCost,
-        subtotal: item.subtotal,
-        includesTax: item.includesTax,
-      })),
-    );
+    // Solo los OWNER pueden cancelar
+    if (user.role !== 'OWNER' || purchase.shop.ownerId !== user.id) {
+      throw new ForbiddenException('No tenés permiso para cancelar esta compra');
+    }
 
-    // Advertencia: eliminar una compra no revierte el stock
-    // Esto debería ser una operación de anulación más compleja en producción
     await this.prisma.$transaction(async (tx) => {
-      // 1. Guardar en historial de eliminaciones ANTES de eliminar
-      await tx.purchaseDeletionHistory.create({
-        data: {
-          purchaseId: purchase.id,
-          shopId: purchase.shopId,
-          shopName: purchase.shop.name,
-          supplierId: purchase.supplierId,
-          supplierName: purchase.supplier?.name,
-          totalAmount: purchase.totalAmount,
-          purchaseDate: purchase.purchaseDate,
-          originalNotes: purchase.notes,
-          deletedBy: user.id,
-          deletedByEmail: user.email || 'unknown@email.com',
-          deletionReason: deletePurchaseDto.deletionReason,
-          itemsSnapshot: itemsSnapshot,
-        },
-      });
+      // 1. Revertir stock de todos los items y crear registros en historial
+      for (const item of purchase.items) {
+        const shopProduct = item.shopProduct;
+        const previousStock = shopProduct.stock ?? 0;
+        const newStock = previousStock - item.quantity;
 
-      // 2. Eliminar historial de productos asociado
-      await tx.productHistory.deleteMany({
-        where: { purchaseId: id },
-      });
+        // Actualizar stock del producto (descontar la cantidad de la compra)
+        await tx.shopProduct.update({
+          where: { id: item.shopProductId },
+          data: { stock: newStock },
+        });
 
-      // 3. Eliminar items de compra
-      await tx.purchaseItem.deleteMany({
-        where: { purchaseId: id },
-      });
+        // Crear registro en ProductHistory indicando la reversión
+        await tx.productHistory.create({
+          data: {
+            shopProductId: item.shopProductId,
+            purchaseId: purchase.id,
+            userId: user.id,
+            changeType: 'STOCK_OUT',
+            previousStock,
+            newStock,
+            previousCost: shopProduct.costPrice,
+            newCost: shopProduct.costPrice,
+            note: `Compra cancelada - Se revirtió stock de ${item.quantity} unidades. Razón: ${deletePurchaseDto.deletionReason}`,
+          },
+        });
+      }
 
-      // 4. Eliminar compra
-      await tx.purchase.delete({
+      // 2. Marcar la compra como cancelada (NO eliminarla)
+      await tx.purchase.update({
         where: { id },
+        data: {
+          status: 'CANCELLED',
+          cancelledAt: new Date(),
+          cancelledBy: user.id,
+          cancellationReason: deletePurchaseDto.deletionReason,
+        },
       });
     });
 
     return {
-      message: 'Compra eliminada y guardada en historial correctamente',
+      message: 'Compra cancelada correctamente',
       data: {
         id: purchase.id,
         shopName: purchase.shop.name,
         supplierName: purchase.supplier?.name,
         totalAmount: purchase.totalAmount,
         itemsCount: purchase.items.length,
-        deletedBy: user.email || 'unknown@email.com',
-        deletionReason: deletePurchaseDto.deletionReason,
-        deletedAt: new Date(),
+        cancelledBy: user.email || 'unknown@email.com',
+        cancellationReason: deletePurchaseDto.deletionReason,
+        cancelledAt: new Date(),
       },
     };
   }

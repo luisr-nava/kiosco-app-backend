@@ -23,12 +23,12 @@ export class ReportsService {
         saleDate: { gte: startDate, lte: endDate },
         status: 'COMPLETED',
       },
-      include: { items: true, customer: true },
+      include: { items: true, customer: true, paymentMethod: true },
     });
 
     const total = sales.reduce((sum, sale) => sum + sale.totalAmount, 0);
     const count = sales.length;
-    const cashSales = sales.filter((s) => s.paymentMethod === 'CASH');
+    const cashSales = sales.filter((s) => s.paymentMethod.code === 'CASH');
     const totalCash = cashSales.reduce((sum, s) => sum + s.totalAmount, 0);
 
     return { date, total, count, totalCash, sales };

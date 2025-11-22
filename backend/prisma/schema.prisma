@@ -36,6 +36,7 @@ model Shop {
   merchandiseReplacements MerchandiseReplacement[]
   customers    Customer[]
   cashRegisters CashRegister[]
+  paymentMethods PaymentMethod[]
 }
 
 
@@ -100,6 +101,7 @@ model Sale {
   customerId      String?       // Cliente (opcional, puede ser venta al público)
   employeeId      String?       // Empleado que realizó la venta
   cashRegisterId  String?       // Caja donde se registró
+  paymentMethodId String        // Método de pago (obligatorio)
 
   // Montos
   subtotal        Float         // Suma de items sin descuentos
@@ -108,7 +110,6 @@ model Sale {
   totalAmount     Float         // Total final a pagar
 
   // Métodos de pago
-  paymentMethod   PaymentMethod @default(CASH)
   paymentStatus   PaymentStatus @default(PAID)
 
   // Datos adicionales
@@ -121,10 +122,16 @@ model Sale {
   status          SaleStatus    @default(COMPLETED)
   isActive        Boolean       @default(true)
 
+  // Cancelación
+  cancelledAt     DateTime?
+  cancelledBy     String?       // User ID
+  cancellationReason String?
+
   // Relaciones
   shop            Shop          @relation(fields: [shopId], references: [id])
   customer        Customer?     @relation(fields: [customerId], references: [id])
   employee        Employee?     @relation(fields: [employeeId], references: [id])
+  paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
   items           SaleItem[]
   saleReturns     SaleReturn[]  @relation("SaleToReturn")
   accountMovement CustomerAccountMovement?
@@ -135,7 +142,23 @@ model Sale {
 
   @@index([shopId, saleDate])
   @@index([customerId, saleDate])
+  @@index([paymentMethodId])
   @@index([status, paymentStatus])
+}
+
+model SaleHistory {
+  id          String   @id @default(uuid())
+  saleId      String
+  userId      String   // Usuario que realizó la acción
+  action      String   // CREATE, CANCEL, UPDATE
+  previousData String? @db.Text // JSON con datos anteriores
+  newData     String?  @db.Text // JSON con datos nuevos
+  reason      String?  // Razón del cambio (especialmente para cancelaciones)
+  createdAt   DateTime @default(now())
+
+  @@index([saleId])
+  @@index([userId])
+  @@index([action])
 }
 
 model SaleItem {
@@ -160,14 +183,22 @@ model SaleItem {
 }
 
 // Enums para ventas
-enum PaymentMethod {
-  CASH            // Efectivo
-  DEBIT_CARD      // Tarjeta de débito
-  CREDIT_CARD     // Tarjeta de crédito
-  TRANSFER        // Transferencia bancaria
-  QR              // Pago con QR (MercadoPago, etc)
-  ACCOUNT         // Cuenta corriente (a crédito)
-  MIXED           // Pago mixto (varios métodos)
+model PaymentMethod {
+  id          String    @id @default(uuid())
+  shopId      String
+  name        String    // Nombre del método (ej: "Efectivo", "Tarjeta Débito")
+  code        String    // Código único (ej: "CASH", "DEBIT_CARD")
+  description String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  shop             Shop              @relation(fields: [shopId], references: [id])
+  sales            Sale[]
+  customerPayments CustomerPayment[]
+
+  @@unique([shopId, code])
+  @@index([shopId, isActive])
 }
 
 enum PaymentStatus {
@@ -215,6 +246,7 @@ model SaleReturn {
   shop        Shop              @relation(fields: [shopId], references: [id])
   items       SaleReturnItem[]
   purchaseReturns PurchaseReturn[] // Devoluciones al proveedor generadas
+  cashMovement CashMovement?
 }
 
 model SaleReturnItem {
@@ -343,6 +375,11 @@ enum PurchaseReturnStatus {
   PROCESSED
 }
 
+enum PurchaseStatus {
+  COMPLETED
+  CANCELLED
+}
+
 enum RefundType {
   CASH        // Devolución en efectivo
   CREDIT      // Crédito en tienda
@@ -376,12 +413,17 @@ model Purchase {
   shopId       String
   totalAmount  Float?
   purchaseDate DateTime         @default(now())
+  status       PurchaseStatus   @default(COMPLETED)
   notes        String?
+  cancelledAt  DateTime?
+  cancelledBy  String?
+  cancellationReason String?
   histories    ProductHistory[]
   shop         Shop             @relation(fields: [shopId], references: [id])
   supplier     Supplier?        @relation(fields: [supplierId], references: [id])
   items        PurchaseItem[]
   creditNoteApplications CreditNoteApplication[]
+  cashMovement CashMovement?
 }
 
 model PurchaseItem {
@@ -557,10 +599,10 @@ model CustomerPayment {
   id              String   @id @default(uuid())
   customerId      String
   shopId          String
+  paymentMethodId String   // Método de pago usado
 
   // Monto
   amount          Float
-  paymentMethod   PaymentMethod @default(CASH)
 
   // Referencia
   referenceNumber String?  // Número de comprobante, transferencia, etc.
@@ -572,9 +614,11 @@ model CustomerPayment {
 
   // Relaciones
   customer        Customer @relation(fields: [customerId], references: [id])
+  paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
   movement        CustomerAccountMovement?
 
   @@index([customerId, paymentDate])
+  @@index([paymentMethodId])
 }
 
 model CustomerAccountMovement {
@@ -680,6 +724,8 @@ model CashMovement {
 
   // Referencia
   saleId          String?        @unique
+  purchaseId      String?        @unique
+  saleReturnId    String?        @unique
   incomeId        String?        @unique
   expenseId       String?        @unique
   userId          String
@@ -690,6 +736,8 @@ model CashMovement {
   // Relaciones
   cashRegister    CashRegister   @relation(fields: [cashRegisterId], references: [id])
   sale            Sale?          @relation(fields: [saleId], references: [id])
+  purchase        Purchase?      @relation(fields: [purchaseId], references: [id])
+  saleReturn      SaleReturn?    @relation(fields: [saleReturnId], references: [id])
   income          Income?        @relation(fields: [incomeId], references: [id])
   expense         Expense?       @relation(fields: [expenseId], references: [id])
 
@@ -704,7 +752,9 @@ enum CashRegisterStatus {
 }
 
 enum CashMovementType {
-  SALE          // Venta en efectivo
+  SALE          // Venta en efectivo (ingreso)
+  PURCHASE      // Pago a proveedor (egreso)
+  RETURN        // Devolución de venta (egreso)
   INCOME        // Ingreso extra
   EXPENSE       // Egreso
   OPENING       // Apertura de caja

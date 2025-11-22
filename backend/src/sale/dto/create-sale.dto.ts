@@ -87,12 +87,12 @@ export class CreateSaleDto {
   items: CreateSaleItemDto[];
 
   @ApiProperty({
-    description: 'Método de pago',
-    enum: PaymentMethod,
-    example: PaymentMethod.CASH,
+    description: 'ID del método de pago',
+    example: 'uuid-payment-method',
   })
-  @IsEnum(PaymentMethod)
-  paymentMethod: PaymentMethod;
+  @IsUUID()
+  @IsNotEmpty()
+  paymentMethodId: string;
 
   @ApiPropertyOptional({
     description: 'Descuento global aplicado a la venta',

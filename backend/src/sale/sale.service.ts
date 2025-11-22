@@ -5,13 +5,17 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateSaleDto, PaymentMethod } from './dto/create-sale.dto';
+import { CashRegisterService } from '../cash-register/cash-register.service';
+import { CreateSaleDto } from './dto/create-sale.dto';
 import { UpdateSaleDto } from './dto/update-sale.dto';
 import type { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface';
 
 @Injectable()
 export class SaleService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cashRegisterService: CashRegisterService,
+  ) {}
 
   async create(dto: CreateSaleDto, user: JwtPayload) {
     // Verificar acceso a la tienda
@@ -21,6 +25,19 @@ export class SaleService {
 
     if (!shop || shop.projectId !== user.projectId) {
       throw new ForbiddenException('No ten�s acceso a esta tienda');
+    }
+
+    // Verificar que el método de pago exista y pertenezca a la tienda
+    const paymentMethod = await this.prisma.paymentMethod.findUnique({
+      where: { id: dto.paymentMethodId },
+    });
+
+    if (!paymentMethod || paymentMethod.shopId !== dto.shopId) {
+      throw new BadRequestException('M�todo de pago inv�lido para esta tienda');
+    }
+
+    if (!paymentMethod.isActive) {
+      throw new BadRequestException('El m�todo de pago no est� activo');
     }
 
     // Si hay cliente, verificar que exista y pertenezca a la tienda
@@ -34,13 +51,13 @@ export class SaleService {
       }
 
       // Si es venta a cr�dito, verificar l�mite
-      if (dto.paymentMethod === PaymentMethod.ACCOUNT) {
+      if (paymentMethod.code === 'ACCOUNT') {
         // Calcularemos el total despu�s, por ahora solo verificamos que tenga l�mite
         if (customer.creditLimit === 0) {
           throw new BadRequestException('El cliente no tiene cr�dito habilitado');
         }
       }
-    } else if (dto.paymentMethod === PaymentMethod.ACCOUNT) {
+    } else if (paymentMethod.code === 'ACCOUNT') {
       throw new BadRequestException(
         'Las ventas a cuenta corriente requieren un cliente',
       );
@@ -129,7 +146,7 @@ export class SaleService {
     const totalAmount = subtotal - discountAmount + totalTaxAmount;
 
     // Si es venta a cr�dito, verificar que no exceda el l�mite
-    if (dto.customerId && dto.paymentMethod === PaymentMethod.ACCOUNT) {
+    if (dto.customerId && paymentMethod.code === 'ACCOUNT') {
       const customer = await this.prisma.customer.findUnique({
         where: { id: dto.customerId },
       });
@@ -157,9 +174,9 @@ export class SaleService {
           discountAmount,
           taxAmount: totalTaxAmount,
           totalAmount,
-          paymentMethod: dto.paymentMethod,
+          paymentMethodId: dto.paymentMethodId,
           paymentStatus:
-            dto.paymentMethod === PaymentMethod.ACCOUNT ? 'PENDING' : 'PAID',
+            paymentMethod.code === 'ACCOUNT' ? 'PENDING' : 'PAID',
           notes: dto.notes,
           invoiceType: dto.invoiceType,
           invoiceNumber: dto.invoiceNumber,
@@ -209,7 +226,7 @@ export class SaleService {
       }
 
       // 4. Si es venta a cr�dito, crear movimiento de cuenta
-      if (dto.customerId && dto.paymentMethod === PaymentMethod.ACCOUNT) {
+      if (dto.customerId && paymentMethod.code === 'ACCOUNT') {
         const customer = await tx.customer.findUnique({
           where: { id: dto.customerId },
         });
@@ -237,6 +254,31 @@ export class SaleService {
           where: { id: dto.customerId },
           data: { currentBalance: newBalance },
         });
+      }
+
+      // 5. Si es venta en efectivo, crear movimiento de caja
+      if (paymentMethod.code === 'CASH') {
+        // Buscar caja abierta
+        const openCashRegister = await tx.cashRegister.findFirst({
+          where: {
+            shopId: dto.shopId,
+            status: 'OPEN',
+          },
+        });
+
+        if (openCashRegister) {
+          await tx.cashMovement.create({
+            data: {
+              cashRegisterId: openCashRegister.id,
+              shopId: dto.shopId,
+              type: 'SALE',
+              amount: totalAmount,
+              description: `Venta ${dto.invoiceType || 'TICKET'} ${dto.invoiceNumber || ''} ${dto.customerId ? `- Cliente` : ''}`,
+              userId: user.id,
+              saleId: sale.id,
+            },
+          });
+        }
       }
 
       return sale;
@@ -366,6 +408,7 @@ export class SaleService {
           },
         },
         customer: true,
+        paymentMethod: true,
       },
     });
 
@@ -383,16 +426,30 @@ export class SaleService {
 
     // Cancelar en transacci�n
     return this.prisma.$transaction(async (tx) => {
-      // 1. Actualizar estado de venta
+      // 1. Crear registro en SaleHistory
+      await tx.saleHistory.create({
+        data: {
+          saleId: id,
+          userId: user.id,
+          action: 'CANCEL',
+          previousData: JSON.stringify({ status: sale.status }),
+          newData: JSON.stringify({ status: 'CANCELLED' }),
+          reason,
+        },
+      });
+
+      // 2. Actualizar estado de venta
       const updatedSale = await tx.sale.update({
         where: { id },
         data: {
           status: 'CANCELLED',
-          notes: `${sale.notes || ''}\n[CANCELADA] ${reason}`,
+          cancelledAt: new Date(),
+          cancelledBy: user.id,
+          cancellationReason: reason,
         },
       });
 
-      // 2. Devolver stock
+      // 3. Devolver stock
       for (const item of sale.items) {
         if (item.shopProduct.stock === null) continue;
 
@@ -416,7 +473,7 @@ export class SaleService {
       }
 
       // 3. Si era venta a cr�dito, revertir movimiento de cuenta
-      if (sale.customerId && sale.paymentMethod === 'ACCOUNT') {
+      if (sale.customerId && sale.paymentMethod.code === 'ACCOUNT') {
         const customer = sale.customer;
         if (!customer) {
           throw new BadRequestException('Cliente no encontrado');

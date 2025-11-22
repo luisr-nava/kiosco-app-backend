@@ -21,10 +21,10 @@ export class CustomerService {
     });
 
     if (!shop || shop.projectId !== user.projectId) {
-      throw new ForbiddenException('No tenés acceso a esta tienda');
+      throw new ForbiddenException('No tenï¿½s acceso a esta tienda');
     }
 
-    // Verificar DNI único en la tienda (si se proporciona)
+    // Verificar DNI ï¿½nico en la tienda (si se proporciona)
     if (dto.dni) {
       const existing = await this.prisma.customer.findFirst({
         where: {
@@ -62,7 +62,7 @@ export class CustomerService {
     });
 
     if (!shop || shop.projectId !== user.projectId) {
-      throw new ForbiddenException('No tenés acceso a esta tienda');
+      throw new ForbiddenException('No tenï¿½s acceso a esta tienda');
     }
 
     const where: any = { shopId };
@@ -115,7 +115,7 @@ export class CustomerService {
     }
 
     if (customer.shop.projectId !== user.projectId) {
-      throw new ForbiddenException('No tenés acceso a este cliente');
+      throw new ForbiddenException('No tenï¿½s acceso a este cliente');
     }
 
     return customer;
@@ -132,10 +132,10 @@ export class CustomerService {
     }
 
     if (customer.shop.projectId !== user.projectId) {
-      throw new ForbiddenException('No tenés acceso a este cliente');
+      throw new ForbiddenException('No tenï¿½s acceso a este cliente');
     }
 
-    // Verificar DNI único si se está cambiando
+    // Verificar DNI ï¿½nico si se estï¿½ cambiando
     if (dto.dni && dto.dni !== customer.dni) {
       const existing = await this.prisma.customer.findFirst({
         where: {
@@ -178,7 +178,7 @@ export class CustomerService {
     }
 
     if (customer.shop.projectId !== user.projectId) {
-      throw new ForbiddenException('No tenés acceso a este cliente');
+      throw new ForbiddenException('No tenï¿½s acceso a este cliente');
     }
 
     // No permitir desactivar si tiene deuda pendiente
@@ -206,7 +206,20 @@ export class CustomerService {
     }
 
     if (customer.shop.projectId !== user.projectId) {
-      throw new ForbiddenException('No tenés acceso a este cliente');
+      throw new ForbiddenException('No tenï¿½s acceso a este cliente');
+    }
+
+    // Verificar que el mï¿½todo de pago exista y pertenezca a la tienda
+    const paymentMethod = await this.prisma.paymentMethod.findUnique({
+      where: { id: dto.paymentMethodId },
+    });
+
+    if (!paymentMethod || paymentMethod.shopId !== dto.shopId) {
+      throw new BadRequestException('Mï¿½todo de pago invï¿½lido para esta tienda');
+    }
+
+    if (!paymentMethod.isActive) {
+      throw new BadRequestException('El mï¿½todo de pago no estï¿½ activo');
     }
 
     if (dto.amount > customer.currentBalance) {
@@ -215,14 +228,14 @@ export class CustomerService {
       );
     }
 
-    // Crear pago y movimiento de cuenta en transacción
+    // Crear pago y movimiento de cuenta en transacciï¿½n
     return this.prisma.$transaction(async (tx) => {
       const payment = await tx.customerPayment.create({
         data: {
           customerId: dto.customerId,
           shopId: dto.shopId,
           amount: dto.amount,
-          paymentMethod: dto.paymentMethod,
+          paymentMethodId: dto.paymentMethodId,
           referenceNumber: dto.referenceNumber,
           notes: dto.notes,
         },
@@ -240,7 +253,7 @@ export class CustomerService {
           previousBalance,
           newBalance,
           paymentId: payment.id,
-          description: `Pago ${dto.paymentMethod} ${dto.referenceNumber ? `- Ref: ${dto.referenceNumber}` : ''}`,
+          description: `Pago ${paymentMethod.name} ${dto.referenceNumber ? `- Ref: ${dto.referenceNumber}` : ''}`,
         },
       });
 
@@ -264,7 +277,7 @@ export class CustomerService {
     }
 
     if (customer.shop.projectId !== user.projectId) {
-      throw new ForbiddenException('No tenés acceso a este cliente');
+      throw new ForbiddenException('No tenï¿½s acceso a este cliente');
     }
 
     return this.prisma.customerPayment.findMany({
@@ -284,7 +297,7 @@ export class CustomerService {
     }
 
     if (customer.shop.projectId !== user.projectId) {
-      throw new ForbiddenException('No tenés acceso a este cliente');
+      throw new ForbiddenException('No tenï¿½s acceso a este cliente');
     }
 
     const movements = await this.prisma.customerAccountMovement.findMany({

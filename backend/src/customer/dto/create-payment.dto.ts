@@ -2,19 +2,11 @@ import {
   IsString,
   IsNotEmpty,
   IsNumber,
-  IsEnum,
+  IsUUID,
   IsOptional,
   Min,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-
-export enum PaymentMethod {
-  CASH = 'CASH',
-  DEBIT_CARD = 'DEBIT_CARD',
-  CREDIT_CARD = 'CREDIT_CARD',
-  TRANSFER = 'TRANSFER',
-  QR = 'QR',
-}
 
 export class CreatePaymentDto {
   @ApiProperty({
@@ -34,12 +26,12 @@ export class CreatePaymentDto {
   amount: number;
 
   @ApiProperty({
-    description: 'Método de pago',
-    enum: PaymentMethod,
-    example: PaymentMethod.CASH,
+    description: 'ID del método de pago',
+    example: 'uuid-payment-method',
   })
-  @IsEnum(PaymentMethod, { message: 'Método de pago inválido' })
-  paymentMethod: PaymentMethod;
+  @IsUUID()
+  @IsNotEmpty({ message: 'El método de pago es requerido' })
+  paymentMethodId: string;
 
   @ApiPropertyOptional({
     description: 'Número de referencia (comprobante, transferencia, etc.)',

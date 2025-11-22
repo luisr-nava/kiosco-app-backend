@@ -74,6 +74,7 @@ export class ProductService {
         taxRate: createProductDto.taxRate,
         taxCategory: createProductDto.taxCategory,
         categoryId: createProductDto.categoryId,
+        supplierId: createProductDto.supplierId,
       },
     });
 
@@ -184,6 +185,7 @@ export class ProductService {
         taxRate: updateProductDto.taxRate ?? product.taxRate,
         taxCategory: updateProductDto.taxCategory ?? product.taxCategory,
         categoryId: updateProductDto.categoryId !== undefined ? updateProductDto.categoryId : product.categoryId,
+        supplierId: updateProductDto.supplierId !== undefined ? updateProductDto.supplierId : product.supplierId,
       },
     });
 
@@ -338,8 +340,8 @@ export class ProductService {
         description: sp.product.description,
         barcode: sp.product.barcode,
         categoryId: sp.product.categoryId,
-        categoryName: sp.product.category?.name,
-        supplierName: sp.product.supplier?.name,
+        categoryName: sp.product.category?.name || "",
+        supplierName: sp.product.supplier?.name || "",
         costPrice: sp.costPrice,
         salePrice: sp.salePrice,
         stock: sp.stock,
@@ -439,8 +441,8 @@ export class ProductService {
         description: shopProduct.product.description,
         barcode: shopProduct.product.barcode,
         categoryId: shopProduct.product.categoryId,
-        categoryName: shopProduct.product.category?.name,
-        supplierName: shopProduct.product.supplier?.name,
+        categoryName: shopProduct.product.category?.name || "",
+        supplierName: shopProduct.product.supplier?.name || "",
         salePrice: shopProduct.salePrice,
         costPrice: shopProduct.costPrice,
         stock: shopProduct.stock,

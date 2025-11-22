@@ -7,11 +7,15 @@ import {
 import { CreateSaleReturnDto } from './dto/create-sale-return.dto';
 import { UpdateSaleReturnDto } from './dto/update-sale-return.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { CashRegisterService } from '../cash-register/cash-register.service';
 import type { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface';
 
 @Injectable()
 export class SaleReturnService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cashRegisterService: CashRegisterService,
+  ) {}
 
   async create(createSaleReturnDto: CreateSaleReturnDto, user: JwtPayload) {
     // Verificar que la tienda pertenezca al usuario
@@ -343,6 +347,31 @@ export class SaleReturnService {
             note: `Devolución de venta #${id.substring(0, 8)}`,
           },
         });
+      }
+
+      // Si el reembolso es en efectivo, registrar movimiento de caja
+      if (saleReturn.refundType === 'CASH' && saleReturn.refundAmount > 0) {
+        // Buscar caja abierta
+        const openCashRegister = await tx.cashRegister.findFirst({
+          where: {
+            shopId: saleReturn.shopId,
+            status: 'OPEN',
+          },
+        });
+
+        if (openCashRegister) {
+          await tx.cashMovement.create({
+            data: {
+              cashRegisterId: openCashRegister.id,
+              shopId: saleReturn.shopId,
+              type: 'RETURN',
+              amount: saleReturn.refundAmount,
+              description: `Devolución de venta - ${saleReturn.reason}`,
+              userId: user.id,
+              saleReturnId: saleReturn.id,
+            },
+          });
+        }
       }
 
       return approved;
