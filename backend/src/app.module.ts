@@ -25,6 +25,7 @@ import { LoggerModule } from './common/logger/logger.module';
 import { SecurityHeadersMiddleware } from './common/middleware/security-headers.middleware';
 import { PaymentMethodModule } from './payment-method/payment-method.module';
 import { CashRegisterModule } from './cash-register/cash-register.module';
+import { WebhookModule } from './webhook/webhook.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { CashRegisterModule } from './cash-register/cash-register.module';
     ReportsModule,
     PaymentMethodModule,
     CashRegisterModule,
+    WebhookModule,
   ],
   controllers: [AppController],
   providers: [

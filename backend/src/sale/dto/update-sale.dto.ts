@@ -1,4 +1,4 @@
-import { PartialType, OmitType } from '@nestjs/swagger';
+import { PartialType, OmitType } from '@nestjs/mapped-types';
 import { CreateSaleDto } from './create-sale.dto';
 
 // Solo permitir actualizar ciertos campos (no items ni shopId)

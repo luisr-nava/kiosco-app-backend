@@ -166,12 +166,6 @@ export class CategoryService {
       message: user.role === 'OWNER'
         ? 'Categorías de todas tus tiendas'
         : 'Categorías de tu tienda asignada',
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
       data: categories.map((cat) => ({
         id: cat.id,
         name: cat.name,
@@ -182,6 +176,12 @@ export class CategoryService {
         createdAt: cat.createdAt,
         updatedAt: cat.updatedAt,
       })),
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
     };
   }
 

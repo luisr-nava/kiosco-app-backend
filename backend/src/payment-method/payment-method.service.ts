@@ -42,17 +42,36 @@ export class PaymentMethodService {
     };
   }
 
-  async findAll(shopId: string, user: JwtPayload) {
+  async findAll(
+    shopId: string,
+    user: JwtPayload,
+    page = 1,
+    limit = 10,
+  ) {
     await this.validateShopAccess(shopId, user);
 
-    const paymentMethods = await this.prisma.paymentMethod.findMany({
-      where: { shopId, isActive: true },
-      orderBy: { name: 'asc' },
-    });
+    const skip = (page - 1) * limit;
+    const where = { shopId, isActive: true };
+
+    const [paymentMethods, total] = await Promise.all([
+      this.prisma.paymentMethod.findMany({
+        where,
+        orderBy: { name: 'asc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.paymentMethod.count({ where }),
+    ]);
 
     return {
       message: 'Métodos de pago obtenidos correctamente',
       data: paymentMethods,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
     };
   }
 

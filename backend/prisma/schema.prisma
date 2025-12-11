@@ -22,6 +22,10 @@ model Shop {
   taxAddress   String?
   taxCondition String?
   taxIdNumber  String?
+
+  // Configuración de alertas de stock
+  lowStockThreshold Int?       @default(10) // Umbral de stock bajo
+
   employees    Employee[]
   expenses     Expense[]
   incomes      Income[]
@@ -38,6 +42,8 @@ model Shop {
   customers    Customer[]
   cashRegisters CashRegister[]
   paymentMethods PaymentMethod[]
+  webhooks     Webhook[]
+  stockAlerts  StockAlert[]
 }
 
 
@@ -198,6 +204,9 @@ model PaymentMethod {
 
   shop             Shop              @relation(fields: [shopId], references: [id])
   sales            Sale[]
+  purchases        Purchase[]
+  incomes          Income[]
+  expenses         Expense[]
   customerPayments CustomerPayment[]
 
   @@unique([shopId, code])
@@ -411,22 +420,26 @@ enum ReplacementStatus {
 }
 
 model Purchase {
-  id           String           @id @default(uuid())
-  supplierId   String?
-  shopId       String
-  totalAmount  Float?
-  purchaseDate DateTime         @default(now())
-  status       PurchaseStatus   @default(COMPLETED)
-  notes        String?
-  cancelledAt  DateTime?
-  cancelledBy  String?
+  id              String           @id @default(uuid())
+  supplierId      String?
+  shopId          String
+  paymentMethodId String
+  totalAmount     Float?
+  purchaseDate    DateTime         @default(now())
+  status          PurchaseStatus   @default(COMPLETED)
+  notes           String?
+  cancelledAt     DateTime?
+  cancelledBy     String?
   cancellationReason String?
-  histories    ProductHistory[]
-  shop         Shop             @relation(fields: [shopId], references: [id])
-  supplier     Supplier?        @relation(fields: [supplierId], references: [id])
-  items        PurchaseItem[]
+  histories       ProductHistory[]
+  shop            Shop             @relation(fields: [shopId], references: [id])
+  supplier        Supplier?        @relation(fields: [supplierId], references: [id])
+  paymentMethod   PaymentMethod    @relation(fields: [paymentMethodId], references: [id])
+  items           PurchaseItem[]
   creditNoteApplications CreditNoteApplication[]
-  cashMovement CashMovement?
+  cashMovement    CashMovement?
+
+  @@index([paymentMethodId])
 }
 
 model PurchaseItem {
@@ -436,7 +449,6 @@ model PurchaseItem {
   quantity      Int
   unitCost      Float
   subtotal      Float
-  includesTax   Boolean     @default(true)
   purchase      Purchase    @relation(fields: [purchaseId], references: [id])
   shopProduct   ShopProduct @relation(fields: [shopProductId], references: [id])
 }
@@ -499,6 +511,7 @@ model ShopProduct {
   purchaseReturnItems PurchaseReturnItem[]
   replacementItems ReplacementItem[]
   saleItems        SaleItem[]
+  stockAlerts      StockAlert[]
 
   @@unique([shopId, productId])
 }
@@ -520,28 +533,36 @@ model ProductHistory {
 }
 
 model Income {
-  id            String        @id @default(uuid())
-  shopId        String
-  amount        Float
-  description   String
-  category      String?
-  date          DateTime      @default(now())
-  createdBy     String?
-  shop          Shop          @relation(fields: [shopId], references: [id])
-  cashMovement  CashMovement?
+  id              String        @id @default(uuid())
+  shopId          String
+  paymentMethodId String
+  amount          Float
+  description     String
+  category        String?
+  date            DateTime      @default(now())
+  createdBy       String?
+  shop            Shop          @relation(fields: [shopId], references: [id])
+  paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
+  cashMovement    CashMovement?
+
+  @@index([paymentMethodId])
 }
 
 
 model Expense {
-  id            String        @id @default(uuid())
-  shopId        String
-  amount        Float
-  description   String
-  category      String?
-  date          DateTime      @default(now())
-  createdBy     String?
-  shop          Shop          @relation(fields: [shopId], references: [id])
-  cashMovement  CashMovement?
+  id              String        @id @default(uuid())
+  shopId          String
+  paymentMethodId String
+  amount          Float
+  description     String
+  category        String?
+  date            DateTime      @default(now())
+  createdBy       String?
+  shop            Shop          @relation(fields: [shopId], references: [id])
+  paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
+  cashMovement    CashMovement?
+
+  @@index([paymentMethodId])
 }
 
 
@@ -764,4 +785,83 @@ enum CashMovementType {
   WITHDRAWAL    // Retiro de efectivo
   DEPOSIT       // Depósito adicional
   ADJUSTMENT    // Ajuste manual
+}
+
+// Webhooks para notificaciones
+model Webhook {
+  id          String        @id @default(uuid())
+  shopId      String
+  name        String        // Nombre descriptivo del webhook
+  url         String        // URL a la que se enviarán las notificaciones
+  event       WebhookEvent  // Tipo de evento que dispara el webhook
+  isActive    Boolean       @default(true)
+  secret      String?       // Secret para firmar el payload (opcional)
+
+  // Configuración
+  retryAttempts Int         @default(3)
+  timeoutMs     Int         @default(5000)
+
+  // Metadata
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  createdBy   String?       // User ID
+
+  // Relaciones
+  shop        Shop          @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  logs        WebhookLog[]
+
+  @@index([shopId, event, isActive])
+}
+
+model WebhookLog {
+  id          String        @id @default(uuid())
+  webhookId   String
+  event       WebhookEvent
+  payload     String        @db.Text // JSON payload enviado
+  responseStatus Int?       // HTTP status code de la respuesta
+  responseBody   String?    @db.Text // Respuesta del servidor
+  success     Boolean       @default(false)
+  attempts    Int           @default(1)
+  error       String?       @db.Text
+  createdAt   DateTime      @default(now())
+
+  webhook     Webhook       @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  @@index([webhookId, createdAt])
+  @@index([event, success])
+}
+
+model StockAlert {
+  id              String   @id @default(uuid())
+  shopId          String
+  shopProductId   String
+
+  // Stock info
+  currentStock    Int
+  threshold       Int      // Umbral que disparó la alerta
+
+  // Estado
+  isResolved      Boolean  @default(false)
+  resolvedAt      DateTime?
+
+  // Metadata
+  createdAt       DateTime @default(now())
+  notifiedAt      DateTime? // Cuándo se envió la notificación
+
+  // Relaciones
+  shop            Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  shopProduct     ShopProduct @relation(fields: [shopProductId], references: [id], onDelete: Cascade)
+
+  @@index([shopId, isResolved])
+  @@index([shopProductId, isResolved])
+}
+
+enum WebhookEvent {
+  LOW_STOCK           // Stock bajo detectado
+  STOCK_OUT           // Producto sin stock
+  SALE_CREATED        // Nueva venta creada
+  PURCHASE_CREATED    // Nueva compra creada
+  PRODUCT_CREATED     // Nuevo producto creado
+  PRODUCT_UPDATED     // Producto actualizado
+  CUSTOMER_CREATED    // Nuevo cliente creado
 }

@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CashRegisterService } from '../cash-register/cash-register.service';
+import { WebhookService } from '../webhook/webhook.service';
 import { CreateSaleDto } from './dto/create-sale.dto';
 import { UpdateSaleDto } from './dto/update-sale.dto';
 import type { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface';
@@ -15,6 +16,7 @@ export class SaleService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cashRegisterService: CashRegisterService,
+    private readonly webhookService: WebhookService,
   ) {}
 
   async create(dto: CreateSaleDto, user: JwtPayload) {
@@ -163,7 +165,7 @@ export class SaleService {
     }
 
     // Crear venta en transacci�n
-    return this.prisma.$transaction(async (tx) => {
+    const sale = await this.prisma.$transaction(async (tx) => {
       // 1. Crear venta
       const sale = await tx.sale.create({
         data: {
@@ -283,6 +285,21 @@ export class SaleService {
 
       return sale;
     });
+
+    // 6. Verificar stock y disparar webhooks (despu�s de la transacci�n)
+    for (const item of dto.items) {
+      try {
+        await this.webhookService.checkStockAndNotify(item.shopProductId);
+      } catch (error) {
+        // No fallar la venta si el webhook falla, solo loguear
+        console.error(
+          `Error checking stock for webhook on product ${item.shopProductId}:`,
+          error,
+        );
+      }
+    }
+
+    return sale;
   }
 
   async findAll(
@@ -425,7 +442,7 @@ export class SaleService {
     }
 
     // Cancelar en transacci�n
-    return this.prisma.$transaction(async (tx) => {
+    const updatedSale = await this.prisma.$transaction(async (tx) => {
       // 1. Crear registro en SaleHistory
       await tx.saleHistory.create({
         data: {
@@ -502,5 +519,20 @@ export class SaleService {
 
       return updatedSale;
     });
+
+    // 4. Verificar stock y disparar webhooks (despu�s de devolver el stock)
+    for (const item of sale.items) {
+      try {
+        await this.webhookService.checkStockAndNotify(item.shopProductId);
+      } catch (error) {
+        // No fallar la cancelaci�n si el webhook falla, solo loguear
+        console.error(
+          `Error checking stock for webhook on product ${item.shopProductId}:`,
+          error,
+        );
+      }
+    }
+
+    return updatedSale;
   }
 }

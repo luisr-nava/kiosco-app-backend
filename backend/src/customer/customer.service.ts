@@ -56,7 +56,13 @@ export class CustomerService {
     });
   }
 
-  async findAll(shopId: string, user: JwtPayload, includeInactive = false) {
+  async findAll(
+    shopId: string,
+    user: JwtPayload,
+    includeInactive = false,
+    page = 1,
+    limit = 10,
+  ) {
     const shop = await this.prisma.shop.findUnique({
       where: { id: shopId },
     });
@@ -70,21 +76,39 @@ export class CustomerService {
       where.isActive = true;
     }
 
-    return this.prisma.customer.findMany({
-      where,
-      orderBy: { fullName: 'asc' },
-      select: {
-        id: true,
-        fullName: true,
-        email: true,
-        phone: true,
-        dni: true,
-        creditLimit: true,
-        currentBalance: true,
-        isActive: true,
-        createdAt: true,
+    const skip = (page - 1) * limit;
+
+    const [customers, total] = await Promise.all([
+      this.prisma.customer.findMany({
+        where,
+        orderBy: { fullName: 'asc' },
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          fullName: true,
+          email: true,
+          phone: true,
+          dni: true,
+          creditLimit: true,
+          currentBalance: true,
+          isActive: true,
+          createdAt: true,
+        },
+      }),
+      this.prisma.customer.count({ where }),
+    ]);
+
+    return {
+      message: 'Clientes obtenidos correctamente',
+      data: customers,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
       },
-    });
+    };
   }
 
   async findOne(id: string, user: JwtPayload) {

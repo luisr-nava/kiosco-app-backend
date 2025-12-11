@@ -9,6 +9,7 @@ import { UpdatePurchaseDto } from './dto/update-purchase.dto';
 import { DeletePurchaseDto } from './dto/delete-purchase.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { CashRegisterService } from '../cash-register/cash-register.service';
+import { WebhookService } from '../webhook/webhook.service';
 import { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface';
 import { Prisma } from '@prisma/client';
 
@@ -27,6 +28,7 @@ export class PurchaseService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cashRegisterService: CashRegisterService,
+    private readonly webhookService: WebhookService,
   ) {}
 
   async createPurchase(dto: CreatePurchaseDto, user: JwtPayload) {
@@ -34,14 +36,17 @@ export class PurchaseService {
 
     await this.validateSupplierIfExists(dto.supplierId, user);
 
+    await this.validatePaymentMethod(dto.paymentMethodId, dto.shopId);
+
     const shopProducts = await this.getShopProducts(dto.shopId, dto.items);
 
-    return this.prisma.$transaction(async (tx) => {
+    const purchase = await this.prisma.$transaction(async (tx) => {
       // Crear la compra principal
       const purchase = await tx.purchase.create({
         data: {
           shopId: dto.shopId,
           supplierId: dto.supplierId ?? null,
+          paymentMethodId: dto.paymentMethodId,
           notes: dto.notes ?? null,
           totalAmount: dto.items.reduce((acc, i) => acc + i.subtotal, 0),
         },
@@ -68,7 +73,6 @@ export class PurchaseService {
             quantity: item.quantity,
             unitCost: item.unitCost,
             subtotal: item.subtotal,
-            includesTax: item.includesTax,
           },
         });
 
@@ -125,6 +129,21 @@ export class PurchaseService {
 
       return purchase;
     });
+
+    // Verificar stock y disparar webhooks (después de la transacción)
+    for (const item of dto.items) {
+      try {
+        await this.webhookService.checkStockAndNotify(item.shopProductId);
+      } catch (error) {
+        // No fallar la compra si el webhook falla, solo loguear
+        console.error(
+          `Error checking stock for webhook on product ${item.shopProductId}:`,
+          error,
+        );
+      }
+    }
+
+    return purchase;
   }
 
   private async validateShopAccess(shopId: string, user: JwtPayload) {
@@ -179,6 +198,22 @@ export class PurchaseService {
     }
   }
 
+  private async validatePaymentMethod(paymentMethodId: string, shopId: string) {
+    const paymentMethod = await this.prisma.paymentMethod.findFirst({
+      where: {
+        id: paymentMethodId,
+        shopId,
+        isActive: true,
+      },
+    });
+
+    if (!paymentMethod) {
+      throw new BadRequestException(
+        'El método de pago no existe o no está activo en esta tienda.',
+      );
+    }
+  }
+
   private async getShopProducts(shopId: string, items: PurchaseItemDto[]) {
     const ids = items.map((i) => i.shopProductId);
 
@@ -203,6 +238,7 @@ export class PurchaseService {
       data: {
         shopId: dto.shopId,
         supplierId: dto.supplierId ?? null,
+        paymentMethodId: dto.paymentMethodId,
         notes: dto.notes ?? null,
         totalAmount: dto.items.reduce((acc, item) => acc + item.subtotal, 0),
       },
@@ -276,6 +312,7 @@ export class PurchaseService {
         include: {
           shop: { select: { name: true } },
           supplier: { select: { name: true } },
+          paymentMethod: { select: { name: true, code: true } },
           items: {
             include: {
               shopProduct: {
@@ -310,6 +347,7 @@ export class PurchaseService {
         shopName: p.shop.name,
         supplierId: p.supplierId,
         supplierName: p.supplier?.name,
+        paymentMethod: p.paymentMethod,
         totalAmount: p.totalAmount,
         itemsCount: p.items.length,
         purchaseDate: p.purchaseDate,
@@ -322,7 +360,6 @@ export class PurchaseService {
           quantity: item.quantity,
           unitCost: item.unitCost,
           subtotal: item.subtotal,
-          includesTax: item.includesTax,
         })),
       })),
     };
@@ -347,6 +384,13 @@ export class PurchaseService {
             contactName: true,
             phone: true,
             email: true,
+          },
+        },
+        paymentMethod: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
           },
         },
         items: {
@@ -406,6 +450,7 @@ export class PurchaseService {
         shopAddress: purchase.shop.address,
         supplierId: purchase.supplierId,
         supplier: purchase.supplier,
+        paymentMethod: purchase.paymentMethod,
         totalAmount: purchase.totalAmount,
         purchaseDate: purchase.purchaseDate,
         status: purchase.status,
@@ -425,7 +470,6 @@ export class PurchaseService {
           quantity: item.quantity,
           unitCost: item.unitCost,
           subtotal: item.subtotal,
-          includesTax: item.includesTax,
         })),
         histories: purchase.histories,
       },
@@ -520,8 +564,9 @@ export class PurchaseService {
   ) {
     const newItems = updatePurchaseDto.items!;
     const currentItems = purchase.items;
+    const modifiedProductIds = new Set<string>();
 
-    return this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       // 1. Procesar items existentes: comparar y actualizar o eliminar
       for (const currentItem of currentItems) {
         const newItem = newItems.find(
@@ -537,6 +582,8 @@ export class PurchaseService {
             where: { id: currentItem.shopProductId },
             data: { stock: revertedStock },
           });
+
+          modifiedProductIds.add(currentItem.shopProductId);
 
           await tx.productHistory.create({
             data: {
@@ -575,6 +622,8 @@ export class PurchaseService {
               },
             });
 
+            modifiedProductIds.add(currentItem.shopProductId);
+
             // Actualizar el item de compra
             await tx.purchaseItem.update({
               where: { id: currentItem.id },
@@ -582,7 +631,6 @@ export class PurchaseService {
                 quantity: newItem.quantity,
                 unitCost: newItem.unitCost,
                 subtotal: newItem.subtotal,
-                includesTax: newItem.includesTax ?? currentItem.includesTax,
               },
             });
 
@@ -633,7 +681,6 @@ export class PurchaseService {
               quantity: newItem.quantity,
               unitCost: newItem.unitCost,
               subtotal: newItem.subtotal,
-              includesTax: newItem.includesTax,
             },
           });
 
@@ -645,6 +692,8 @@ export class PurchaseService {
               costPrice: newItem.unitCost,
             },
           });
+
+          modifiedProductIds.add(newItem.shopProductId);
 
           // Crear historial
           await tx.productHistory.create({
@@ -701,6 +750,20 @@ export class PurchaseService {
         },
       };
     });
+
+    // Verificar stock y disparar webhooks para todos los productos modificados
+    for (const shopProductId of modifiedProductIds) {
+      try {
+        await this.webhookService.checkStockAndNotify(shopProductId);
+      } catch (error) {
+        console.error(
+          `Error checking stock for webhook on product ${shopProductId}:`,
+          error,
+        );
+      }
+    }
+
+    return result;
   }
 
   async getDeletionHistory(user: JwtPayload, query: PurchaseQuery) {
@@ -796,9 +859,12 @@ export class PurchaseService {
       throw new ForbiddenException('No tenés permiso para cancelar esta compra');
     }
 
+    const modifiedProductIds: string[] = [];
+
     await this.prisma.$transaction(async (tx) => {
       // 1. Revertir stock de todos los items y crear registros en historial
       for (const item of purchase.items) {
+        modifiedProductIds.push(item.shopProductId);
         const shopProduct = item.shopProduct;
         const previousStock = shopProduct.stock ?? 0;
         const newStock = previousStock - item.quantity;
@@ -836,6 +902,18 @@ export class PurchaseService {
         },
       });
     });
+
+    // Verificar stock y disparar webhooks para todos los productos modificados
+    for (const shopProductId of modifiedProductIds) {
+      try {
+        await this.webhookService.checkStockAndNotify(shopProductId);
+      } catch (error) {
+        console.error(
+          `Error checking stock for webhook on product ${shopProductId}:`,
+          error,
+        );
+      }
+    }
 
     return {
       message: 'Compra cancelada correctamente',

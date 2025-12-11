@@ -169,12 +169,6 @@ export class SupplierCategoryService {
       message: user.role === 'OWNER'
         ? 'Categorías de proveedores de todas tus tiendas'
         : 'Categorías de proveedores de tu tienda asignada',
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
       data: categories.map((cat) => ({
         id: cat.id,
         name: cat.name,
@@ -185,6 +179,12 @@ export class SupplierCategoryService {
         createdAt: cat.createdAt,
         updatedAt: cat.updatedAt,
       })),
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
     };
   }
 

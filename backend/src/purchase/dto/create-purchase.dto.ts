@@ -1,7 +1,6 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
-  IsBoolean,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -27,9 +26,6 @@ export class PurchaseItemDto {
   @IsNumber()
   @Min(0)
   subtotal: number;
-
-  @IsBoolean()
-  includesTax: boolean;
 }
 
 export class CreatePurchaseDto {
@@ -40,6 +36,10 @@ export class CreatePurchaseDto {
   @IsUUID()
   @IsOptional()
   supplierId?: string | null;
+
+  @IsUUID()
+  @IsNotEmpty()
+  paymentMethodId: string;
 
   @IsArray()
   @ValidateNested({ each: true })

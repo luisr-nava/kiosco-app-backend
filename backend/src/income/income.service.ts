@@ -36,11 +36,15 @@ export class IncomeService {
       );
     }
 
+    // Validar método de pago
+    await this.validatePaymentMethod(createIncomeDto.paymentMethodId, createIncomeDto.shopId);
+
     const income = await this.prisma.income.create({
       data: {
         description: createIncomeDto.description,
         amount: createIncomeDto.amount,
         shopId: createIncomeDto.shopId,
+        paymentMethodId: createIncomeDto.paymentMethodId,
         date: createIncomeDto.date ? new Date(createIncomeDto.date) : new Date(),
       },
       include: {
@@ -48,6 +52,13 @@ export class IncomeService {
           select: {
             id: true,
             name: true,
+          },
+        },
+        paymentMethod: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
           },
         },
       },
@@ -112,6 +123,13 @@ export class IncomeService {
               name: true,
             },
           },
+          paymentMethod: {
+            select: {
+              id: true,
+              name: true,
+              code: true,
+            },
+          },
         },
         orderBy: { date: 'desc' },
         skip,
@@ -163,6 +181,13 @@ export class IncomeService {
             id: true,
             name: true,
             address: true,
+          },
+        },
+        paymentMethod: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
           },
         },
       },
@@ -272,5 +297,21 @@ export class IncomeService {
     return {
       message: 'Ingreso eliminado correctamente',
     };
+  }
+
+  private async validatePaymentMethod(paymentMethodId: string, shopId: string) {
+    const paymentMethod = await this.prisma.paymentMethod.findFirst({
+      where: {
+        id: paymentMethodId,
+        shopId,
+        isActive: true,
+      },
+    });
+
+    if (!paymentMethod) {
+      throw new BadRequestException(
+        'El método de pago no existe o no está activo en esta tienda.',
+      );
+    }
   }
 }

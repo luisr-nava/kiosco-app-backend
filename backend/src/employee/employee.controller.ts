@@ -56,8 +56,15 @@ export class EmployeeController {
   async getAllEmployees(
     @GetUser() user: JwtPayload,
     @Query('shopId') shopId?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
   ) {
-    return this.employeeService.findAll(user, shopId);
+    return this.employeeService.findAll(
+      user,
+      shopId,
+      page ? parseInt(page, 10) : 1,
+      limit ? parseInt(limit, 10) : 10,
+    );
   }
 
   @Get(':id')

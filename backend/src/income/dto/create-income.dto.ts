@@ -23,6 +23,10 @@ export class CreateIncomeDto {
   @IsNotEmpty({ message: 'El ID de la tienda es obligatorio' })
   shopId: string;
 
+  @IsUUID('4', { message: 'El ID del método de pago debe ser un UUID válido' })
+  @IsNotEmpty({ message: 'El método de pago es obligatorio' })
+  paymentMethodId: string;
+
   @IsOptional()
   @IsDateString({}, { message: 'La fecha debe ser una fecha válida' })
   date?: string;

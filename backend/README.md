@@ -230,6 +230,45 @@ kiosco-app/
 - `PATCH /:id` - Actualizar empleado
 - `PATCH /toggle/:id` - Activar/desactivar empleado
 
+### Métodos de Pago (`/api/payment-method`)
+- `POST /` - Crear método de pago
+- `GET /shop/:shopId` - Listar métodos de pago de una tienda
+- `GET /:id` - Obtener método de pago por ID
+- `PATCH /:id` - Actualizar método de pago
+- `PATCH /:id/toggle` - Activar/desactivar método de pago
+- `DELETE /:id` - Eliminar método de pago
+
+### Ingresos (`/api/income`)
+- `POST /` - Registrar ingreso (requiere paymentMethodId)
+- `GET /` - Listar ingresos (solo OWNER)
+- `GET /:id` - Obtener ingreso por ID
+- `PATCH /:id` - Actualizar ingreso
+- `DELETE /:id` - Eliminar ingreso
+
+### Egresos/Gastos (`/api/expense`)
+- `POST /` - Registrar gasto (requiere paymentMethodId)
+- `GET /` - Listar gastos (solo OWNER)
+- `GET /:id` - Obtener gasto por ID
+- `PATCH /:id` - Actualizar gasto
+- `DELETE /:id` - Eliminar gasto
+
+### Caja Registradora (`/api/cash-register`)
+- `POST /open` - Abrir caja registradora
+- `PATCH /:id/close` - Cerrar caja registradora
+- `GET /current/:shopId` - Obtener caja actual abierta
+- `GET /history/:shopId` - Historial de cajas
+- `GET /:id` - Obtener detalle de caja por ID
+- `GET /report/:shopId` - **Reporte de movimientos con filtros** (día, semana, mes, año)
+- `GET /available-years/:shopId` - Obtener años disponibles con movimientos
+
+#### Reportes de Caja Registradora
+Ver [CASH_REGISTER_REPORTS.md](./CASH_REGISTER_REPORTS.md) para documentación completa de reportes con:
+- Filtros por día, semana, mes, año y período personalizado
+- Por defecto muestra la semana actual
+- Producto más vendido del mes con ganancia
+- Totales desglosados por tipo de operación
+- Ejemplos de uso y casos comunes
+
 ## Modelo de Datos
 
 ### Entidades Principales
@@ -303,6 +342,7 @@ Relación many-to-many entre Product y Shop con datos específicos:
   id: string (UUID)
   supplierId?: string
   shopId: string
+  paymentMethodId: string  // Método de pago utilizado
   totalAmount?: number
   purchaseDate: DateTime
   notes?: string
@@ -319,7 +359,6 @@ Relación many-to-many entre Product y Shop con datos específicos:
   quantity: number
   unitCost: number
   subtotal: number
-  includesTax: boolean
 }
 ```
 
@@ -354,6 +393,48 @@ Relación many-to-many entre Product y Shop con datos específicos:
   hireDate?: DateTime
   isActive: boolean
   createdAt: DateTime
+}
+```
+
+#### PaymentMethod (Método de Pago)
+```typescript
+{
+  id: string (UUID)
+  shopId: string
+  name: string           // "Efectivo", "Tarjeta Débito", etc.
+  code: string          // "CASH", "DEBIT_CARD", etc.
+  description?: string
+  isActive: boolean
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+```
+
+#### Income (Ingreso)
+```typescript
+{
+  id: string (UUID)
+  shopId: string
+  paymentMethodId: string  // Método de pago utilizado
+  amount: number
+  description: string
+  category?: string
+  date: DateTime
+  createdBy?: string
+}
+```
+
+#### Expense (Gasto/Egreso)
+```typescript
+{
+  id: string (UUID)
+  shopId: string
+  paymentMethodId: string  // Método de pago utilizado
+  amount: number
+  description: string
+  category?: string
+  date: DateTime
+  createdBy?: string
 }
 ```
 

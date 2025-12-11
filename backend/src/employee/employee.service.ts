@@ -157,7 +157,12 @@ export class EmployeeService {
     return updatedEmployee;
   }
 
-  async findAll(user: JwtPayload, shopId?: string) {
+  async findAll(
+    user: JwtPayload,
+    shopId?: string,
+    page = 1,
+    limit = 10,
+  ) {
     if (user.role !== 'OWNER') {
       throw new ForbiddenException('Solo los OWNER pueden ver los empleados');
     }
@@ -179,24 +184,42 @@ export class EmployeeService {
     });
 
     const shopIds = shopId ? [shopId] : shops.map((shop) => shop.id);
+    const skip = (page - 1) * limit;
 
-    const employee = await this.prisma.employee.findMany({
-      where: {
-        shopId: { in: shopIds },
-      },
-      include: {
-        shop: {
-          select: {
-            id: true,
-            name: true,
+    const where = {
+      shopId: { in: shopIds },
+    };
+
+    const [employees, total] = await Promise.all([
+      this.prisma.employee.findMany({
+        where,
+        include: {
+          shop: {
+            select: {
+              id: true,
+              name: true,
+            },
           },
         },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        skip,
+        take: limit,
+      }),
+      this.prisma.employee.count({ where }),
+    ]);
+
+    return {
+      message: 'Empleados obtenidos correctamente',
+      data: employees,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
-    return employee;
+    };
   }
 
   async findOne(id: string, user: JwtPayload) {
