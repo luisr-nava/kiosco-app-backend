@@ -85,4 +85,9 @@ export class CreateUserDto {
   @IsOptional()
   @IsBoolean()
   isVerify?: boolean;
+
+  // Solo aplica para OWNER: se permite enviar el customerId de Stripe, opcional para otros roles
+  @IsOptional()
+  @IsString()
+  stripeCustomerId?: string;
 }

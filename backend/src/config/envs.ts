@@ -9,6 +9,9 @@ interface EnvVars {
   JWT_SECRET: string;
   NODE_ENV: string;
   ALLOWED_ORIGINS: string;
+  STRIPE_SECRET_KEY: string;
+  PAYMENT_WEBHOOK_SECRET?: string;
+  PAYMENT_WEBHOOK_HEADER?: string;
 }
 
 const logger = new Logger('Kiosco - error');
@@ -19,10 +22,17 @@ const envVarsSchema = joi
     AUTH_SERVICE_URL: joi.string().required(),
     PORT: joi.string().required(),
     JWT_SECRET: joi.string().min(32).required().messages({
-      'string.min': 'JWT_SECRET debe tener al menos 32 caracteres para seguridad',
+      'string.min':
+        'JWT_SECRET debe tener al menos 32 caracteres para seguridad',
     }),
-    NODE_ENV: joi.string().valid('development', 'production').default('development'),
+    NODE_ENV: joi
+      .string()
+      .valid('development', 'production')
+      .default('development'),
     ALLOWED_ORIGINS: joi.string().required(),
+    STRIPE_SECRET_KEY: joi.string().required(),
+    PAYMENT_WEBHOOK_SECRET: joi.string().optional(),
+    PAYMENT_WEBHOOK_HEADER: joi.string().default('x-webhook-secret'),
   })
   .unknown(true);
 
@@ -42,4 +52,7 @@ export const envs = {
   jwtSecret: envVars.JWT_SECRET,
   nodeEnv: envVars.NODE_ENV,
   allowedOrigins: envVars.ALLOWED_ORIGINS,
+  stripeScretKey: envVars.STRIPE_SECRET_KEY,
+  paymentWebhookSecret: envVars.PAYMENT_WEBHOOK_SECRET,
+  paymentWebhookHeader: envVars.PAYMENT_WEBHOOK_HEADER ?? 'x-webhook-secret',
 };

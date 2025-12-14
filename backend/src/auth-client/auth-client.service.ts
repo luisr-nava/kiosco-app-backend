@@ -56,7 +56,15 @@ export class AuthClientService {
         `${this.baseUrl}/register`,
         createUserDto,
       );
-      return data;
+
+      const user = this.extractUserFromResponse(data);
+
+      // Si no hay usuario en la respuesta, devolvemos el resultado crudo
+      if (!user) {
+        return data;
+      }
+
+      return { ...data, user: { ...user, stripeCustomerId: user.stripeCustomerId } };
     } catch (error) {
       this.handleError(error, 'Error al registrar usuario');
     }
@@ -68,7 +76,12 @@ export class AuthClientService {
         `${this.baseUrl}/login`,
         loginUserDto,
       );
-      return data;
+
+      const user = this.extractUserFromResponse(data);
+
+      return user
+        ? { ...data, user: { ...user, stripeCustomerId: user.stripeCustomerId } }
+        : data;
     } catch (error) {
       this.handleError(error, 'Error al iniciar sesión');
     }
@@ -332,5 +345,15 @@ export class AuthClientService {
     } catch (error) {
       this.handleError(error, 'Error al verificar código 2FA durante login');
     }
+  }
+
+  private extractUserFromResponse(response: any): any {
+    if (!response) return undefined;
+    // Posibles formas de respuesta: { user }, { data: { user } }, { data: { ...user } }, { ...user }
+    if (response.user) return response.user;
+    if (response.data?.user) return response.data.user;
+    if (response.data && response.data.email) return response.data;
+    if (response.email) return response;
+    return undefined;
   }
 }

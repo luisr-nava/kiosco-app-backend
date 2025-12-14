@@ -32,10 +32,12 @@ import { WebhookModule } from './webhook/webhook.module';
     ConfigModule.forRoot({ isGlobal: true }),
     LoggerModule, // Logger global
     // Rate limiting: máximo 10 requests por minuto
-    ThrottlerModule.forRoot([{
-      ttl: 60000, // 1 minuto
-      limit: 10, // 10 requests
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000, // 1 minuto
+        limit: 10, // 10 requests
+      },
+    ]),
     AuthClientModule,
     ShopModule,
     PrismaModule,
@@ -67,8 +69,6 @@ import { WebhookModule } from './webhook/webhook.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(SecurityHeadersMiddleware)
-      .forRoutes('*'); // Aplicar a todas las rutas
+    consumer.apply(SecurityHeadersMiddleware).forRoutes('*'); // Aplicar a todas las rutas
   }
 }
