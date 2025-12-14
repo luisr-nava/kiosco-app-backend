@@ -18,7 +18,13 @@ kioscoApi.interceptors.request.use((config) => {
 kioscoApi.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const status = error.response?.status;
+    const requestUrl = error.config?.url || "";
+
+    // Evitar recargar la vista en endpoints de autenticación (ej. login)
+    const isAuthEndpoint = requestUrl.includes("/auth-client/login");
+
+    if (status === 401 && !isAuthEndpoint) {
       Cookies.remove("token");
       window.location.href = "/login";
     }
@@ -27,4 +33,3 @@ kioscoApi.interceptors.response.use(
 );
 
 export { kioscoApi };
-

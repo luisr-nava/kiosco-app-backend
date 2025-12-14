@@ -42,6 +42,7 @@ export default function RegisterForm() {
       fullName: data.fullName,
       email: data.email,
       password: data.password,
+      projectId: process.env.NEXT_PUBLIC_PROJECT_ID!,
     });
   };
 
@@ -53,7 +54,6 @@ export default function RegisterForm() {
     <Card className="border-border/50 shadow-lg">
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-
           {/* Required Fields */}
           <div className="space-y-4">
             <div className="space-y-2">
@@ -146,8 +146,7 @@ export default function RegisterForm() {
           <Button
             type="submit"
             className="w-full"
-            disabled={isLoading || googleAuth.isLoading}
-          >
+            disabled={isLoading || googleAuth.isLoading}>
             {isLoading ? "Creando cuenta..." : "Crear Cuenta"}
           </Button>
 
@@ -166,8 +165,7 @@ export default function RegisterForm() {
             variant="outline"
             className="w-full"
             onClick={handleGoogleSignIn}
-            disabled={isLoading || googleAuth.isLoading}
-          >
+            disabled={isLoading || googleAuth.isLoading}>
             <Chrome className="mr-2 h-4 w-4" />
             {googleAuth.isLoading
               ? "Redirigiendo a Google..."
@@ -178,3 +176,4 @@ export default function RegisterForm() {
     </Card>
   );
 }
+

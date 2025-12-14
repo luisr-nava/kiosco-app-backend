@@ -9,6 +9,13 @@ import { useForm } from "react-hook-form";
 import { useVerifyAccount } from "../hooks/useVerifyAccount";
 import { useResendCode } from "../hooks/useResendCode";
 
+const CODE_LENGTH = 8;
+const normalizeChar = (value: string) => {
+  const matches = value.match(/[a-zA-Z0-9]/g);
+  if (!matches || matches.length === 0) return "";
+  return matches[matches.length - 1].toUpperCase();
+};
+
 interface VerifyAccountFormData {
   email?: string;
 }
@@ -18,10 +25,12 @@ export default function VerifyAccountForm() {
   const { resendCode, isLoading: isResending } = useResendCode();
   const [cooldown, setCooldown] = useState(0);
   const [showEmailInput, setShowEmailInput] = useState(false);
-  const [code, setCode] = useState<string[]>(["", "", "", "", "", ""]);
+  const [code, setCode] = useState<string[]>(
+    Array.from({ length: CODE_LENGTH }, () => ""),
+  );
   const [error, setError] = useState<string>("");
 
-  // Referencias para los 6 inputs
+  // Referencias para los inputs del código
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const {
@@ -38,19 +47,16 @@ export default function VerifyAccountForm() {
   const email = watch("email");
 
   const handleCodeChange = (index: number, value: string) => {
-    // Solo permitir números
-    const numericValue = value.replace(/\D/g, "");
+    const nextChar = normalizeChar(value);
 
-    if (numericValue.length <= 1) {
-      const newCode = [...code];
-      newCode[index] = numericValue;
-      setCode(newCode);
-      setError("");
+    const newCode = [...code];
+    newCode[index] = nextChar;
+    setCode(newCode);
+    setError("");
 
-      // Auto-avanzar al siguiente input si se ingresó un dígito
-      if (numericValue && index < 5) {
-        inputRefs.current[index + 1]?.focus();
-      }
+    // Auto-avanzar al siguiente input si se ingresó un dígito
+    if (nextChar && index < CODE_LENGTH - 1) {
+      inputRefs.current[index + 1]?.focus();
     }
   };
 
@@ -61,24 +67,38 @@ export default function VerifyAccountForm() {
     }
   };
 
-  const handlePaste = (e: ClipboardEvent<HTMLInputElement>) => {
+  const handlePaste = (index: number, e: ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData("text").replace(/\D/g, "");
+    const pastedData = e.clipboardData.getData("text");
+    if (!pastedData) return;
 
-    if (pastedData.length === 6) {
-      const newCode = pastedData.split("").slice(0, 6);
-      setCode(newCode);
-      setError("");
-      // Enfocar el último input
-      inputRefs.current[5]?.focus();
-    }
+    const digits = pastedData
+      .split("")
+      .map((char) => normalizeChar(char))
+      .filter(Boolean)
+      .slice(0, CODE_LENGTH);
+
+    const newCode = [...code];
+
+    digits.forEach((digit, offset) => {
+      const targetIndex = index + offset;
+      if (targetIndex < CODE_LENGTH) {
+        newCode[targetIndex] = digit;
+      }
+    });
+
+    setCode(newCode);
+    setError("");
+
+    const focusIndex = Math.min(index + digits.length, CODE_LENGTH - 1);
+    inputRefs.current[focusIndex]?.focus();
   };
 
   const onSubmit = () => {
     const fullCode = code.join("");
 
-    if (fullCode.length !== 6) {
-      setError("El código debe tener 6 dígitos");
+    if (fullCode.length !== CODE_LENGTH) {
+      setError(`El código debe tener ${CODE_LENGTH} caracteres`);
       return;
     }
 
@@ -127,19 +147,21 @@ export default function VerifyAccountForm() {
                 Código de Verificación
               </Label>
 
-              {/* 6 inputs separados */}
+              {/* 8 inputs separados */}
               <div className="flex justify-center gap-2">
                 {code.map((digit, index) => (
                   <Input
                     key={index}
-                    ref={(el) => (inputRefs.current[index] = el)}
+                    ref={(el) => {
+                      inputRefs.current[index] = el;
+                    }}
                     type="text"
                     inputMode="numeric"
                     maxLength={1}
                     value={digit}
                     onChange={(e) => handleCodeChange(index, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(index, e)}
-                    onPaste={handlePaste}
+                    onPaste={(e) => handlePaste(index, e)}
                     disabled={isDisabled}
                     autoFocus={index === 0}
                     className="w-12 h-14 text-center text-2xl font-mono font-bold"
@@ -151,7 +173,7 @@ export default function VerifyAccountForm() {
                 <p className="text-sm text-destructive text-center">{error}</p>
               )}
               <p className="text-xs text-muted-foreground text-center">
-                Ingresa el código de 6 dígitos que enviamos a tu email
+                Ingresa el código de 8 caracteres (letras o números) que enviamos a tu email
               </p>
             </div>
           </div>

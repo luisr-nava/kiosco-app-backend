@@ -8,7 +8,9 @@ import { getAuthErrorMessage } from "@/lib/error-handler";
 
 export const useLogin = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const setAuth = useAuthStore((state) => state.setAuth);
+  const redirectTo = searchParams.get("redirect") || "/dashboard";
 
   const mutation = useMutation({
     mutationFn: async ({
@@ -37,7 +39,7 @@ export const useLogin = () => {
       console.log("Login exitoso:", data.user);
 
       // Redirigir al dashboard
-      router.push("/dashboard");
+      router.push(redirectTo);
     },
     onError: (error: any) => {
       console.error("Error en login:", error);

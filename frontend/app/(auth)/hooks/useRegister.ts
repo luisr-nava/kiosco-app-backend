@@ -13,12 +13,14 @@ export const useRegister = () => {
       fullName,
       email,
       password,
+      projectId,
     }: {
       fullName: string;
       email: string;
       password: string;
+      projectId: string;
     }) => {
-      return await registerAction({ fullName, email, password });
+      return await registerAction({ fullName, email, password, projectId });
     },
     onSuccess: (data: RegisterResponse) => {
       console.log("Registro exitoso:", data);
@@ -59,3 +61,4 @@ export const useRegister = () => {
     reset: mutation.reset,
   };
 };
+

@@ -89,8 +89,20 @@ export function StoreSetupGuard({ children }: StoreSetupGuardProps) {
   useEffect(() => {
     if (shops) {
       setShops(shops);
+
+      const activeExists =
+        activeShopId && shops.some((shop) => shop.id === activeShopId);
+
+      // Si no hay tiendas o la activa ya no existe, forzar selección
+      if (!activeExists || shops.length === 0) {
+        if (activeShopId) {
+          setActiveShopId(null);
+        }
+        setActiveShop(null);
+        setSelectionCompleted(false);
+      }
     }
-  }, [shops, setShops]);
+  }, [shops, activeShopId, setActiveShopId, setActiveShop, setShops]);
 
   // Marcar selección completada si hay una tienda activa válida
   useEffect(() => {

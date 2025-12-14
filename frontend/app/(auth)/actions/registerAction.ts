@@ -6,6 +6,7 @@ interface RegisterPayload {
   fullName: string;
   email: string;
   password: string;
+  projectId: string;
 }
 
 export const registerAction = async (
@@ -36,4 +37,5 @@ export const registerAction = async (
     throw error;
   }
 };
+
 

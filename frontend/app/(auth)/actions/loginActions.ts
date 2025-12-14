@@ -2,16 +2,34 @@ import { kioscoApi } from "@/lib/kioscoApi";
 import { LoginResponse } from "../interfaces";
 import { AxiosError } from "axios";
 
+type LoginApiResponse = LoginResponse | { data: LoginResponse };
+
 export const loginActions = async (
   email: string,
   password: string,
 ): Promise<LoginResponse> => {
   try {
-    const { data } = await kioscoApi.post<LoginResponse>("/auth-client/login", {
-      email,
-      password,
-    });
-    return data;
+    const { data } = await kioscoApi.post<LoginApiResponse>(
+      "/auth-client/login",
+      {
+        email,
+        password,
+      },
+    );
+    console.log(data);
+
+    // Algunos endpoints envuelven la data en { data: {...} }
+    const payload = (data as any)?.data ?? data;
+
+    if (!payload?.token || !payload?.user || !payload?.projectId) {
+      const invalidResponseError = new Error(
+        "Respuesta de login inválida: faltan datos de sesión.",
+      );
+      (invalidResponseError as any).statusCode = 500;
+      throw invalidResponseError;
+    }
+
+    return payload as LoginResponse;
   } catch (error) {
     console.error("Error en loginActions:", error);
 
@@ -31,5 +49,4 @@ export const loginActions = async (
     throw error;
   }
 };
-
 
