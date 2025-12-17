@@ -50,7 +50,7 @@ export const CartContent = ({
             ) : (
               items.map((item, idx) => {
                 const product = products.find(
-                  (p) => (p as any).id === item.shopProductId,
+                  (p) => p.id === item.shopProductId,
                 );
                 const productName = product?.name || "Producto";
                 const unitPrice = Number(
@@ -139,4 +139,3 @@ export const CartContent = ({
     </div>
   );
 };
-

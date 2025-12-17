@@ -38,7 +38,7 @@ export function useQueryParams<T extends QueryParams = QueryParams>(
    * Parsea los query params actuales a un objeto tipado
    */
   const params = useMemo(() => {
-    const result: Record<string, any> = {};
+    const result: Record<string, string | number> = {};
 
     searchParams.forEach((value, key) => {
       // Intentar convertir a número si es posible

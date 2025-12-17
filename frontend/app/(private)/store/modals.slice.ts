@@ -25,7 +25,7 @@ export type ModalType =
  */
 interface ModalState {
   isOpen: boolean;
-  data?: any;
+  data?: unknown;
 }
 
 /**
@@ -33,12 +33,12 @@ interface ModalState {
  */
 interface ModalsState {
   modals: Record<string, ModalState>;
-  openModal: (type: ModalType, data?: any) => void;
+  openModal: (type: ModalType, data?: unknown) => void;
   closeModal: (type: ModalType) => void;
   closeAllModals: () => void;
   getModalState: (type: ModalType) => ModalState;
   isModalOpen: (type: ModalType) => boolean;
-  getModalData: (type: ModalType) => any;
+  getModalData: (type: ModalType) => unknown;
 }
 
 /**

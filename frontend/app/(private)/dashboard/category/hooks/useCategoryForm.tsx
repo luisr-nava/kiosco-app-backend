@@ -1,10 +1,9 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/app/(auth)/hooks/useAuth";
 import { useShallow } from "zustand/react/shallow";
 import { useShopStore } from "@/app/(private)/store/shops.slice";
-import type { Category, CategoryType } from "@/lib/types/category";
-import type { CategoryProduct } from "../interfaces";
+import type { CategoryProduct, CategorySupplier } from "../interfaces";
 import {
   useCategoryProductCreateMutation,
   useCategoryProductUpdateMutation,
@@ -13,8 +12,15 @@ import {
 } from "./category.mutation";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/error-handler";
+import { AxiosError } from "axios";
 
-type CategoryFormValues = { name: string; shopIds: string[]; editingId?: string | null };
+type CategoryFormValues = {
+  name: string;
+  shopIds: string[];
+  editingId?: string | null;
+};
+
+type CategoryType = "product" | "supplier";
 
 export const useCategoryForm = () => {
   const { user } = useAuth();
@@ -25,7 +31,7 @@ export const useCategoryForm = () => {
       shops: state.shops,
     })),
   );
-  
+
   const productCreateMutation = useCategoryProductCreateMutation();
   const supplierCreateMutation = useCategorySupplierCreateMutation();
   const productUpdateMutation = useCategoryProductUpdateMutation();
@@ -43,13 +49,49 @@ export const useCategoryForm = () => {
     defaultValues: { name: "", shopIds: defaultShopIds, editingId: null },
   });
 
+  const productEditing = productForm.watch("editingId");
+  const supplierEditing = supplierForm.watch("editingId");
+
+  useEffect(() => {
+    if (!activeShopId) return;
+
+    // Para roles no OWNER, forzar tienda activa
+    if (!isOwner) {
+      productForm.setValue("shopIds", [activeShopId], { shouldDirty: true });
+      supplierForm.setValue("shopIds", [activeShopId], { shouldDirty: true });
+      return;
+    }
+
+    // OWNER: si no está editando y la tienda activa no está en la selección, precargarla
+    const productSelected = productForm.getValues("shopIds") || [];
+    if (!productEditing && !productSelected.includes(activeShopId)) {
+      productForm.setValue("shopIds", [activeShopId], { shouldDirty: true });
+    }
+
+    const supplierSelected = supplierForm.getValues("shopIds") || [];
+    if (!supplierEditing && !supplierSelected.includes(activeShopId)) {
+      supplierForm.setValue("shopIds", [activeShopId], { shouldDirty: true });
+    }
+  }, [
+    isOwner,
+    activeShopId,
+    productForm,
+    supplierForm,
+    productEditing,
+    supplierEditing,
+  ]);
+
   const submitCategory = async (
     values: CategoryFormValues,
     type: CategoryType,
     editingId: string | null | undefined,
     resetFn: (vals?: CategoryFormValues) => void,
   ) => {
-    const shopIds = isOwner ? values.shopIds : activeShopId ? [activeShopId] : [];
+    const shopIds = isOwner
+      ? values.shopIds
+      : activeShopId
+      ? [activeShopId]
+      : [];
     if (!shopIds.length) return;
     const payload = {
       name: values.name,
@@ -64,7 +106,6 @@ export const useCategoryForm = () => {
         { id: editingId, payload },
         {
           onSuccess: () => {
-            toast.success("Categoría actualizada");
             resetFn({ name: "", shopIds: defaultShopIds, editingId: null });
           },
           onError: (error: unknown) => {
@@ -85,11 +126,16 @@ export const useCategoryForm = () => {
           resetFn({ name: "", shopIds: defaultShopIds, editingId: null });
         },
         onError: (error: unknown) => {
-          const { message } = getErrorMessage(
-            error,
-            "No se pudo crear la categoría",
-          );
-          toast.error("Error", { description: message });
+          if (error instanceof AxiosError) {
+            const message =
+              error.response?.data?.message ?? "No se pudo crear la categoría";
+
+            toast.error("Error", { description: message });
+            return;
+          }
+          toast.error("Error", {
+            description: "Ocurrió un error inesperado",
+          });
         },
       });
     }
@@ -102,30 +148,44 @@ export const useCategoryForm = () => {
     submitCategory(values, "supplier", values.editingId, supplierForm.reset),
   );
 
-  const toggleShopSelection = (form: "product" | "supplier", shopId: string) => {
+  const toggleShopSelection = (
+    form: "product" | "supplier",
+    shopId: string,
+  ) => {
     const current =
       form === "product"
         ? productForm.watch("shopIds") || []
         : supplierForm.watch("shopIds") || [];
-    const setter = form === "product" ? productForm.setValue : supplierForm.setValue;
+    const setter =
+      form === "product" ? productForm.setValue : supplierForm.setValue;
     const next = current.includes(shopId)
       ? current.filter((id) => id !== shopId)
       : [...current, shopId];
     setter("shopIds", next);
   };
 
+  const resolveCategoryShopIds = (category: {
+    shopIds?: string[];
+    shopId?: string;
+  }) =>
+    category.shopIds && category.shopIds.length > 0
+      ? category.shopIds
+      : category.shopId
+      ? [category.shopId]
+      : defaultShopIds;
+
   const handleEditProduct = (category: CategoryProduct) => {
     productForm.reset({
       name: category.name,
-      shopIds: category.shopIds && category.shopIds.length > 0 ? category.shopIds : [category.shopId],
+      shopIds: resolveCategoryShopIds(category),
       editingId: category.id,
     });
   };
 
-  const handleEditSupplier = (category: Category) => {
+  const handleEditSupplier = (category: CategorySupplier) => {
     supplierForm.reset({
       name: category.name,
-      shopIds: [category.shopId],
+      shopIds: resolveCategoryShopIds(category),
       editingId: category.id,
     });
   };
@@ -178,3 +238,4 @@ export const useCategoryForm = () => {
 };
 
 export type UseCategoryFormReturn = ReturnType<typeof useCategoryForm>;
+

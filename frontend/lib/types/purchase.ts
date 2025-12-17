@@ -11,9 +11,13 @@ export interface PurchaseItem {
 export interface Purchase {
   id: string;
   shopId: string;
+  shopName?: string;
   supplierId?: string | null;
   notes?: string | null;
-  total: number;
+  total?: number;
+  totalAmount?: number;
+  itemsCount?: number;
+  purchaseDate?: string;
   items: PurchaseItem[];
   createdAt?: string;
   updatedAt?: string;

@@ -38,7 +38,7 @@ export const useRegister = () => {
         router.push("/verify-account");
       }, 1500);
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error("Error en registro:", error);
 
       // Obtener mensaje de error usando el helper centralizado
@@ -61,4 +61,3 @@ export const useRegister = () => {
     reset: mutation.reset,
   };
 };
-

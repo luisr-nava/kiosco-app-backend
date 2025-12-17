@@ -1,37 +1,72 @@
-import { AxiosError } from "axios";
+import { AxiosError, type AxiosResponse } from "axios";
+
+export type ApiError = Error & {
+  statusCode?: number;
+  response?: AxiosResponse<unknown>;
+};
+
+const isApiError = (error: unknown): error is ApiError => {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof (error as { message?: unknown }).message === "string"
+  );
+};
+
+const getStatusCode = (error: unknown): number | undefined => {
+  if (isApiError(error)) {
+    return error.statusCode ?? error.response?.status;
+  }
+
+  if (error instanceof AxiosError) {
+    return error.response?.status;
+  }
+
+  return undefined;
+};
+
+export const toApiError = (
+  error: unknown,
+  fallbackMessage = "Ocurrió un error inesperado",
+): ApiError => {
+  if (error instanceof AxiosError) {
+    const apiError: ApiError = new Error(
+      error.response?.data?.message || error.message || fallbackMessage,
+    );
+    apiError.statusCode = error.response?.status;
+    apiError.response = error.response;
+    return apiError;
+  }
+
+  if (isApiError(error)) {
+    return error;
+  }
+
+  const apiError: ApiError = new Error(fallbackMessage);
+  return apiError;
+};
 
 /**
  * Helper para obtener mensajes de error amigables según el código HTTP
  */
 export const getErrorMessage = (
-  error: any,
+  error: unknown,
   defaultMessage = "Ocurrió un error inesperado",
 ): { title: string; message: string } => {
-  // Si el error ya tiene un mensaje personalizado (de los actions)
-  if (error?.message) {
-    const statusCode = error?.statusCode || error?.response?.status;
-    return {
-      title: getErrorTitle(statusCode),
-      message: error.message,
-    };
-  }
+  const statusCode = getStatusCode(error);
+  const messageFromError = (() => {
+    if (isApiError(error)) return error.message;
+    if (error instanceof AxiosError) {
+      return error.response?.data?.message || error.message;
+    }
+    return undefined;
+  })();
 
-  // Si es un error de Axios
-  if (error instanceof AxiosError) {
-    const statusCode = error.response?.status;
-    const backendMessage = error.response?.data?.message;
+  const title = getErrorTitle(statusCode);
+  const message = messageFromError || defaultMessage;
 
-    return {
-      title: getErrorTitle(statusCode),
-      message: backendMessage || error.message || defaultMessage,
-    };
-  }
-
-  // Error genérico
-  return {
-    title: "Error",
-    message: defaultMessage,
-  };
+  return { title, message };
 };
 
 /**
@@ -86,38 +121,49 @@ export const AuthErrorCodes = {
 /**
  * Mensajes de error específicos para autenticación
  */
-export const getAuthErrorMessage = (error: any): { title: string; message: string } => {
-  const statusCode = error?.statusCode || error?.response?.status;
+export const getAuthErrorMessage = (error: unknown): { title: string; message: string } => {
+  const statusCode = getStatusCode(error);
+  const messageFromError =
+    (isApiError(error) && error.message) ||
+    (error instanceof AxiosError ? error.response?.data?.message : undefined);
 
   switch (statusCode) {
     case AuthErrorCodes.INVALID_CREDENTIALS:
       return {
         title: "Credenciales incorrectas",
-        message: error?.message || "El email o la contraseña son incorrectos.",
+        message: messageFromError || "El email o la contraseña son incorrectos.",
       };
 
     case AuthErrorCodes.EMAIL_NOT_VERIFIED:
       return {
         title: "Cuenta no verificada",
-        message: error?.message || "Por favor verifica tu email antes de iniciar sesión. Revisa tu bandeja de entrada.",
+        message:
+          messageFromError ||
+          "Por favor verifica tu email antes de iniciar sesión. Revisa tu bandeja de entrada.",
       };
 
     case AuthErrorCodes.USER_NOT_FOUND:
       return {
         title: "Usuario no encontrado",
-        message: error?.message || "No existe una cuenta con este email. ¿Deseas registrarte?",
+        message:
+          messageFromError ||
+          "No existe una cuenta con este email. ¿Deseas registrarte?",
       };
 
     case AuthErrorCodes.EMAIL_ALREADY_EXISTS:
       return {
         title: "Email ya registrado",
-        message: error?.message || "Este email ya está en uso. Por favor usa otro email o inicia sesión.",
+        message:
+          messageFromError ||
+          "Este email ya está en uso. Por favor usa otro email o inicia sesión.",
       };
 
     case AuthErrorCodes.TOO_MANY_ATTEMPTS:
       return {
         title: "Demasiados intentos",
-        message: error?.message || "Has excedido el número de intentos permitidos. Espera unos minutos antes de intentar nuevamente.",
+        message:
+          messageFromError ||
+          "Has excedido el número de intentos permitidos. Espera unos minutos antes de intentar nuevamente.",
       };
 
     case AuthErrorCodes.SERVER_ERROR:

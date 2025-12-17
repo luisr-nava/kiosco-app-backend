@@ -130,7 +130,7 @@ export const PLAN_LIMITS = {
     storageBytes: 500 * 1024 * 1024,
   },
   [SubscriptionPlanType.PREMIUM]: {
-    stores: 5,
+    stores: 3,
     products: "unlimited" as const,
     customers: "unlimited" as const,
     employees: 10,
@@ -138,7 +138,7 @@ export const PLAN_LIMITS = {
     storageBytes: 10 * 1024 * 1024 * 1024,
   },
   [SubscriptionPlanType.PRO]: {
-    stores: "unlimited" as const,
+    stores: 3,
     products: "unlimited" as const,
     customers: "unlimited" as const,
     employees: "unlimited" as const,

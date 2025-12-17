@@ -248,7 +248,7 @@ export default function PrivacyPage() {
               <ul className="list-disc list-inside text-muted-foreground space-y-2 ml-4">
                 <li>Notificación por email</li>
                 <li>Aviso destacado en nuestra aplicación</li>
-                <li>Actualización de la fecha de "última actualización"</li>
+                <li>Actualización de la fecha de &quot;última actualización&quot;</li>
               </ul>
               <p className="text-muted-foreground mt-4">
                 Le recomendamos revisar esta política periódicamente para mantenerse informado

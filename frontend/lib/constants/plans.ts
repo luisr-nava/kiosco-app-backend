@@ -44,7 +44,7 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionPlanType, SubscriptionPlan> 
     description: "Para negocios en crecimiento",
     popular: true,
     features: [
-      "Hasta 5 Tiendas/Sucursales",
+      "Hasta 3 Tiendas/Sucursales",
       "Productos ilimitados",
       "Clientes ilimitados",
       "Ventas avanzadas (POS)",
@@ -61,7 +61,7 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionPlanType, SubscriptionPlan> 
     ],
     limitations: [],
     limits: {
-      stores: 5,
+      stores: 3,
       products: "unlimited",
       customers: "unlimited",
       employees: 10,
@@ -77,7 +77,7 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionPlanType, SubscriptionPlan> 
     yearlyPrice: 500,
     description: "Para empresas profesionales",
     features: [
-      "Tiendas/Sucursales ilimitadas",
+      "Hasta 3 Tiendas/Sucursales",
       "Todo lo de Premium +",
       "Usuarios ilimitados",
       "API de integración",
@@ -96,7 +96,7 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionPlanType, SubscriptionPlan> 
     ],
     limitations: [],
     limits: {
-      stores: "unlimited",
+      stores: 3,
       products: "unlimited",
       customers: "unlimited",
       employees: "unlimited",

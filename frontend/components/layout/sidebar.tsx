@@ -13,11 +13,13 @@ import {
   Receipt,
   TrendingUp,
   TrendingDown,
-  FolderTree,
   Settings,
   LayoutDashboard,
   Menu,
   ChevronLeft,
+  ChevronDown,
+  ChevronRight,
+  FileText,
 } from "lucide-react";
 
 export const menuItems = [
@@ -34,16 +36,16 @@ export const menuItems = [
     description: "Listado de productos de la tienda seleccionada.",
   },
   {
-    label: "Categorías",
-    href: "/dashboard/category",
-    icon: FolderTree,
-    description: "Organiza las categorías de productos.",
-  },
-  {
-    label: "Ventas",
+    label: "Vender",
     href: "/dashboard/sales",
     icon: ShoppingCart,
     description: "Punto de venta rápido para la tienda activa.",
+  },
+  {
+    label: "Ventas",
+    href: "/dashboard/sales/history",
+    icon: FileText,
+    description: "Historial y detalle de ventas realizadas.",
   },
   {
     label: "Empleados",
@@ -81,17 +83,16 @@ export const menuItems = [
     icon: TrendingDown,
     description: "Administra y registra los gastos.",
   },
-  {
-    label: "Ajustes",
-    href: "/dashboard/settings",
-    icon: Settings,
-    description: "Configura tu cuenta y la tienda.",
-  },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(true);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
+  const isInSettings = pathname.startsWith("/dashboard/settings");
+  const isInCategories = pathname.startsWith("/dashboard/category");
+  const showSettingsExpanded = settingsOpen || (!collapsed && (isInSettings || isInCategories));
 
   return (
     <aside
@@ -152,6 +153,68 @@ export function Sidebar() {
               </Link>
             );
           })}
+
+          <div className="space-y-1">
+            <button
+              type="button"
+              onClick={() => setSettingsOpen((prev) => !prev)}
+              className={cn(
+                "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                collapsed ? "justify-center group-hover:justify-start" : "justify-start",
+                isInSettings || isInCategories
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+              )}>
+              <Settings className="h-5 w-5 flex-shrink-0" />
+              <span
+                className={cn(
+                  "block overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200",
+                  collapsed
+                    ? "max-w-0 opacity-0 group-hover:max-w-[200px] group-hover:opacity-100"
+                    : "max-w-[200px] opacity-100",
+                )}>
+                Ajustes
+              </span>
+              {!collapsed && (
+                showSettingsExpanded ? (
+                  <ChevronDown className="ml-auto h-4 w-4" />
+                ) : (
+                  <ChevronRight className="ml-auto h-4 w-4" />
+                )
+              )}
+            </button>
+
+            {showSettingsExpanded && (
+              <div
+                className={cn(
+                  "pl-10 pr-2 space-y-1",
+                  collapsed
+                    ? "opacity-0 group-hover:opacity-100 group-hover:pl-3"
+                    : "opacity-100",
+                )}>
+                <Link
+                  href="/dashboard/settings"
+                  className={cn(
+                    "flex items-center gap-2 rounded-md px-2 py-1 text-sm transition-colors",
+                    pathname === "/dashboard/settings"
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                  )}>
+                  <span>Preferencias</span>
+                </Link>
+                <Link
+                  href="/dashboard/category"
+                  className={cn(
+                    "flex items-center gap-2 rounded-md px-2 py-1 text-sm transition-colors",
+                    isInCategories
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                  )}>
+                  <span>Categorías</span>
+                </Link>
+              </div>
+            )}
+          </div>
         </nav>
       </div>
     </aside>

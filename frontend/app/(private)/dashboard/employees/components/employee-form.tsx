@@ -3,10 +3,20 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Employee, EmployeeRole } from "../interfaces";
+
+const RequiredMark = () => (
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <span className="ml-1 text-destructive" aria-label="Requerido">
+        *
+      </span>
+    </TooltipTrigger>
+    <TooltipContent>Campo requerido por el backend</TooltipContent>
+  </Tooltip>
+);
 
 export interface EmployeeFormValues {
   fullName: string;
@@ -54,17 +64,6 @@ export const EmployeeForm = ({
   const form = useForm<EmployeeFormValues>({
     defaultValues: DEFAULT_VALUES,
   });
-
-  const RequiredMark = () => (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <span className="ml-1 text-destructive" aria-label="Requerido">
-          *
-        </span>
-      </TooltipTrigger>
-      <TooltipContent>Campo requerido por el backend</TooltipContent>
-    </Tooltip>
-  );
 
   useEffect(() => {
     if (editingEmployee) {

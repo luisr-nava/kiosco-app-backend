@@ -16,8 +16,10 @@ export const useCategoryProductsQuery = () => {
       }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
-      const nextPage = lastPage.pagination.page + 1;
-      return nextPage <= lastPage.pagination.totalPages ? nextPage : undefined;
+      const currentPage = lastPage?.pagination?.page ?? 1;
+      const totalPages = lastPage?.pagination?.totalPages ?? 1;
+      const nextPage = currentPage + 1;
+      return nextPage <= totalPages ? nextPage : undefined;
     },
     retry: 1,
   });
@@ -46,8 +48,10 @@ export const useCategorySuppliersQuery = () => {
       }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
-      const nextPage = lastPage.pagination.page + 1;
-      return nextPage <= lastPage.pagination.totalPages ? nextPage : undefined;
+      const currentPage = lastPage?.pagination?.page ?? 1;
+      const totalPages = lastPage?.pagination?.totalPages ?? 1;
+      const nextPage = currentPage + 1;
+      return nextPage <= totalPages ? nextPage : undefined;
     },
     retry: 1,
   });

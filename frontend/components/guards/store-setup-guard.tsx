@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { shopApi } from "@/lib/api/shop.api";
@@ -31,26 +31,11 @@ export function StoreSetupGuard({ children }: StoreSetupGuardProps) {
     activeShopLoading,
     setActiveShopLoading,
   } = useShopStore();
-  const [shouldCheck, setShouldCheck] = useState(false);
-  const [selectionCompleted, setSelectionCompleted] = useState(
-    Boolean(activeShopId),
-  );
 
-  // Solo verificar tiendas si está autenticado
-  useEffect(() => {
-    if (!authLoading && isAuthenticated) {
-      setShouldCheck(true);
-    }
-  }, [authLoading, isAuthenticated]);
-
-  const {
-    data: shops,
-    isLoading: shopsLoading,
-    error,
-  } = useQuery({
+  const { data: shops, isLoading: shopsLoading } = useQuery({
     queryKey: ["my-shops"],
     queryFn: shopApi.getMyShops,
-    enabled: shouldCheck && isAuthenticated,
+    enabled: isAuthenticated && !authLoading,
     retry: 1,
   });
 
@@ -59,6 +44,16 @@ export function StoreSetupGuard({ children }: StoreSetupGuardProps) {
     queryFn: () => shopApi.getShopById(activeShopId || ""),
     enabled: Boolean(activeShopId),
   });
+
+  // Permitir abrir manualmente el selector mediante un evento global
+  useEffect(() => {
+    const handler = () => {
+      setActiveShopId(null);
+      setActiveShop(null);
+    };
+    window.addEventListener("open-store-selector", handler);
+    return () => window.removeEventListener("open-store-selector", handler);
+  }, [setActiveShop, setActiveShopId]);
 
   // Actualizar tienda activa cuando el detalle llega
   useEffect(() => {
@@ -79,11 +74,12 @@ export function StoreSetupGuard({ children }: StoreSetupGuardProps) {
 
   // Sincronizar loading con estado real del query (evitar sets repetidos)
   useEffect(() => {
-    const nextLoading = Boolean(activeShopId && shopDetailQuery.isFetching);
+    // Solo mostramos loading cuando no tenemos datos de la tienda activa todavía
+    const nextLoading = Boolean(!activeShop && activeShopId && shopDetailQuery.isFetching);
     if (nextLoading !== activeShopLoading) {
       setActiveShopLoading(nextLoading);
     }
-  }, [activeShopId, shopDetailQuery.isFetching, activeShopLoading, setActiveShopLoading]);
+  }, [activeShop, activeShopId, shopDetailQuery.isFetching, activeShopLoading, setActiveShopLoading]);
 
   // Guardar tiendas en el store global cuando se cargan
   useEffect(() => {
@@ -99,17 +95,14 @@ export function StoreSetupGuard({ children }: StoreSetupGuardProps) {
           setActiveShopId(null);
         }
         setActiveShop(null);
-        setSelectionCompleted(false);
       }
     }
   }, [shops, activeShopId, setActiveShopId, setActiveShop, setShops]);
 
-  // Marcar selección completada si hay una tienda activa válida
-  useEffect(() => {
-    if (activeShopId && storedShops.some((shop) => shop.id === activeShopId)) {
-      setSelectionCompleted(true);
-    }
-  }, [activeShopId, storedShops]);
+  const hasStoredShops = (storedShops?.length ?? 0) > 0;
+  const hasValidActiveShop =
+    Boolean(activeShopId) &&
+    storedShops.some((shop) => shop.id === activeShopId);
 
   // Mostrar loading mientras verifica
   if (authLoading || shopsLoading) {
@@ -125,12 +118,10 @@ export function StoreSetupGuard({ children }: StoreSetupGuardProps) {
 
   const needsSelection =
     isAuthenticated &&
-    !selectionCompleted &&
-    (!storedShops || storedShops.length === 0 || !activeShopId);
+    (!hasValidActiveShop || !hasStoredShops || !activeShopId);
 
   const handleSelectStore = (storeId: string) => {
     setActiveShopId(storeId);
-    setSelectionCompleted(true);
     if (pathname === "/dashboard/setup") {
       router.push("/dashboard");
     }

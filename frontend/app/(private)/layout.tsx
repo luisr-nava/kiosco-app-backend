@@ -5,11 +5,12 @@ import { StoreSetupGuard } from "@/components/guards/store-setup-guard";
 import { Sidebar } from "@/components/layout/sidebar";
 import { MobileSidebar } from "@/components/layout/mobile-sidebar";
 import { UserMenu } from "@/app/(auth)/components/user-menu";
-import { ModeToggle } from "@/components/theme/mode-toggle";
 import { menuItems } from "@/components/layout/sidebar";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export default function PrivateLayout({
   children,
@@ -18,6 +19,12 @@ export default function PrivateLayout({
 }) {
   const pathname = usePathname();
   const isSetupPage = pathname === "/dashboard/setup";
+  const isOnSales = pathname.startsWith("/dashboard/sales");
+  const sellButtonClasses = cn(
+    "transition shadow-sm",
+    !isOnSales &&
+      "animate-pulse ring-2 ring-primary/50 ring-offset-2 ring-offset-background",
+  );
   const currentMenu =
     menuItems.reduce<
       (typeof menuItems)[number] | null
@@ -48,7 +55,11 @@ export default function PrivateLayout({
                   />
                 </Link>
                 <div className="flex items-center gap-2">
-                  <ModeToggle />
+                  <Link href="/dashboard/sales">
+                    <Button size="sm" className={sellButtonClasses}>
+                      Vender
+                    </Button>
+                  </Link>
                   <UserMenu />
                   <MobileSidebar />
                 </div>
@@ -70,25 +81,29 @@ export default function PrivateLayout({
                         alt="Logo de Kiosco App"
                         width={36}
                         height={36}
-                        className="h-9 w-9 rounded-lg object-contain shadow-sm"
-                      />
-                    </Link>
-                    <div className="flex flex-col">
-                      <h1 className="text-2xl font-bold leading-tight">
+                    className="h-9 w-9 rounded-lg object-contain shadow-sm"
+                  />
+                </Link>
+                <div className="flex flex-col">
+                  <h1 className="text-2xl font-bold leading-tight">
                         {currentMenu?.label || "Panel"}
                       </h1>
                       <p className="text-sm text-muted-foreground">
                         {pageDescription || "Panel de administración."}
                       </p>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <ModeToggle />
-                    <UserMenu />
-                    <MobileSidebar />
-                  </div>
                 </div>
-              </header>
+                <div className="flex items-center gap-2">
+                  <Link href="/dashboard/sales">
+                    <Button size="sm" className={sellButtonClasses}>
+                      Vender
+                    </Button>
+                  </Link>
+                  <UserMenu />
+                  <MobileSidebar />
+                </div>
+              </div>
+            </header>
               <main className="flex-1 overflow-y-auto p-6">{children}</main>
             </div>
           </div>

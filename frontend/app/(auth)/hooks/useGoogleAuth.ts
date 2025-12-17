@@ -16,7 +16,7 @@ export const useGoogleAuth = () => {
       const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "");
       window.location.href = `${backendUrl}/api/auth-client/google`;
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error("Error en Google Auth:", error);
 
       // Toast de error

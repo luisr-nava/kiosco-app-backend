@@ -20,6 +20,7 @@ type Props = Pick<
   | "editProductModal"
   | "initialForm"
   | "control"
+  | "errors"
 > & {
   suppliers: Supplier[];
   suppliersLoading: boolean;
@@ -36,20 +37,35 @@ export const ProductForm = ({
   editProductModal,
   initialForm,
   control,
+  errors,
   suppliers,
   suppliersLoading,
 }: Props) => {
-  const [watchName, watchSalePrice, watchShopId] = useWatch<CreateProductDto>({
-    control,
-    name: ["name", "salePrice", "shopId"],
-  });
+  const [watchName, watchCost, watchSalePrice, watchStock, watchShopId] =
+    useWatch<CreateProductDto>({
+      control,
+      name: ["name", "costPrice", "salePrice", "stock", "shopId"],
+    });
 
   const salePriceValue =
     typeof watchSalePrice === "number"
       ? watchSalePrice
       : Number(watchSalePrice || 0);
+  const costPriceValue =
+    typeof watchCost === "number" ? watchCost : Number(watchCost || 0);
+  const stockValue =
+    typeof watchStock === "number" ? watchStock : Number(watchStock || 0);
+  const normalizedName =
+    typeof watchName === "string"
+      ? watchName.trim()
+      : String(watchName ?? "").trim();
+
   const canSubmit = Boolean(
-    (watchName || "").trim() && watchShopId && salePriceValue > 0,
+    normalizedName &&
+      watchShopId &&
+      salePriceValue > 0 &&
+      costPriceValue < salePriceValue &&
+      stockValue > 0,
   );
 
   return (
@@ -75,29 +91,74 @@ export const ProductForm = ({
             <Label>Precio costo</Label>
             <Input
               type="number"
+              min={0.01}
+              step="0.01"
               {...register("costPrice", {
+                required: "El precio de costo es requerido",
                 setValueAs: (value) => (value === "" ? 0 : Number(value)),
+                validate: (value, formValues) => {
+                  const sale = Number(
+                    (formValues as CreateProductDto)?.salePrice ?? 0,
+                  );
+                  if (value <= 0) return "El costo debe ser mayor a 0";
+                  if (sale && value >= sale) {
+                    return "El costo debe ser menor al precio de venta";
+                  }
+                  return true;
+                },
               })}
             />
+            {errors.costPrice && (
+              <p className="text-xs text-destructive">
+                {errors.costPrice.message?.toString()}
+              </p>
+            )}
           </div>
           <div className="grid gap-1">
             <Label>Precio venta *</Label>
             <Input
               type="number"
+              min={0.01}
+              step="0.01"
               {...register("salePrice", {
-                required: true,
+                required: "El precio de venta es requerido",
                 setValueAs: (value) => (value === "" ? 0 : Number(value)),
+                validate: (value, formValues) => {
+                  const cost = Number(
+                    (formValues as CreateProductDto)?.costPrice ?? 0,
+                  );
+                  if (value <= 0) return "El precio de venta debe ser mayor a 0";
+                  if (cost && value <= cost) {
+                    return "El precio de venta debe ser mayor al costo";
+                  }
+                  return true;
+                },
               })}
             />
+            {errors.salePrice && (
+              <p className="text-xs text-destructive">
+                {errors.salePrice.message?.toString()}
+              </p>
+            )}
           </div>
           <div className="grid gap-1">
             <Label>Stock</Label>
             <Input
               type="number"
+              min={1}
               {...register("stock", {
                 setValueAs: (value) => (value === "" ? 0 : Number(value)),
+                validate: (value) => {
+                  if (value <= 0) return "El stock debe ser mayor a 0";
+                  return true;
+                },
               })}
             />
+            {errors.stock && (
+              <p className="text-xs text-destructive">
+                {errors.stock.message?.toString()}
+              </p>
+            )}
           </div>
         </div>
         <div className="grid gap-1">
@@ -114,24 +175,26 @@ export const ProductForm = ({
             ))}
           </select>
         </div>
-        <Controller
-          control={control}
-          name="isActive"
-          render={({ field }) => (
-            <div className="flex items-center justify-between rounded-md border px-3 py-2">
-              <div className="space-y-0.5">
-                <p className="text-sm font-medium">Producto activo</p>
-                <p className="text-xs text-muted-foreground">
-                  Desactívalo para ocultarlo del inventario.
-                </p>
+        {editProductModal.isOpen && (
+          <Controller
+            control={control}
+            name="isActive"
+            render={({ field }) => (
+              <div className="flex items-center justify-between rounded-md border px-3 py-2">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">Producto activo</p>
+                  <p className="text-xs text-muted-foreground">
+                    Desactívalo para ocultarlo del inventario.
+                  </p>
+                </div>
+                <Switch
+                  checked={Boolean(field.value)}
+                  onCheckedChange={(checked) => field.onChange(checked)}
+                />
               </div>
-              <Switch
-                checked={field.value ?? true}
-                onCheckedChange={(checked) => field.onChange(checked)}
-              />
-            </div>
-          )}
-        />
+            )}
+          />
+        )}
       </div>
       <ModalFooter>
         <Button

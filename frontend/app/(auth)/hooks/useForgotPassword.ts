@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { forgotPasswordAction } from "../actions/forgotPasswordAction";
+import { toApiError } from "@/lib/error-handler";
 
 export const useForgotPassword = () => {
   const mutation = useMutation({
@@ -17,14 +18,14 @@ export const useForgotPassword = () => {
         duration: 6000,
       });
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error("Error en forgot password:", error);
 
-      // Obtener mensaje de error
-      const statusCode = error?.statusCode || error?.response?.status;
+      const apiError = toApiError(error);
+      const statusCode = apiError.statusCode ?? apiError.response?.status;
       let errorTitle = "Error al enviar email";
       let errorMessage =
-        error?.message ||
+        apiError.message ||
         "No se pudo enviar el email de recuperación. Por favor intenta de nuevo.";
 
       switch (statusCode) {

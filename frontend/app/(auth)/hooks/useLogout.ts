@@ -35,7 +35,7 @@ export const useLogout = () => {
       // Redirigir al login
       router.push("/login");
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error("Error en logout:", error);
 
       // Toast de advertencia (logout de todos modos)
@@ -57,4 +57,4 @@ export const useLogout = () => {
     error: mutation.error,
     isError: mutation.isError,
   };
-}
+};

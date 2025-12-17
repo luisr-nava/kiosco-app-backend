@@ -2,6 +2,7 @@ export interface CategoryProduct {
   id: string;
   name: string;
   shopId: string;
+  shopIds?: string[];
   shopName: string;
   productsCount: number;
   isActive: boolean;
@@ -17,6 +18,7 @@ export interface CategoryProductFormValues {
 
 export interface CreateCategoryProductDto {
   name: string;
+  shopId?: string;
   shopIds: string[];
 }
 export interface CreateCategoryProductResponse {
@@ -36,10 +38,15 @@ export interface CategorySupplier {
   id: string;
   name: string;
   isActive: boolean;
+  shopId?: string;
+  shopIds?: string[];
+  shopName?: string;
+  shopNames?: string[];
   createdAt: Date;
 }
 
 export interface CreateCategorySupplierDto {
   name: string;
+  shopId?: string;
+  shopIds?: string[];
 }
-

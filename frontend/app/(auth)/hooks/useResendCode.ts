@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { resendVerificationCodeAction } from "../actions/resendVerificationCodeAction";
+import { toApiError } from "@/lib/error-handler";
 
 export const useResendCode = () => {
   const mutation = useMutation({
@@ -15,31 +16,31 @@ export const useResendCode = () => {
         duration: 5000,
       });
     },
-    onError: (error: any) => {
-      // Obtener mensaje de error
-      const statusCode = error?.statusCode || error?.response?.status;
+    onError: (error: unknown) => {
+      const apiError = toApiError(error);
+      const statusCode = apiError.statusCode ?? apiError.response?.status;
       let errorTitle = "Error al enviar código";
       let errorMessage =
-        error?.message ||
+        apiError.message ||
         "No se pudo enviar el código. Por favor intenta de nuevo.";
 
       switch (statusCode) {
         case 404:
           errorTitle = "Usuario no encontrado";
           errorMessage =
-            error?.message ||
+            apiError.message ||
             "No se encontró una cuenta con este email.";
           break;
         case 409:
           errorTitle = "Ya verificado";
           errorMessage =
-            error?.message ||
+            apiError.message ||
             "Esta cuenta ya ha sido verificada. Puedes iniciar sesión.";
           break;
         case 429:
           errorTitle = "Demasiadas solicitudes";
           errorMessage =
-            error?.message ||
+            apiError.message ||
             "Has solicitado demasiados códigos. Espera unos minutos antes de intentar nuevamente.";
           break;
         case 500:
@@ -48,7 +49,7 @@ export const useResendCode = () => {
             "Ocurrió un error en el servidor. Por favor intenta más tarde.";
           break;
         default:
-          errorMessage = error?.message || errorMessage;
+          errorMessage = apiError.message || errorMessage;
       }
 
       toast.error(errorTitle, {

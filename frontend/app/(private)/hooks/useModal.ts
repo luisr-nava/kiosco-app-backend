@@ -14,7 +14,7 @@ export const useModal = (type: ModalType) => {
   return {
     isOpen,
     data,
-    open: (data?: any) => openModal(type, data),
+    open: (payload?: unknown) => openModal(type, payload),
     close: () => closeModal(type),
   };
 };

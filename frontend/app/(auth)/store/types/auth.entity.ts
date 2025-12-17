@@ -6,6 +6,9 @@ export interface User {
   isVerify: boolean;
   failedLoginAttempts: number;
   twoFactorEnabled: boolean;
+  planType?: string;
+  subscriptionPlan?: string;
+  subscriptionType?: string;
 }
 
 export interface AuthState {

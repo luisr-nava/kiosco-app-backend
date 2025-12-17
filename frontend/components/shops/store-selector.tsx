@@ -1,24 +1,31 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import {
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { shopApi } from "@/lib/api/shop.api";
 import type { Shop } from "@/lib/types/shop";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  CheckCircle2,
-  PlusCircle,
-  Store,
-} from "lucide-react";
+import { CheckCircle2, PlusCircle, Store } from "lucide-react";
+import { useAuth } from "@/app/(auth)/hooks";
+import { SubscriptionPlanType } from "@/lib/types/subscription";
+import { getErrorMessage } from "@/lib/error-handler";
 
-const MAX_SHOPS = 3;
+const STORE_LIMITS: Record<SubscriptionPlanType | "default", number> = {
+  [SubscriptionPlanType.PRO]: 3,
+  [SubscriptionPlanType.PREMIUM]: 3,
+  [SubscriptionPlanType.FREE]: 1,
+  default: 1,
+};
 
 interface StoreSelectorProps {
   shops: Shop[];
@@ -34,22 +41,65 @@ export function StoreSelector({
   onSelect,
   onCreateSuccess,
 }: StoreSelectorProps) {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [selectedShopId, setSelectedShopId] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
 
+  const resolvePlanType = (): SubscriptionPlanType => {
+    const rawPlan =
+      user?.planType ||
+      user?.subscriptionPlan ||
+      user?.subscriptionType ||
+      SubscriptionPlanType.FREE;
+
+    const normalized =
+      typeof rawPlan === "string" ? rawPlan.trim().toLowerCase() : "";
+
+    // Aceptar variantes: "pro", "plan_pro", "pro-plan", etc.
+    if (normalized.includes("pro")) return SubscriptionPlanType.PRO;
+    if (normalized.includes("premium")) return SubscriptionPlanType.PREMIUM;
+    // Si viene vacío o cualquier otro valor, degradar a FREE
+    return SubscriptionPlanType.FREE;
+  };
+
+  const planType = resolvePlanType();
+  const maxStores = STORE_LIMITS[planType] ?? STORE_LIMITS.default;
+
   const hasShops = shops.length > 0;
-  const hasReachedLimit = shops.length >= MAX_SHOPS;
+  const hasReachedLimit = shops.length >= maxStores;
 
-  const getShopId = (shop: Shop | any) => shop?.id ?? shop?._id ?? null;
-
-  useEffect(() => {
-    if (hasShops && !selectedShopId) {
-      setSelectedShopId(getShopId(shops[0]));
+  const getShopId = (shop: Partial<Shop> | null | undefined) => {
+    if (!shop) return null;
+    if (typeof shop.id === "string") return shop.id;
+    if (typeof (shop as { _id?: string })._id === "string") {
+      return (shop as { _id?: string })._id as string;
     }
-  }, [hasShops, selectedShopId, shops]);
+    return null;
+  };
+
+  const extractShop = (response: unknown): Partial<Shop> | null => {
+    if (!response || typeof response !== "object") return null;
+    const responseObj = response as Record<string, unknown>;
+
+    if ("shop" in responseObj) {
+      return extractShop(responseObj.shop);
+    }
+
+    if ("data" in responseObj && responseObj.data) {
+      return extractShop(responseObj.data);
+    }
+
+    return responseObj as Partial<Shop>;
+  };
+
+  const fallbackSelectedShopId = useMemo(
+    () => (hasShops ? getShopId(shops[0]) : null),
+    [hasShops, shops],
+  );
+  const effectiveSelectedShopId = selectedShopId ?? fallbackSelectedShopId;
 
   const createShopMutation = useMutation({
     mutationFn: () =>
@@ -59,29 +109,42 @@ export function StoreSelector({
         phone: phone.trim() || undefined,
         isActive: true,
       }),
-    onSuccess: (shop) => {
-      const newShopId = getShopId(shop);
-      if (!newShopId) {
+    onSuccess: (response) => {
+      const newShop = extractShop(response);
+      const newShopId = getShopId(newShop);
+
+      if (!newShop || !newShopId) {
         toast.error("Error al crear", {
           description: "No pudimos identificar la nueva tienda.",
         });
         return;
       }
 
-      const normalizedShop = { ...shop, id: newShopId };
+      const normalizedShop: Shop = {
+        id: newShopId,
+        name: newShop.name ?? "Tienda",
+        address: newShop.address ?? "",
+        phone: newShop.phone ?? "",
+        isActive: newShop.isActive ?? true,
+        createdAt: newShop.createdAt ?? new Date().toISOString(),
+        updatedAt: newShop.updatedAt ?? new Date().toISOString(),
+      };
 
       queryClient.setQueryData<Shop[] | undefined>(["my-shops"], (prev) =>
         prev ? [...prev, normalizedShop] : [normalizedShop],
       );
       setSelectedShopId(newShopId);
+      onCreateSuccess?.(newShopId);
       toast.success("Tienda creada", {
         description: "Seleccionamos tu nueva tienda para continuar",
       });
       queryClient.invalidateQueries({ queryKey: ["my-shops"] });
     },
-    onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || "No pudimos crear la tienda";
+    onError: (error: unknown) => {
+      const { message } = getErrorMessage(
+        error,
+        "No pudimos crear la tienda",
+      );
       toast.error("Error al crear", {
         description: message,
       });
@@ -94,7 +157,10 @@ export function StoreSelector({
   );
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4"
+      data-store-selector-trigger
+    >
       <Card className="w-full max-w-5xl shadow-xl">
         <CardHeader className="flex flex-col gap-2">
           <CardTitle className="text-2xl">Selecciona tu tienda</CardTitle>
@@ -115,15 +181,16 @@ export function StoreSelector({
               <div className="space-y-3">
                 {shops.map((shop, index) => {
                   const shopId = getShopId(shop) ?? `temp-${index}`;
-                  const isActive = selectedShopId === shopId;
+                  const isActive = effectiveSelectedShopId === shopId;
                   return (
                     <button
                       key={shopId}
-                      onClick={() => setSelectedShopId(shopId)}
+                  onClick={() => setSelectedShopId(shopId)}
                       className={`w-full text-left border rounded-lg p-4 transition hover:border-primary ${
-                        isActive ? "border-primary bg-primary/5" : "border-muted"
-                      }`}
-                    >
+                        isActive
+                          ? "border-primary bg-primary/5"
+                          : "border-muted"
+                      }`}>
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-start gap-3">
                           <Store className="h-5 w-5 text-primary mt-1" />
@@ -149,9 +216,10 @@ export function StoreSelector({
 
                 <Button
                   className="w-full"
-                  onClick={() => selectedShopId && onSelect(selectedShopId)}
-                  disabled={!selectedShopId}
-                >
+                  onClick={() =>
+                    effectiveSelectedShopId && onSelect(effectiveSelectedShopId)
+                  }
+                  disabled={!effectiveSelectedShopId}>
                   Usar tienda seleccionada
                 </Button>
               </div>
@@ -171,7 +239,8 @@ export function StoreSelector({
             <div className="space-y-3">
               {hasReachedLimit && (
                 <div className="rounded-md border border-yellow-300 bg-yellow-50 p-3 text-sm text-yellow-900">
-                  Ya alcanzaste el máximo de {MAX_SHOPS} tiendas. Selecciona una existente para continuar.
+                  Ya alcanzaste el máximo de {maxStores} tiendas para tu plan.
+                  Selecciona una existente para continuar.
                 </div>
               )}
               <div className="space-y-1.5">
@@ -213,14 +282,13 @@ export function StoreSelector({
                 onClick={() => {
                   if (hasReachedLimit) {
                     toast.error("Límite de tiendas alcanzado", {
-                      description: `Solo puedes tener hasta ${MAX_SHOPS} tiendas.`,
+                      description: `Solo puedes tener hasta ${maxStores} tiendas con tu plan ${planType.toUpperCase()}.`,
                     });
                     return;
                   }
                   createShopMutation.mutate();
                 }}
-                disabled={!canCreate || createShopMutation.isPending}
-              >
+                disabled={!canCreate || createShopMutation.isPending}>
                 {createShopMutation.isPending ? "Creando..." : "Crear tienda"}
               </Button>
 

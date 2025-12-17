@@ -78,9 +78,9 @@ export const SupplierForm = ({
         contactName: editingSupplier.contactName || "",
         phone: editingSupplier.phone || "",
         email: editingSupplier.email || "",
-        address: (editingSupplier as any).address || "",
-        notes: (editingSupplier as any).notes || "",
-        categoryId: (editingSupplier as any).categoryId || "",
+        address: editingSupplier.address || "",
+        notes: editingSupplier.notes || "",
+        categoryId: editingSupplier.categoryId || "",
         shopIds: editingSupplier.shopIds || (editingSupplier.shopId ? [editingSupplier.shopId] : activeShopId ? [activeShopId] : []),
       });
     } else {

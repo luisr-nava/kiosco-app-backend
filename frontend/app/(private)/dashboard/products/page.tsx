@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useShopStore } from "@/app/(private)/store/shops.slice";
 import type { Supplier } from "@/lib/types/supplier";
@@ -33,20 +33,12 @@ export default function ProductosPage() {
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   // ? Move to supplier hook
-  const { data: suppliersResponse, isLoading: suppliersLoading } = useQuery({
+  const { data: suppliers = [], isLoading: suppliersLoading } = useQuery({
     queryKey: ["suppliers", activeShopId, "for-products"],
     queryFn: () => supplierApi.listByShop(activeShopId || ""),
     enabled: Boolean(activeShopId),
     staleTime: 1000 * 30,
   });
-
-  // ? Move to supplier hook
-  const suppliers = useMemo<Supplier[]>(() => {
-    const value = suppliersResponse as any;
-    if (!value) return [];
-    if (Array.isArray(value)) return value as Supplier[];
-    return (value.data as Supplier[]) ?? [];
-  }, [suppliersResponse]);
 
   useEffect(() => {
     if (activeShopId) {
@@ -127,6 +119,7 @@ export default function ProductosPage() {
           editProductModal={form.editProductModal}
           initialForm={form.initialForm}
           control={form.control}
+          errors={form.errors}
           suppliers={suppliers}
           suppliersLoading={suppliersLoading}
         />
@@ -134,4 +127,3 @@ export default function ProductosPage() {
     </div>
   );
 }
-

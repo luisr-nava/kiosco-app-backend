@@ -28,10 +28,12 @@ export const useShopStore = create<ShopState>()(
       setActiveShopId: (shopId) =>
         set((state) => {
           const isNewShop = state.activeShopId !== shopId;
+          const fallbackShop = state.shops.find((shop) => shop.id === shopId) || null;
           return {
             activeShopId: shopId,
-            activeShop: isNewShop ? null : state.activeShop,
-            activeShopLoading: isNewShop && Boolean(shopId),
+            activeShop: isNewShop ? (fallbackShop as ShopDetail | null) : state.activeShop,
+            // Solo mostramos loading si no tenemos ningún dato de la tienda seleccionada
+            activeShopLoading: isNewShop && Boolean(shopId) && !fallbackShop,
           };
         }),
       setActiveShop: (shop) => set({ activeShop: shop, activeShopLoading: false }),

@@ -35,7 +35,7 @@ export default function TermsPage() {
             <section className="mb-8">
               <h2 className="text-2xl font-semibold mb-4">1. Aceptación de los Términos</h2>
               <p className="text-muted-foreground mb-4">
-                Al acceder y utilizar Kiosco App (en adelante, "la Aplicación"), usted acepta
+                Al acceder y utilizar Kiosco App (en adelante, &quot;la Aplicación&quot;), usted acepta
                 estar sujeto a estos Términos y Condiciones. Si no está de acuerdo con alguna
                 parte de estos términos, no debe utilizar nuestra aplicación.
               </p>

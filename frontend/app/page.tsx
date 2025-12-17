@@ -1,6 +1,5 @@
 "use client";
 
-import { ModeToggle } from "@/components/theme/mode-toggle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -174,18 +173,27 @@ export default function Home() {
                   Precios
                 </Link>
               </nav>
-              <ModeToggle />
               {isAuthenticated ? (
-                <UserMenu />
+                <>
+                  <Link href="/dashboard/sales">
+                    <Button className="ml-2">Vender</Button>
+                  </Link>
+                  <UserMenu />
+                </>
               ) : (
-                <div className="flex gap-2">
-                  <Link href="/login">
-                    <Button variant="ghost">Iniciar Sesión</Button>
+                <>
+                  <Link href="/dashboard/sales">
+                    <Button className="ml-2">Vender</Button>
                   </Link>
-                  <Link href="/register">
-                    <Button>Registrarse</Button>
-                  </Link>
-                </div>
+                  <div className="flex gap-2">
+                    <Link href="/login">
+                      <Button variant="ghost">Iniciar Sesión</Button>
+                    </Link>
+                    <Link href="/register">
+                      <Button>Registrarse</Button>
+                    </Link>
+                  </div>
+                </>
               )}
             </div>
           </div>

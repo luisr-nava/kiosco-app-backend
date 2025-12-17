@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { resetPasswordAction } from "../actions/resetPasswordAction";
+import { toApiError } from "@/lib/error-handler";
 
 export const useResetPassword = () => {
   const router = useRouter();
@@ -29,33 +30,33 @@ export const useResetPassword = () => {
         router.push("/login");
       }, 1500);
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error("Error en reset password:", error);
 
-      // Obtener mensaje de error
-      const statusCode = error?.statusCode || error?.response?.status;
+      const apiError = toApiError(error);
+      const statusCode = apiError.statusCode ?? apiError.response?.status;
       let errorTitle = "Error al restablecer contraseña";
       let errorMessage =
-        error?.message ||
+        apiError.message ||
         "No se pudo restablecer la contraseña. Por favor intenta de nuevo.";
 
       switch (statusCode) {
         case 400:
           errorTitle = "Token inválido o expirado";
           errorMessage =
-            error?.message ||
+            apiError.message ||
             "El enlace de recuperación es inválido o ha expirado. Por favor solicita un nuevo enlace.";
           break;
         case 404:
           errorTitle = "Usuario no encontrado";
           errorMessage =
-            error?.message ||
+            apiError.message ||
             "No se encontró el usuario asociado a este token.";
           break;
         case 422:
           errorTitle = "Contraseña inválida";
           errorMessage =
-            error?.message ||
+            apiError.message ||
             "La contraseña debe tener al menos 6 caracteres.";
           break;
         case 500:
@@ -64,7 +65,7 @@ export const useResetPassword = () => {
             "Ocurrió un error en el servidor. Por favor intenta más tarde.";
           break;
         default:
-          errorMessage = error?.message || errorMessage;
+          errorMessage = apiError.message || errorMessage;
       }
 
       toast.error(errorTitle, {

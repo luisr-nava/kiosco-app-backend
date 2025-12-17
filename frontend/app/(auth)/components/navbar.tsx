@@ -1,7 +1,7 @@
-import { ModeToggle } from "@/components/theme/mode-toggle";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import { Button } from "@/components/ui/button";
 
 export default function Navbar() {
   return (
@@ -21,7 +21,9 @@ export default function Navbar() {
             <span className="text-xs text-muted-foreground">Gestión para tu negocio</span>
           </div>
         </Link>
-        <ModeToggle />
+        <Link href="/dashboard/sales">
+          <Button size="sm">Vender</Button>
+        </Link>
       </div>
     </nav>
   );

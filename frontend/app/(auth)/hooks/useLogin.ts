@@ -41,7 +41,7 @@ export const useLogin = () => {
       // Redirigir al dashboard
       router.push(redirectTo);
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error("Error en login:", error);
 
       // Obtener mensaje de error usando el helper centralizado

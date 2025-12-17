@@ -37,4 +37,4 @@ export interface CreateEmployeeDto {
   isActive?: boolean;
 }
 
-export interface UpdateEmployeeDto extends Partial<CreateEmployeeDto> {}
+export type UpdateEmployeeDto = Partial<CreateEmployeeDto>;

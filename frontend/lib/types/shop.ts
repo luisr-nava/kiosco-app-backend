@@ -12,7 +12,7 @@ export interface ShopDetail extends Shop {
   taxIdNumber: string | null;
   taxCondition: string | null;
   taxAddress: string | null;
-  employees: any[];
+  employees: unknown[];
   employeesCount: number;
   productsCount: number;
   categoriesCount: number;
@@ -26,9 +26,9 @@ export interface ShopDetail extends Shop {
   expensesTransactions: number;
   incomesTransactions: number;
   balance: number;
-  recentPurchases: any[];
-  lowStockProducts: any[];
-  topProductsByStock: any[];
+  recentPurchases: unknown[];
+  lowStockProducts: unknown[];
+  topProductsByStock: unknown[];
 }
 
 export interface CreateShopDto {

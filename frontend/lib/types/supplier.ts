@@ -7,6 +7,7 @@ export interface Supplier {
   address?: string | null;
   notes?: string | null;
   categoryId?: string | null;
+  categoryName?: string | null;
   shopId?: string;
   shopIds?: string[];
   createdAt?: string;

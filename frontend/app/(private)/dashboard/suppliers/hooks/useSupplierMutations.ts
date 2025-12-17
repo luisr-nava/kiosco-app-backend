@@ -5,9 +5,7 @@ import { createSupplierAction } from "../actions/create.supplier.action";
 import { updateSupplierAction } from "../actions/update.supplier.action";
 import { deleteSupplierAction } from "../actions/delete.supplier.action";
 import type { CreateSupplierDto } from "@/lib/types/supplier";
-
-const getErrorMessage = (error: any, fallback: string) =>
-  error?.response?.data?.message || error?.message || fallback;
+import { getErrorMessage } from "@/lib/error-handler";
 
 export const useSupplierMutations = () => {
   const queryClient = useQueryClient();
@@ -22,9 +20,12 @@ export const useSupplierMutations = () => {
       toast.success("Proveedor creado");
       invalidate();
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast.error("Error", {
-        description: getErrorMessage(error, "No se pudo crear el proveedor"),
+        description: getErrorMessage(
+          error,
+          "No se pudo crear el proveedor",
+        ).message,
       });
     },
   });
@@ -41,9 +42,12 @@ export const useSupplierMutations = () => {
       toast.success("Proveedor actualizado");
       invalidate();
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast.error("Error", {
-        description: getErrorMessage(error, "No se pudo actualizar el proveedor"),
+        description: getErrorMessage(
+          error,
+          "No se pudo actualizar el proveedor",
+        ).message,
       });
     },
   });
@@ -54,9 +58,12 @@ export const useSupplierMutations = () => {
       toast.success("Proveedor eliminado");
       invalidate();
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast.error("Error", {
-        description: getErrorMessage(error, "No se pudo eliminar el proveedor"),
+        description: getErrorMessage(
+          error,
+          "No se pudo eliminar el proveedor",
+        ).message,
       });
     },
   });

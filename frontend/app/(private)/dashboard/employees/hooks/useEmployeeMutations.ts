@@ -5,9 +5,7 @@ import { createEmployeeAction } from "../actions/create.employee.action";
 import { updateEmployeeAction } from "../actions/update.employee.action";
 import { deleteEmployeeAction } from "../actions/delete.employee.action";
 import { CreateEmployeeDto } from "../interfaces";
-
-const getErrorMessage = (error: any, fallback: string) =>
-  error?.response?.data?.message || error?.message || fallback;
+import { getErrorMessage } from "@/lib/error-handler";
 
 export const useEmployeeMutations = () => {
   const queryClient = useQueryClient();
@@ -22,9 +20,12 @@ export const useEmployeeMutations = () => {
       toast.success("Empleado creado");
       invalidateList();
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast.error("Error", {
-        description: getErrorMessage(error, "No se pudo crear el empleado"),
+        description: getErrorMessage(
+          error,
+          "No se pudo crear el empleado",
+        ).message,
       });
     },
   });
@@ -36,9 +37,12 @@ export const useEmployeeMutations = () => {
       toast.success("Empleado actualizado");
       invalidateList();
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast.error("Error", {
-        description: getErrorMessage(error, "No se pudo actualizar el empleado"),
+        description: getErrorMessage(
+          error,
+          "No se pudo actualizar el empleado",
+        ).message,
       });
     },
   });
@@ -49,9 +53,12 @@ export const useEmployeeMutations = () => {
       toast.success("Empleado eliminado");
       invalidateList();
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast.error("Error", {
-        description: getErrorMessage(error, "No se pudo eliminar el empleado"),
+        description: getErrorMessage(
+          error,
+          "No se pudo eliminar el empleado",
+        ).message,
       });
     },
   });

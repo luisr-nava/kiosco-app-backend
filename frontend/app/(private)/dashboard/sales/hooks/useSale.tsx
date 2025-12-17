@@ -5,14 +5,7 @@ import { toast } from "sonner";
 import { useProductQuery } from "../../products/hooks/product.query";
 import { Product } from "../../products/interfaces";
 import { CreateSaleDto, SaleItem } from "../interfaces";
-const normalize = <T,>(
-  value: T[] | { data: T[] } | { products: T[] } | undefined,
-): T[] => {
-  if (!value) return [];
-  if (Array.isArray(value)) return value;
-  if ("products" in value) return (value as any).products ?? [];
-  return (value as any).data ?? [];
-};
+
 export const useSale = () => {
   const { activeShopId, activeShopLoading } = useShopStore();
   const queryClient = useQueryClient();
@@ -21,7 +14,7 @@ export const useSale = () => {
   const [items, setItems] = useState<SaleItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  const { products: productsResponse, productsLoading } = useProductQuery({
+  const { products: productsResponse = [], productsLoading } = useProductQuery({
     search: "",
     limit: 10,
   });
@@ -34,17 +27,16 @@ export const useSale = () => {
       setNotes("");
       setItems([]);
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       const message =
-        error?.response?.data?.message || "No se pudo registrar la venta";
+        error instanceof Error
+          ? error.message
+          : "No se pudo registrar la venta";
       toast.error("Error", { description: message });
     },
   });
 
-  const products = useMemo(
-    () => normalize<Product>(productsResponse as any),
-    [productsResponse],
-  );
+  const products = productsResponse;
 
   const total = useMemo(
     () => items.reduce((acc, item) => acc + Number(item.subtotal || 0), 0),
@@ -52,10 +44,7 @@ export const useSale = () => {
   );
 
   const resolveShopProductId = (product: Product) =>
-    (product as any).shopProductId ||
-    product.id ||
-    (product as any).productId ||
-    "";
+    product.shopProductId || product.id || product.productId || "";
 
   const incrementProduct = (product: Product) => {
     const shopProductId = resolveShopProductId(product);
@@ -63,15 +52,15 @@ export const useSale = () => {
       toast.error("Producto inválido");
       return;
     }
-    const stock = Number((product as any)?.stock ?? 0);
+    const stock = Number(product.stock ?? 0);
     if (stock <= 0) {
       toast.error("Producto sin stock disponible");
       return;
     }
     const baseUnitPrice =
-      (product as any).finalSalePrice ||
+      product.finalSalePrice ||
       product.salePrice ||
-      (product as any).price ||
+      product.price ||
       0;
     setItems((prev) => {
       const idx = prev.findIndex(
@@ -105,8 +94,8 @@ export const useSale = () => {
     const product = products.find(
       (p) =>
         resolveShopProductId(p) === productId ||
-        (p as any).id === productId ||
-        (p as any).productId === productId,
+        p.id === productId ||
+        p.productId === productId,
     );
     if (product) {
       incrementProduct(product);
@@ -192,4 +181,3 @@ export const useSale = () => {
     productsLoading,
   };
 };
-

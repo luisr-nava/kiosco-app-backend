@@ -62,9 +62,7 @@ export const SupplierTable = ({
               <td className="px-4 py-3">{supplier.phone || "Sin teléfono"}</td>
               <td className="px-4 py-3">{supplier.email || "Sin email"}</td>
               <td className="px-4 py-3">
-                {(supplier as any).categoryName ||
-                  (supplier as any).categoryId ||
-                  "Sin categoría"}
+                {supplier.categoryName || supplier.categoryId || "Sin categoría"}
               </td>
               <td className="px-4 py-3 space-x-2 whitespace-nowrap">
                 <Button

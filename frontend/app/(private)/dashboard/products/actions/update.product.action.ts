@@ -16,4 +16,3 @@ export const updateProductAction = async (
 
   return data.data.product;
 };
-

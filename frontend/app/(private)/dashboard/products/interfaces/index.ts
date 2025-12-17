@@ -12,6 +12,9 @@ export interface Product {
   updatedAt: string;
   shopName: string;
   productId?: string;
+  shopProductId?: string;
+  finalSalePrice?: number;
+  price?: number;
   categoryId?: string;
   categoryName?: string;
   supplierName?: string;

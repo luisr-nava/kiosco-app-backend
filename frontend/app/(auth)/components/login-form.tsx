@@ -1,12 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
@@ -16,7 +10,7 @@ import { Chrome } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useLogin } from "../hooks/useLogin";
 import { useGoogleAuth } from "../hooks/useGoogleAuth";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 
 interface LoginFormData {
   email: string;
@@ -28,28 +22,22 @@ const REMEMBER_EMAIL_KEY = "remember-email";
 export default function LoginForm() {
   const { login, isLoading } = useLogin();
   const googleAuth = useGoogleAuth();
-  const [rememberMe, setRememberMe] = useState(false);
+  const savedEmail = useMemo(() => {
+    if (typeof window === "undefined") return "";
+    return localStorage.getItem(REMEMBER_EMAIL_KEY) ?? "";
+  }, []);
+  const [rememberMe, setRememberMe] = useState(() => Boolean(savedEmail));
 
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors },
   } = useForm<LoginFormData>({
     defaultValues: {
-      email: "",
+      email: savedEmail,
       password: "",
     },
   });
-
-  // Cargar email guardado al montar el componente
-  useEffect(() => {
-    const savedEmail = localStorage.getItem(REMEMBER_EMAIL_KEY);
-    if (savedEmail) {
-      setValue("email", savedEmail);
-      setRememberMe(true);
-    }
-  }, [setValue]);
 
   const onSubmit = (data: LoginFormData) => {
     // Guardar o limpiar email según checkbox
@@ -172,4 +160,3 @@ export default function LoginForm() {
     </Card>
   );
 }
-

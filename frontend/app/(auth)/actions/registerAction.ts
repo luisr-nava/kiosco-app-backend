@@ -1,6 +1,8 @@
 import { kioscoApi } from "@/lib/kioscoApi";
 import { RegisterResponse } from "../interfaces";
 import { AxiosError } from "axios";
+import { toApiError } from "@/lib/error-handler";
+import type { ApiError } from "@/lib/error-handler";
 
 interface RegisterPayload {
   fullName: string;
@@ -21,21 +23,16 @@ export const registerAction = async (
   } catch (error) {
     console.error("Error en registerAction:", error);
 
-    // Mejorar el mensaje de error para que sea más específico
     if (error instanceof AxiosError) {
-      const message = error.response?.data?.message || error.message;
-      const statusCode = error.response?.status;
-
-      // Crear un error más descriptivo
-      const enhancedError = new Error(message);
-      (enhancedError as any).statusCode = statusCode;
-      (enhancedError as any).response = error.response;
-
-      throw enhancedError;
+      throw toApiError(error);
     }
 
-    throw error;
+    const fallbackError: ApiError = Object.assign(
+      new Error("No se pudo completar el registro."),
+      { statusCode: 500 },
+    );
+
+    throw error instanceof Error ? error : fallbackError;
   }
 };
-
 

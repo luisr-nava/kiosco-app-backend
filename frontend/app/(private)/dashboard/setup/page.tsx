@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { shopApi } from "@/lib/api/shop.api";
 import type { CreateShopDto } from "@/lib/types/shop";
+import { getErrorMessage } from "@/lib/error-handler";
 
 export default function SetupStorePage() {
   const router = useRouter();
@@ -28,8 +29,11 @@ export default function SetupStorePage() {
       });
       router.push("/dashboard");
     },
-    onError: (error: any) => {
-      const message = error.response?.data?.message || "Error al crear la tienda";
+    onError: (error: unknown) => {
+      const { message } = getErrorMessage(
+        error,
+        "Error al crear la tienda",
+      );
       toast.error("Error", {
         description: message,
       });

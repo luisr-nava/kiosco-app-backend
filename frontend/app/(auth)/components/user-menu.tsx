@@ -11,8 +11,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User, Settings, Store, Check } from "lucide-react";
+import { LogOut, User, Settings, Store, Check, PlusCircle } from "lucide-react";
 import { useShopStore } from "@/app/(private)/store/shops.slice";
+import { SubscriptionPlanType } from "@/lib/types/subscription";
+import { useTheme } from "next-themes";
 
 /**
  * UserMenu - Menú de usuario con información y opción de logout
@@ -22,6 +24,7 @@ export function UserMenu() {
   const { user, isAuthenticated } = useAuth();
   const { logout, isLoading } = useLogout();
   const { shops, activeShopId, setActiveShopId } = useShopStore();
+  const { theme, setTheme } = useTheme();
 
   if (!isAuthenticated || !user) {
     return null;
@@ -36,6 +39,19 @@ export function UserMenu() {
       .toUpperCase()
       .slice(0, 2);
   };
+
+  const planRaw =
+    user.planType ||
+    user.subscriptionPlan ||
+    user.subscriptionType ||
+    SubscriptionPlanType.FREE;
+  const plan =
+    typeof planRaw === "string" && planRaw.toLowerCase().includes("pro")
+      ? SubscriptionPlanType.PRO
+      : typeof planRaw === "string" && planRaw.toLowerCase().includes("premium")
+        ? SubscriptionPlanType.PREMIUM
+        : SubscriptionPlanType.FREE;
+  const canAddStores = plan === SubscriptionPlanType.PREMIUM || plan === SubscriptionPlanType.PRO;
 
   return (
     <DropdownMenu>
@@ -62,6 +78,18 @@ export function UserMenu() {
         <DropdownMenuLabel className="text-xs uppercase text-muted-foreground">
           Tus tiendas
         </DropdownMenuLabel>
+        {canAddStores && (
+          <DropdownMenuItem
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent("open-store-selector"));
+            }}
+          >
+            <div className="flex items-center gap-2 text-primary">
+              <PlusCircle className="h-4 w-4" />
+              <span>Crear tienda</span>
+            </div>
+          </DropdownMenuItem>
+        )}
         {shops.length === 0 ? (
           <DropdownMenuItem disabled>
             <span className="text-muted-foreground">No tienes tiendas</span>
@@ -93,6 +121,22 @@ export function UserMenu() {
           <Settings className="mr-2 h-4 w-4" />
           <span>Configuración</span>
         </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuLabel className="text-xs uppercase text-muted-foreground">
+          Tema
+        </DropdownMenuLabel>
+        <div className="px-3 pb-2 grid grid-cols-3 gap-2">
+          {["light", "dark", "system"].map((option) => (
+            <Button
+              key={option}
+              variant={theme === option ? "secondary" : "ghost"}
+              size="sm"
+              className="text-xs"
+              onClick={() => setTheme(option)}>
+              {option === "light" ? "Claro" : option === "dark" ? "Oscuro" : "Sistema"}
+            </Button>
+          ))}
+        </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => logout()} disabled={isLoading}>
           <LogOut className="mr-2 h-4 w-4" />

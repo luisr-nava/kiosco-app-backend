@@ -2,6 +2,33 @@ import {
   useCategoryProductsQuery,
   useCategorySuppliersQuery,
 } from "./category.query";
+import type { CategoryProduct } from "../interfaces";
+
+const aggregateCategories = (categories: CategoryProduct[]) => {
+  const map = new Map<
+    string,
+    CategoryProduct & { shopIds?: string[]; shopNames?: string[] }
+  >();
+
+  categories.forEach((cat) => {
+    const key = cat.name.toLowerCase();
+    const existing = map.get(key);
+
+    if (existing) {
+      existing.shopIds = [...(existing.shopIds || []), cat.shopId];
+      existing.shopNames = [...(existing.shopNames || []), cat.shopName];
+      return;
+    }
+
+    map.set(key, {
+      ...cat,
+      shopIds: [cat.shopId],
+      shopNames: [cat.shopName],
+    });
+  });
+
+  return Array.from(map.values());
+};
 
 export const useCategory = () => {
   const {
@@ -21,8 +48,11 @@ export const useCategory = () => {
     hasMoreSupplierCategories,
     isFetchingNextSupplierCategories,
   } = useCategorySuppliersQuery();
+
+  const aggregatedCategoryProducts = aggregateCategories(categoryProducts);
+
   return {
-    categoryProducts,
+    categoryProducts: aggregatedCategoryProducts,
     pagination,
     categoryProductsLoading,
     categorySuppliers,

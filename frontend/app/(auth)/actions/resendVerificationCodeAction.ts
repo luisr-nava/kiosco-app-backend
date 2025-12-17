@@ -1,5 +1,7 @@
 import { kioscoApi } from "@/lib/kioscoApi";
 import { AxiosError } from "axios";
+import { toApiError } from "@/lib/error-handler";
+import type { ApiError } from "@/lib/error-handler";
 
 interface ResendCodeResponse {
   message: string;
@@ -17,18 +19,15 @@ export const resendVerificationCodeAction = async (
   } catch (error) {
     console.error("Error en resendVerificationCodeAction:", error);
 
-    // Mejorar el mensaje de error
     if (error instanceof AxiosError) {
-      const message = error.response?.data?.message || error.message;
-      const statusCode = error.response?.status;
-
-      const enhancedError = new Error(message);
-      (enhancedError as any).statusCode = statusCode;
-      (enhancedError as any).response = error.response;
-
-      throw enhancedError;
+      throw toApiError(error);
     }
 
-    throw error;
+    const fallbackError: ApiError = Object.assign(
+      new Error("No se pudo reenviar el código de verificación."),
+      { statusCode: 500 },
+    );
+
+    throw error instanceof Error ? error : fallbackError;
   }
 };

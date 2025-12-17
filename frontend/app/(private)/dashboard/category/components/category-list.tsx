@@ -10,22 +10,24 @@ interface Item {
   name: string;
   shopName?: string;
   shopId?: string;
+  shopIds?: string[];
+  shopNames?: string[];
 }
 
-interface Props {
+interface Props<T extends Item> {
   title: string;
   icon: ReactNode;
-  items: Item[];
+  items: T[];
   loading: boolean;
   emptyText: string;
   isOwner: boolean;
-  onEdit: (item: Item) => void;
+  onEdit: (item: T) => void;
   hasNextPage?: boolean;
   fetchNextPage?: () => void;
   isFetchingNextPage?: boolean;
 }
 
-export const CategoryList = ({
+export const CategoryList = <T extends Item>({
   title,
   icon,
   items,
@@ -36,7 +38,7 @@ export const CategoryList = ({
   hasNextPage,
   fetchNextPage,
   isFetchingNextPage,
-}: Props) => {
+}: Props<T>) => {
   const handleScroll = (event: UIEvent<HTMLDivElement>) => {
     if (!hasNextPage || !fetchNextPage || isFetchingNextPage || loading) return;
     const target = event.currentTarget;
@@ -71,16 +73,29 @@ export const CategoryList = ({
                   <p className="font-medium truncate">{category.name}</p>
                   {isOwner && (
                     <p className="text-xs text-muted-foreground truncate">
-                      {category.shopName || category.shopId}
+                      {(category.shopNames && category.shopNames.length > 0
+                        ? category.shopNames
+                        : [category.shopName || category.shopId]
+                      )?.join(", ")}
                     </p>
                   )}
                 </div>
                 <div className="ml-auto flex items-center gap-2">
-                  {isOwner && (
-                    <Badge variant="secondary" className="whitespace-nowrap">
-                      {category.shopName || category.shopId}
-                    </Badge>
-                  )}
+                  {isOwner &&
+                    (category.shopNames && category.shopNames.length > 0
+                      ? category.shopNames.map((shop, idx) => (
+                          <Badge
+                            key={`${category.id}-${shop}-${idx}`}
+                            variant="secondary"
+                            className="whitespace-nowrap">
+                            {shop}
+                          </Badge>
+                        ))
+                      : (
+                        <Badge variant="secondary" className="whitespace-nowrap">
+                          {category.shopName || category.shopId}
+                        </Badge>
+                      ))}
                   <Button variant="outline" size="icon" onClick={() => onEdit(category)}>
                     <Edit3 className="h-4 w-4" />
                   </Button>

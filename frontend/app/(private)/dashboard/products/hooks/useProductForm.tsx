@@ -15,7 +15,7 @@ const initialForm: CreateProductDto = {
   shopId: "",
   costPrice: 0,
   salePrice: 0,
-  stock: 0,
+  stock: 1,
   supplierId: "",
   isActive: true,
 };
@@ -31,8 +31,14 @@ export const useProductForm = () => {
   const updateMutation = useProductUpdateMutation();
   const productModal = useModal("createProduct");
   const editProductModal = useModal("editProduct");
-  const { register, handleSubmit, reset, setValue, control } =
-    useForm<CreateProductDto>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    control,
+    formState: { errors },
+  } = useForm<CreateProductDto>({
       defaultValues: {
         ...initialForm,
         shopId: activeShopId || "",
@@ -42,16 +48,29 @@ export const useProductForm = () => {
   const onSubmit = handleSubmit((values) => {
     if (!activeShopId) return;
 
-    const payload: CreateProductDto = {
-      ...values,
+    const cost = Number(values.costPrice) || 0;
+    const sale = Number(values.salePrice) || 0;
+    const stock = Number(values.stock) || 0;
+
+    const { isActive, ...restValues } = values;
+
+    const basePayload: CreateProductDto = {
+      ...restValues,
       shopId: activeShopId,
-      supplierId: values.supplierId || undefined,
+      supplierId: restValues.supplierId || undefined,
+      costPrice: cost,
+      salePrice: sale,
+      stock,
     };
 
     if (editProductModal.isOpen && editProductModal.data) {
-      updateMutation.mutate({ id: editProductModal.data, payload });
+      updateMutation.mutate({
+        id: editProductModal.data,
+        payload: { ...basePayload, isActive },
+      });
     } else {
-      createMutation.mutate(payload);
+      // En creación no enviamos isActive
+      createMutation.mutate(basePayload);
     }
   });
 
@@ -128,6 +147,7 @@ export const useProductForm = () => {
     initialForm,
     setValue,
     control,
+    errors,
   };
 };
 

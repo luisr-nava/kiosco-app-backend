@@ -1,6 +1,9 @@
 import { kioscoApi } from "@/lib/kioscoApi";
 import { LoginResponse } from "../interfaces";
 import { AxiosError } from "axios";
+import { unwrapResponse } from "@/lib/api/utils";
+import type { ApiError } from "@/lib/error-handler";
+import { toApiError } from "@/lib/error-handler";
 
 type LoginApiResponse = LoginResponse | { data: LoginResponse };
 
@@ -16,16 +19,13 @@ export const loginActions = async (
         password,
       },
     );
-    console.log(data);
-
-    // Algunos endpoints envuelven la data en { data: {...} }
-    const payload = (data as any)?.data ?? data;
+    const payload = unwrapResponse<LoginResponse>(data);
 
     if (!payload?.token || !payload?.user || !payload?.projectId) {
-      const invalidResponseError = new Error(
-        "Respuesta de login inválida: faltan datos de sesión.",
+      const invalidResponseError: ApiError = Object.assign(
+        new Error("Respuesta de login inválida: faltan datos de sesión."),
+        { statusCode: 500 },
       );
-      (invalidResponseError as any).statusCode = 500;
       throw invalidResponseError;
     }
 
@@ -33,20 +33,12 @@ export const loginActions = async (
   } catch (error) {
     console.error("Error en loginActions:", error);
 
-    // Mejorar el mensaje de error para que sea más específico
     if (error instanceof AxiosError) {
-      const message = error.response?.data?.message || error.message;
-      const statusCode = error.response?.status;
-
-      // Crear un error más descriptivo
-      const enhancedError = new Error(message);
-      (enhancedError as any).statusCode = statusCode;
-      (enhancedError as any).response = error.response;
-
-      throw enhancedError;
+      throw toApiError(error);
     }
 
-    throw error;
+    throw error instanceof Error
+      ? error
+      : new Error("Error desconocido al iniciar sesión");
   }
 };
-

@@ -13,24 +13,20 @@ import {
   CreateCategoryProductDto,
   CreateCategorySupplierDto,
 } from "../interfaces";
+import { getErrorMessage } from "@/lib/error-handler";
 
 export const useCategoryProductCreateMutation = () => {
   const queryClient = useQueryClient();
   const { activeShopId } = useShopStore();
+
   return useMutation({
     mutationFn: (payload: CreateCategoryProductDto) =>
       createCategoryProductAction(payload),
     onSuccess: () => {
-      toast.success("Categoria de producto creada");
       queryClient.invalidateQueries({
         queryKey: ["category-products", activeShopId],
       });
       queryClient.invalidateQueries({ queryKey: ["category-products"] });
-    },
-    onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || "No se pudo crear el producto";
-      toast.error("Error", { description: message });
     },
   });
 };
@@ -42,16 +38,10 @@ export const useCategorySupplierCreateMutation = () => {
     mutationFn: (payload: CreateCategorySupplierDto) =>
       createCategorySuppliertAction(payload),
     onSuccess: () => {
-      toast.success("Categoria de proveedor creada");
       queryClient.invalidateQueries({
         queryKey: ["category-suppliers", activeShopId],
       });
       queryClient.invalidateQueries({ queryKey: ["category-suppliers"] });
-    },
-    onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || "No se pudo crear el producto";
-      toast.error("Error", { description: message });
     },
   });
 };
@@ -74,9 +64,11 @@ export const useCategoryProductUpdateMutation = () => {
       });
       queryClient.invalidateQueries({ queryKey: ["category-products"] });
     },
-    onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || "No se pudo actualizar la categoría";
+    onError: (error: unknown) => {
+      const { message } = getErrorMessage(
+        error,
+        "No se pudo actualizar la categoría",
+      );
       toast.error("Error", { description: message });
     },
   });
@@ -100,10 +92,13 @@ export const useCategorySupplierUpdateMutation = () => {
       });
       queryClient.invalidateQueries({ queryKey: ["category-suppliers"] });
     },
-    onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || "No se pudo actualizar la categoría";
+    onError: (error: unknown) => {
+      const { message } = getErrorMessage(
+        error,
+        "No se pudo actualizar la categoría",
+      );
       toast.error("Error", { description: message });
     },
   });
 };
+
