@@ -7,13 +7,17 @@ import {
 import { CreateShopDto } from './dto/create-shop.dto';
 import { UpdateShopDto } from './dto/update-shop.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { CashRegisterService } from '../cash-register/cash-register.service';
 import { Shop } from './entities/shop.entity';
 import { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface';
 import { DEFAULT_CURRENCY_CODE } from '../common/constants/currencies';
 
 @Injectable()
 export class ShopService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cashRegisterService: CashRegisterService,
+  ) {}
 
   async createShop(user: JwtPayload, dto: CreateShopDto) {
     if (user.role !== 'OWNER') {
@@ -231,6 +235,7 @@ export class ShopService {
         recentPurchases,
         lowStockProducts,
         topProducts,
+        openCashRegisters,
       ] = await Promise.all([
         this.prisma.sale.aggregate({
           where: { shopId: id },
@@ -279,7 +284,9 @@ export class ShopService {
           orderBy: { stock: 'desc' },
           take: 5,
         }),
+        this.cashRegisterService.findOpenCashRegistersForShops([id], user),
       ]);
+      const shopOpenCashRegisters = openCashRegisters[0]?.cashRegisters ?? [];
 
       return {
         message: 'Detalle completo de la tienda',
@@ -333,6 +340,8 @@ export class ShopService {
             productName: sp.product.name,
             stock: sp.stock,
           })),
+          openCashRegisters: shopOpenCashRegisters,
+          hasOpenCashRegister: shopOpenCashRegisters.length > 0,
         },
       };
     }
@@ -388,6 +397,12 @@ export class ShopService {
           },
         }),
       ]);
+      const [openCashRegisters] =
+        await this.cashRegisterService.findOpenCashRegistersForShops([id], user);
+      const myOpenCashRegister =
+        openCashRegisters?.cashRegisters?.find(
+          (cashRegister) => cashRegister.employeeId === user.id,
+        ) ?? null;
 
       return {
         message: 'Información de tu tienda',
@@ -421,6 +436,8 @@ export class ShopService {
             stock: sp.stock,
             // Sin precios de costo
           })),
+          myOpenCashRegister,
+          hasOpenCashRegister: Boolean(myOpenCashRegister),
           // Sin acceso a:
           // - Datos fiscales
           // - Información de otros empleados

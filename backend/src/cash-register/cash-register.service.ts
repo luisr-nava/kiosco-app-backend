@@ -23,17 +23,18 @@ export class CashRegisterService {
     // Verificar acceso a la tienda
     await this.validateShopAccess(dto.shopId, user);
 
-    // Verificar que no haya otra caja abierta para esta tienda
+    // Verificar que no haya otra caja abierta para este usuario en esta tienda
     const existingOpen = await this.prisma.cashRegister.findFirst({
       where: {
         shopId: dto.shopId,
         status: 'OPEN',
+        employeeId: user.id,
       },
     });
 
     if (existingOpen) {
       throw new BadRequestException(
-        'Ya existe una caja abierta para esta tienda. Debe cerrarla antes de abrir una nueva.',
+        'Ya tienes una caja abierta en esta tienda. Debes cerrarla antes de abrir una nueva.',
       );
     }
 
@@ -63,6 +64,52 @@ export class CashRegisterService {
       return {
         message: 'Caja abierta correctamente',
         data: cashRegister,
+      };
+    });
+  }
+
+  async findOpenCashRegistersForShops(shopIds: string[], user?: JwtPayload) {
+    if (!shopIds?.length) {
+      return [];
+    }
+
+    const where: Prisma.CashRegisterWhereInput = {
+      shopId: { in: shopIds },
+      status: 'OPEN',
+    };
+
+    if (user?.role === 'EMPLOYEE') {
+      where.employeeId = user.id;
+    }
+
+    const openCashRegisters = await this.prisma.cashRegister.findMany({
+      where,
+      orderBy: { openedAt: 'desc' },
+    });
+
+    const registersByShop = new Map<string, typeof openCashRegisters>();
+    shopIds.forEach((shopId) => registersByShop.set(shopId, []));
+
+    openCashRegisters.forEach((register) => {
+      const list = registersByShop.get(register.shopId);
+      if (list) {
+        list.push(register);
+      }
+    });
+
+    return shopIds.map((shopId) => {
+      const registers = registersByShop.get(shopId) ?? [];
+      const primaryRegister =
+        user?.role === 'EMPLOYEE'
+          ? registers.find((reg) => reg.employeeId === user.id) ?? null
+          : registers.find((reg) => reg.employeeId === user?.id) ??
+            registers[0] ??
+            null;
+
+      return {
+        shopId,
+        cashRegister: primaryRegister,
+        cashRegisters: registers,
       };
     });
   }
@@ -517,6 +564,10 @@ export class CashRegisterService {
 
     await this.validateShopAccess(cashRegister.shopId, user);
 
+    if (user.role === 'EMPLOYEE' && cashRegister.employeeId !== user.id) {
+      throw new ForbiddenException('No tienes permiso para acceder a esta caja');
+    }
+
     return cashRegister as Prisma.CashRegisterGetPayload<
       TInclude extends Prisma.CashRegisterInclude ? { include: TInclude } : {}
     >;
@@ -706,6 +757,10 @@ export class CashRegisterService {
     }
 
     if (shop.projectId !== user.projectId) {
+      throw new ForbiddenException('No tienes acceso a esta tienda');
+    }
+
+    if (user.role === 'OWNER' && shop.ownerId !== user.id) {
       throw new ForbiddenException('No tienes acceso a esta tienda');
     }
 

@@ -31,6 +31,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { TokenBlacklistService } from './services/token-blacklist.service';
 import { FailedAttemptsGuard } from '../common/guards/failed-attempts.guard';
 import { CustomLoggerService } from '../common/logger/logger.service';
+import { CashRegisterService } from '../cash-register/cash-register.service';
 
 @Controller('auth-client')
 export class AuthClientController {
@@ -40,6 +41,7 @@ export class AuthClientController {
     private readonly tokenBlacklistService: TokenBlacklistService,
     private readonly failedAttemptsGuard: FailedAttemptsGuard,
     private readonly logger: CustomLoggerService,
+    private readonly cashRegisterService: CashRegisterService,
   ) {}
 
   @Post('register')
@@ -62,6 +64,44 @@ export class AuthClientController {
         ip: req.ip,
         userAgent: req.get('user-agent'),
       });
+
+      // Adjuntar info de cajas abiertas para las tiendas del usuario
+      const user = result?.user;
+      if (user?.id && user?.role && user?.projectId) {
+        const jwtPayload: JwtPayload = {
+          id: user.id,
+          role: user.role,
+          projectId: user.projectId,
+          email: user.email,
+        };
+
+        const shopsResponse = await this.shopsService.getMyShops(jwtPayload);
+        const shops = shopsResponse.data ?? [];
+        const shopIds = shops.map((shop) => shop.id);
+
+        const openCashRegisters =
+          await this.cashRegisterService.findOpenCashRegistersForShops(
+            shopIds,
+            jwtPayload,
+          );
+        const hasOpenCashRegister = openCashRegisters.some((item) =>
+          item.cashRegisters.some(
+            (register) => register.employeeId === jwtPayload.id,
+          ),
+        );
+
+        const minimalShops = shops.map((shop) => ({
+          id: shop.id,
+          name: shop.name,
+        }));
+
+        return {
+          ...result,
+          shops: minimalShops,
+          openCashRegisters,
+          hasOpenCashRegister,
+        };
+      }
 
       return result;
     } catch (error) {

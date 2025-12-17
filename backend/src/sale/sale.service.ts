@@ -265,6 +265,7 @@ export class SaleService {
           where: {
             shopId: dto.shopId,
             status: 'OPEN',
+            employeeId: user.id,
           },
         });
 

@@ -106,6 +106,7 @@ export class PurchaseService {
         where: {
           shopId: dto.shopId,
           status: 'OPEN',
+          employeeId: user.id,
         },
       });
 

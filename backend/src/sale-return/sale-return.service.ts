@@ -356,6 +356,7 @@ export class SaleReturnService {
           where: {
             shopId: saleReturn.shopId,
             status: 'OPEN',
+            employeeId: user.id,
           },
         });
 
