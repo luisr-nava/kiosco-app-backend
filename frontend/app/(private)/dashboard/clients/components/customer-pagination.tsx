@@ -84,11 +84,10 @@ export const CustomerPagination = ({
                 key={pageNumber}
                 type="button"
                 onClick={() => onPageChange(pageNumber)}
-                disabled={isLoading}
-                className={cn(
-                  "min-w-9 h-9 rounded-md px-2 text-sm font-semibold transition border shadow-sm",
-                  isLoading && !isActive && "opacity-70 cursor-not-allowed",
-                )}>
+                disabled={isLoading || isActive}
+                className={
+                  "min-w-9 h-9 rounded-md px-2 text-sm font-semibold transition border shadow-sm"
+                }>
                 {pageNumber}
               </Button>
             );
