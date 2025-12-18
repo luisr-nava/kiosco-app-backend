@@ -1,8 +1,5 @@
-import {
-  useCategoryProductsQuery,
-  useCategorySuppliersQuery,
-} from "./category.query";
 import type { CategoryProduct } from "../interfaces";
+import { useCategoryProductsQuery, useCategorySuppliersQuery } from "./";
 
 const aggregateCategories = (categories: CategoryProduct[]) => {
   const map = new Map<
@@ -66,3 +63,4 @@ export const useCategory = () => {
     isFetchingNextSupplierCategories,
   };
 };
+

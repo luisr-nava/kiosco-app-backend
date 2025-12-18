@@ -106,6 +106,7 @@ export const useCategoryForm = () => {
         { id: editingId, payload },
         {
           onSuccess: () => {
+            toast.success("Categoria de actualizada");
             resetFn({ name: "", shopIds: defaultShopIds, editingId: null });
           },
           onError: (error: unknown) => {

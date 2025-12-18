@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Edit3 } from "lucide-react";
-import { LoadingCategory } from "./loading";
+import { Loading } from "@/app/(private)/components";
 
 interface Item {
   id: string;
@@ -60,7 +60,7 @@ export const CategoryList = <T extends Item>({
         className="min-h-40 max-h-40 overflow-y-auto pr-1 space-y-2"
         onScroll={handleScroll}>
         {loading ? (
-          <LoadingCategory />
+          <Loading />
         ) : items.length === 0 ? (
           <p className="text-sm text-muted-foreground">{emptyText}</p>
         ) : (
@@ -82,21 +82,24 @@ export const CategoryList = <T extends Item>({
                 </div>
                 <div className="ml-auto flex items-center gap-2">
                   {isOwner &&
-                    (category.shopNames && category.shopNames.length > 0
-                      ? category.shopNames.map((shop, idx) => (
-                          <Badge
-                            key={`${category.id}-${shop}-${idx}`}
-                            variant="secondary"
-                            className="whitespace-nowrap">
-                            {shop}
-                          </Badge>
-                        ))
-                      : (
-                        <Badge variant="secondary" className="whitespace-nowrap">
-                          {category.shopName || category.shopId}
+                    (category.shopNames && category.shopNames.length > 0 ? (
+                      category.shopNames.map((shop, idx) => (
+                        <Badge
+                          key={`${category.id}-${shop}-${idx}`}
+                          variant="secondary"
+                          className="whitespace-nowrap">
+                          {shop}
                         </Badge>
-                      ))}
-                  <Button variant="outline" size="icon" onClick={() => onEdit(category)}>
+                      ))
+                    ) : (
+                      <Badge variant="secondary" className="whitespace-nowrap">
+                        {category.shopName || category.shopId}
+                      </Badge>
+                    ))}
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => onEdit(category)}>
                     <Edit3 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -114,3 +117,4 @@ export const CategoryList = <T extends Item>({
     </div>
   );
 };
+

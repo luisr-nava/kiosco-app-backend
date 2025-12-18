@@ -6,7 +6,7 @@ import { useShopStore } from "@/app/(private)/store/shops.slice";
 import type { Supplier } from "@/lib/types/supplier";
 import { Modal } from "@/components/ui/modal";
 import { useProducts } from "./hooks/useProducts";
-import { Loading } from "../../components";
+import { Loading } from "../../components/loading";
 import { ProductHeader } from "./components/product-header";
 import { TableProducts } from "./components/table-products";
 import { useProductForm } from "./hooks/useProductForm";
@@ -127,3 +127,4 @@ export default function ProductosPage() {
     </div>
   );
 }
+

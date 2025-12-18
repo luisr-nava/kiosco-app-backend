@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -11,6 +11,12 @@ import { Button } from "@/components/ui/button";
 import { shopApi } from "@/lib/api/shop.api";
 import type { CreateShopDto } from "@/lib/types/shop";
 import { getErrorMessage } from "@/lib/error-handler";
+import {
+  COUNTRY_CODES,
+  ORDERED_CURRENCY_OPTIONS,
+  DEFAULT_COUNTRY_CODE,
+  DEFAULT_CURRENCY_CODE,
+} from "@/lib/constants/shop";
 
 export default function SetupStorePage() {
   const router = useRouter();
@@ -18,8 +24,51 @@ export default function SetupStorePage() {
     name: "",
     address: "",
     phone: "",
+    countryCode: "",
+    currencyCode: "",
     isActive: true,
   });
+  const regionDisplay = useMemo(() => {
+    try {
+      return new Intl.DisplayNames(["es", "en"], { type: "region" });
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const countriesWithLabels = useMemo(
+    () =>
+      COUNTRY_CODES.map((code) => {
+        const name = regionDisplay?.of(code as any);
+        return {
+          code,
+          label: name || code,
+        };
+      }),
+    [regionDisplay],
+  );
+
+  const currencySymbols = useMemo(() => {
+    const toSymbol = (code: string) => {
+      try {
+        const formatter = new Intl.NumberFormat("es", {
+          style: "currency",
+          currency: code,
+          currencyDisplay: "symbol",
+        });
+        const parts = formatter.formatToParts(1);
+        const currencyPart = parts.find((part) => part.type === "currency");
+        return currencyPart?.value || code;
+      } catch {
+        return code;
+      }
+    };
+
+    return ORDERED_CURRENCY_OPTIONS.map((currency) => ({
+      code: currency.code,
+      symbol: toSymbol(currency.code),
+    }));
+  }, []);
 
   const createShopMutation = useMutation({
     mutationFn: (data: CreateShopDto) => shopApi.createShop(data),
@@ -46,6 +95,20 @@ export default function SetupStorePage() {
     if (!formData.name.trim()) {
       toast.error("Error", {
         description: "El nombre de la tienda es obligatorio",
+      });
+      return;
+    }
+
+    if (!formData.countryCode) {
+      toast.error("Error", {
+        description: "El país es obligatorio",
+      });
+      return;
+    }
+
+    if (!formData.currencyCode) {
+      toast.error("Error", {
+        description: "La moneda es obligatoria",
       });
       return;
     }
@@ -115,6 +178,54 @@ export default function SetupStorePage() {
               <p className="text-xs text-muted-foreground">
                 Opcional - Número de contacto de la tienda
               </p>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="country">País</Label>
+                <select
+                  id="country"
+                  className="h-10 rounded-md border bg-background px-3 text-sm"
+                  value={formData.countryCode}
+                  onChange={(e) => handleChange("countryCode", e.target.value)}
+                  required
+                >
+                  <option value="" disabled>
+                    Selecciona tu país
+                  </option>
+                  {countriesWithLabels.map((country) => (
+                    <option key={country.code} value={country.code}>
+                      {country.label}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-muted-foreground">
+                  Usa el código ISO del país (ej. AR, ES, MX).
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="currency">Moneda</Label>
+                <select
+                  id="currency"
+                  className="h-10 rounded-md border bg-background px-3 text-sm"
+                  value={formData.currencyCode}
+                  onChange={(e) => handleChange("currencyCode", e.target.value)}
+                  required
+                >
+                  <option value="" disabled>
+                    Selecciona tu moneda
+                  </option>
+                  {currencySymbols.map((currency) => (
+                    <option key={currency.code} value={currency.code}>
+                      {currency.symbol}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-muted-foreground">
+                  Monedas más usadas primero: USD, EUR y ARS.
+                </p>
+              </div>
             </div>
 
             <Button

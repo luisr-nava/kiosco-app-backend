@@ -3,12 +3,16 @@ export interface Shop {
   name: string;
   address?: string;
   phone?: string;
+  hasOpenCashRegister?: boolean;
+  countryCode: string;
+  currencyCode: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface ShopDetail extends Shop {
+  hasOpenCashRegister: boolean;
   taxIdNumber: string | null;
   taxCondition: string | null;
   taxAddress: string | null;
@@ -35,6 +39,8 @@ export interface CreateShopDto {
   name: string;
   address?: string;
   phone?: string;
+  countryCode: string;
+  currencyCode: string;
   isActive?: boolean;
 }
 
@@ -42,5 +48,7 @@ export interface UpdateShopDto {
   name?: string;
   address?: string;
   phone?: string;
+  countryCode?: string;
+  currencyCode?: string;
   isActive?: boolean;
 }

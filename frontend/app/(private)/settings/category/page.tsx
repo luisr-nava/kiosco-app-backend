@@ -5,16 +5,13 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Package, Truck } from "lucide-react";
-import { useCategory } from "./hooks/useCategory";
 import { ShopLoading } from "@/components/shop-loading";
 import { useShallow } from "zustand/react/shallow";
-import { useCategoryForm } from "./hooks/useCategoryForm";
-import { CategoryForm } from "./components/category-form";
-import { CategoryList } from "./components/category-list";
+import { CategoryForm, CategoryList } from "./components";
+import { useCategory, useCategoryForm } from "./hooks";
 
 export default function CategoriasPage() {
   const {
@@ -68,7 +65,7 @@ export default function CategoriasPage() {
         <CardContent className="grid gap-6 md:grid-cols-2">
           <div>
             <CardTitle>Productos</CardTitle>
-            <CardDescription>
+            <CardDescription className="pb-3">
               Categorías para organizar tu catálogo.
             </CardDescription>
             <CategoryForm

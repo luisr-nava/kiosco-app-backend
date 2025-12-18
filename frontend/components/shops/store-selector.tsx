@@ -19,6 +19,12 @@ import { CheckCircle2, PlusCircle, Store } from "lucide-react";
 import { useAuth } from "@/app/(auth)/hooks";
 import { SubscriptionPlanType } from "@/lib/types/subscription";
 import { getErrorMessage } from "@/lib/error-handler";
+import {
+  COUNTRY_CODES,
+  ORDERED_CURRENCY_OPTIONS,
+  DEFAULT_COUNTRY_CODE,
+  DEFAULT_CURRENCY_CODE,
+} from "@/lib/constants/shop";
 
 const STORE_LIMITS: Record<SubscriptionPlanType | "default", number> = {
   [SubscriptionPlanType.PRO]: 3,
@@ -47,6 +53,49 @@ export function StoreSelector({
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
+  const [countryCode, setCountryCode] = useState("");
+  const [currencyCode, setCurrencyCode] = useState("");
+  const regionDisplay = useMemo(() => {
+    try {
+      return new Intl.DisplayNames(["es", "en"], { type: "region" });
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const countriesWithLabels = useMemo(
+    () =>
+      COUNTRY_CODES.map((code) => {
+        const name = regionDisplay?.of(code as any);
+        return {
+          code,
+          label: name || code,
+        };
+      }),
+    [regionDisplay],
+  );
+
+  const currencySymbols = useMemo(() => {
+    const toSymbol = (code: string) => {
+      try {
+        const formatter = new Intl.NumberFormat("es", {
+          style: "currency",
+          currency: code,
+          currencyDisplay: "symbol",
+        });
+        const parts = formatter.formatToParts(1);
+        const currencyPart = parts.find((part) => part.type === "currency");
+        return currencyPart?.value || code;
+      } catch {
+        return code;
+      }
+    };
+
+    return ORDERED_CURRENCY_OPTIONS.map((currency) => ({
+      code: currency.code,
+      symbol: toSymbol(currency.code),
+    }));
+  }, []);
 
   const resolvePlanType = (): SubscriptionPlanType => {
     const rawPlan =
@@ -107,6 +156,8 @@ export function StoreSelector({
         name: name.trim(),
         address: address.trim() || undefined,
         phone: phone.trim() || undefined,
+        countryCode,
+        currencyCode,
         isActive: true,
       }),
     onSuccess: (response) => {
@@ -125,6 +176,9 @@ export function StoreSelector({
         name: newShop.name ?? "Tienda",
         address: newShop.address ?? "",
         phone: newShop.phone ?? "",
+        hasOpenCashRegister: Boolean(newShop.hasOpenCashRegister),
+        countryCode: newShop.countryCode ?? DEFAULT_COUNTRY_CODE,
+        currencyCode: newShop.currencyCode ?? DEFAULT_CURRENCY_CODE,
         isActive: newShop.isActive ?? true,
         createdAt: newShop.createdAt ?? new Date().toISOString(),
         updatedAt: newShop.updatedAt ?? new Date().toISOString(),
@@ -152,8 +206,12 @@ export function StoreSelector({
   });
 
   const canCreate = useMemo(
-    () => name.trim().length >= 4 && !hasReachedLimit,
-    [name, hasReachedLimit],
+    () =>
+      name.trim().length >= 4 &&
+      !hasReachedLimit &&
+      Boolean(countryCode) &&
+      Boolean(currencyCode),
+    [name, hasReachedLimit, countryCode, currencyCode],
   );
 
   return (
@@ -275,6 +333,46 @@ export function StoreSelector({
                   onChange={(e) => setPhone(e.target.value)}
                   maxLength={20}
                 />
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="store-country">País</Label>
+                  <select
+                    id="store-country"
+                    className="h-10 rounded-md border bg-background px-3 text-sm"
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                  >
+                    <option value="" disabled>
+                      Selecciona tu país
+                    </option>
+                    {countriesWithLabels.map((country) => (
+                      <option key={country.code} value={country.code}>
+                        {country.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="store-currency">Moneda</Label>
+                  <select
+                    id="store-currency"
+                    className="h-10 rounded-md border bg-background px-3 text-sm"
+                    value={currencyCode}
+                    onChange={(e) => setCurrencyCode(e.target.value)}
+                  >
+                    <option value="" disabled>
+                      Selecciona tu moneda
+                    </option>
+                    {currencySymbols.map((currency) => (
+                      <option key={currency.code} value={currency.code}>
+                        {currency.symbol}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               <Button

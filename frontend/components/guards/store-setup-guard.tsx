@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { shopApi } from "@/lib/api/shop.api";
 import type { ShopDetail } from "@/lib/types/shop";
+import type { CashRegister } from "@/lib/types/cash-register";
 import { useAuth } from "@/app/(auth)/hooks";
 import { StoreSelector } from "@/components/shops/store-selector";
 import { useShopStore } from "@/app/(private)/store/shops.slice";
+import { cashRegisterApi } from "@/lib/api/cash-register.api";
+import { OpenCashRegisterModal } from "@/components/cash-register/open-cash-register-modal";
 
 interface StoreSetupGuardProps {
   children: ReactNode;
@@ -20,6 +23,7 @@ interface StoreSetupGuardProps {
 export function StoreSetupGuard({ children }: StoreSetupGuardProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const queryClient = useQueryClient();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const {
     shops: storedShops,
@@ -31,6 +35,7 @@ export function StoreSetupGuard({ children }: StoreSetupGuardProps) {
     activeShopLoading,
     setActiveShopLoading,
   } = useShopStore();
+  const [showOpenCashModal, setShowOpenCashModal] = useState(false);
 
   const { data: shops, isLoading: shopsLoading } = useQuery({
     queryKey: ["my-shops"],
@@ -44,11 +49,24 @@ export function StoreSetupGuard({ children }: StoreSetupGuardProps) {
     queryFn: () => shopApi.getShopById(activeShopId || ""),
     enabled: Boolean(activeShopId),
   });
+  const hasOpenCashDetail =
+    shopDetailQuery.data?.hasOpenCashRegister ??
+    activeShop?.hasOpenCashRegister;
+  const shopHasOpenCash = hasOpenCashDetail === true;
+
+  const { data: openCashRegister, isFetching: cashRegisterLoading } =
+    useQuery<CashRegister | null>({
+      queryKey: ["cash-register-open", activeShopId],
+      queryFn: () => cashRegisterApi.getOpenCashRegister(activeShopId || ""),
+      enabled:
+        Boolean(activeShopId) && !shopHasOpenCash && !shopDetailQuery.isLoading,
+      retry: false,
+    });
 
   // Permitir abrir manualmente el selector mediante un evento global
   useEffect(() => {
     const handler = () => {
-      setActiveShopId(null);
+      setActiveShopId("");
       setActiveShop(null);
     };
     window.addEventListener("open-store-selector", handler);
@@ -70,16 +88,30 @@ export function StoreSetupGuard({ children }: StoreSetupGuardProps) {
         setActiveShopLoading(false);
       }
     }
-  }, [shopDetailQuery.isError, activeShop, activeShopLoading, setActiveShop, setActiveShopLoading]);
+  }, [
+    shopDetailQuery.isError,
+    activeShop,
+    activeShopLoading,
+    setActiveShop,
+    setActiveShopLoading,
+  ]);
 
   // Sincronizar loading con estado real del query (evitar sets repetidos)
   useEffect(() => {
     // Solo mostramos loading cuando no tenemos datos de la tienda activa todavía
-    const nextLoading = Boolean(!activeShop && activeShopId && shopDetailQuery.isFetching);
+    const nextLoading = Boolean(
+      !activeShop && activeShopId && shopDetailQuery.isFetching,
+    );
     if (nextLoading !== activeShopLoading) {
       setActiveShopLoading(nextLoading);
     }
-  }, [activeShop, activeShopId, shopDetailQuery.isFetching, activeShopLoading, setActiveShopLoading]);
+  }, [
+    activeShop,
+    activeShopId,
+    shopDetailQuery.isFetching,
+    activeShopLoading,
+    setActiveShopLoading,
+  ]);
 
   // Guardar tiendas en el store global cuando se cargan
   useEffect(() => {
@@ -92,17 +124,55 @@ export function StoreSetupGuard({ children }: StoreSetupGuardProps) {
       // Si no hay tiendas o la activa ya no existe, forzar selección
       if (!activeExists || shops.length === 0) {
         if (activeShopId) {
-          setActiveShopId(null);
+          setActiveShopId("");
         }
         setActiveShop(null);
       }
     }
   }, [shops, activeShopId, setActiveShopId, setActiveShop, setShops]);
 
+  useEffect(() => {
+    if (!activeShopId) {
+      setShowOpenCashModal(false);
+      return;
+    }
+
+    if (shopHasOpenCash) {
+      setShowOpenCashModal(false);
+      return;
+    }
+
+    if (cashRegisterLoading) return;
+
+    const needsOpening = !openCashRegister || openCashRegister.isOpen === false;
+    setShowOpenCashModal(needsOpening);
+  }, [activeShopId, cashRegisterLoading, openCashRegister, shopHasOpenCash]);
+
   const hasStoredShops = (storedShops?.length ?? 0) > 0;
   const hasValidActiveShop =
     Boolean(activeShopId) &&
     storedShops.some((shop) => shop.id === activeShopId);
+
+  const handleCashRegisterOpened = () => {
+    setShowOpenCashModal(false);
+    if (activeShopId) {
+      queryClient.invalidateQueries({
+        queryKey: ["cash-register-open", activeShopId],
+      });
+    }
+    if (activeShop) {
+      setActiveShop({ ...activeShop, hasOpenCashRegister: true });
+      queryClient.setQueryData<ShopDetail | undefined>(
+        ["shop", activeShopId],
+        (prev) => (prev ? { ...prev, hasOpenCashRegister: true } : prev),
+      );
+    }
+  };
+
+  const activeShopName =
+    activeShop?.name ||
+    storedShops.find((shop) => shop.id === activeShopId)?.name ||
+    null;
 
   // Mostrar loading mientras verifica
   if (authLoading || shopsLoading) {
@@ -138,5 +208,21 @@ export function StoreSetupGuard({ children }: StoreSetupGuardProps) {
   }
 
   // Si tiene tiendas, mostrar el contenido
-  return <>{children}</>;
+  const shouldShowOpenCashModal =
+    showOpenCashModal &&
+    !shopHasOpenCash &&
+    !(openCashRegister && openCashRegister.isOpen);
+
+  return (
+    <>
+      {children}
+      <OpenCashRegisterModal
+        isOpen={shouldShowOpenCashModal}
+        shopId={activeShopId}
+        shopName={activeShopName}
+        onOpened={handleCashRegisterOpened}
+      />
+    </>
+  );
 }
+

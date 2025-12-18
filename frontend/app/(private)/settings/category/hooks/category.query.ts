@@ -2,7 +2,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import {
   GetAllCategoryProductAction,
   GetAllCategorySupplierAction,
-} from "../actions/get-all.category.action";
+} from "../actions";
 
 const DEFAULT_LIMIT = 10;
 
@@ -69,3 +69,4 @@ export const useCategorySuppliersQuery = () => {
     isFetchingNextSupplierCategories: query.isFetchingNextPage,
   };
 };
+

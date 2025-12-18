@@ -1,19 +1,16 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { useShopStore } from "@/app/(private)/store/shops.slice";
-import {
-  createCategoryProductAction,
-  createCategorySuppliertAction,
-} from "../actions/create.category.action";
-import {
-  updateCategoryProductAction,
-  updateCategorySupplierAction,
-} from "../actions/update.category.action";
+
 import {
   CreateCategoryProductDto,
   CreateCategorySupplierDto,
 } from "../interfaces";
-import { getErrorMessage } from "@/lib/error-handler";
+import {
+  updateCategoryProductAction,
+  updateCategorySupplierAction,
+  createCategoryProductAction,
+  createCategorySuppliertAction,
+} from "../actions";
 
 export const useCategoryProductCreateMutation = () => {
   const queryClient = useQueryClient();
@@ -58,18 +55,10 @@ export const useCategoryProductUpdateMutation = () => {
       payload: Partial<CreateCategoryProductDto>;
     }) => updateCategoryProductAction(id, payload),
     onSuccess: () => {
-      toast.success("Categoria de producto actualizada");
       queryClient.invalidateQueries({
         queryKey: ["category-products", activeShopId],
       });
       queryClient.invalidateQueries({ queryKey: ["category-products"] });
-    },
-    onError: (error: unknown) => {
-      const { message } = getErrorMessage(
-        error,
-        "No se pudo actualizar la categoría",
-      );
-      toast.error("Error", { description: message });
     },
   });
 };
@@ -86,18 +75,10 @@ export const useCategorySupplierUpdateMutation = () => {
       payload: Partial<CreateCategorySupplierDto>;
     }) => updateCategorySupplierAction(id, payload),
     onSuccess: () => {
-      toast.success("Categoria de proveedor actualizada");
       queryClient.invalidateQueries({
         queryKey: ["category-suppliers", activeShopId],
       });
       queryClient.invalidateQueries({ queryKey: ["category-suppliers"] });
-    },
-    onError: (error: unknown) => {
-      const { message } = getErrorMessage(
-        error,
-        "No se pudo actualizar la categoría",
-      );
-      toast.error("Error", { description: message });
     },
   });
 };

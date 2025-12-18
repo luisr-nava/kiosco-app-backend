@@ -135,7 +135,9 @@ export function Sidebar() {
                 href={item.href}
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                  collapsed ? "justify-center group-hover:justify-start" : "justify-start",
+                  collapsed
+                    ? "justify-center group-hover:justify-start"
+                    : "justify-start",
                   isActive
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
@@ -160,7 +162,9 @@ export function Sidebar() {
               onClick={() => setSettingsOpen((prev) => !prev)}
               className={cn(
                 "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                collapsed ? "justify-center group-hover:justify-start" : "justify-start",
+                collapsed
+                  ? "justify-center group-hover:justify-start"
+                  : "justify-start",
                 isInSettings || isInCategories
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
@@ -175,13 +179,12 @@ export function Sidebar() {
                 )}>
                 Ajustes
               </span>
-              {!collapsed && (
-                showSettingsExpanded ? (
+              {!collapsed &&
+                (showSettingsExpanded ? (
                   <ChevronDown className="ml-auto h-4 w-4" />
                 ) : (
                   <ChevronRight className="ml-auto h-4 w-4" />
-                )
-              )}
+                ))}
             </button>
 
             {showSettingsExpanded && (
@@ -193,17 +196,17 @@ export function Sidebar() {
                     : "opacity-100",
                 )}>
                 <Link
-                  href="/dashboard/settings"
+                  href="/settings/preferences"
                   className={cn(
                     "flex items-center gap-2 rounded-md px-2 py-1 text-sm transition-colors",
-                    pathname === "/dashboard/settings"
+                    pathname === "/settings/preferences"
                       ? "bg-primary/10 text-primary"
                       : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
                   )}>
                   <span>Preferencias</span>
                 </Link>
                 <Link
-                  href="/dashboard/category"
+                  href="/settings/category"
                   className={cn(
                     "flex items-center gap-2 rounded-md px-2 py-1 text-sm transition-colors",
                     isInCategories
@@ -220,3 +223,5 @@ export function Sidebar() {
     </aside>
   );
 }
+
+

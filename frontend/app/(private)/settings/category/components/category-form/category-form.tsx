@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { UseCategoryFormReturn } from "../hooks/useCategoryForm";
+import type { UseCategoryFormReturn } from "../../hooks/useCategoryForm";
 
 interface Props {
   type: "product" | "supplier";
@@ -69,10 +69,7 @@ export const CategoryForm = ({
           )}
         </div>
       )}
-      <Button
-        className="w-full"
-        type="submit"
-        disabled={!canSubmit || pending}>
+      <Button className="w-full" type="submit" disabled={!canSubmit || pending}>
         {pending
           ? isEditing
             ? "Actualizando..."
@@ -94,3 +91,4 @@ export const CategoryForm = ({
     </form>
   );
 };
+

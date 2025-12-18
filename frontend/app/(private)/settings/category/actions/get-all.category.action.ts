@@ -1,23 +1,17 @@
 import { kioscoApi } from "@/lib/kioscoApi";
 import { CategoryProduct, CategorySupplier } from "../interfaces";
-
-export interface CategoryPagination {
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
+import { Pagination } from "@/app/(private)/interfaces";
 
 export const GetAllCategoryProductAction = async (params?: {
   page?: number;
   limit?: number;
 }): Promise<{
   categoryProducts: CategoryProduct[];
-  pagination: CategoryPagination;
+  pagination: Pagination;
 }> => {
   const { data } = await kioscoApi.get<{
     data: CategoryProduct[];
-    pagination: CategoryPagination;
+    pagination: Pagination;
   }>(`/category`, {
     params: {
       page: params?.page ?? 1,
@@ -36,11 +30,11 @@ export const GetAllCategorySupplierAction = async (params?: {
   limit?: number;
 }): Promise<{
   categorySuppliers: CategorySupplier[];
-  pagination: CategoryPagination;
+  pagination: Pagination;
 }> => {
   const { data } = await kioscoApi.get<{
     data: CategorySupplier[];
-    pagination: CategoryPagination;
+    pagination: Pagination;
   }>(`/supplier-category`, {
     params: {
       page: params?.page ?? 1,
@@ -53,3 +47,4 @@ export const GetAllCategorySupplierAction = async (params?: {
     pagination: data.pagination,
   };
 };
+
