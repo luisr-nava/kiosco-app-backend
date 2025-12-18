@@ -62,6 +62,7 @@ export class CustomerService {
     includeInactive = false,
     page = 1,
     limit = 10,
+    search?: string,
   ) {
     const shop = await this.prisma.shop.findUnique({
       where: { id: shopId },
@@ -71,9 +72,13 @@ export class CustomerService {
       throw new ForbiddenException('No ten�s acceso a esta tienda');
     }
 
+    const normalizedSearch = search?.trim();
     const where: any = { shopId };
     if (!includeInactive) {
       where.isActive = true;
+    }
+    if (normalizedSearch) {
+      where.fullName = { contains: normalizedSearch, mode: 'insensitive' };
     }
 
     const skip = (page - 1) * limit;

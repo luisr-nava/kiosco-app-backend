@@ -38,6 +38,7 @@ export class CustomerController {
     includeInactive?: boolean,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @Query('search') search?: string,
   ) {
     return this.customerService.findAll(
       shopId,
@@ -45,6 +46,7 @@ export class CustomerController {
       includeInactive,
       page ? parseInt(page, 10) : 1,
       limit ? parseInt(limit, 10) : 10,
+      search?.trim(),
     );
   }
 
