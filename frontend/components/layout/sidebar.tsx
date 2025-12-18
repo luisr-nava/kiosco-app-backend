@@ -92,7 +92,8 @@ export function Sidebar() {
 
   const isInSettings = pathname.startsWith("/dashboard/settings");
   const isInCategories = pathname.startsWith("/dashboard/category");
-  const showSettingsExpanded = settingsOpen || (!collapsed && (isInSettings || isInCategories));
+  const showSettingsExpanded =
+    settingsOpen || (!collapsed && (isInSettings || isInCategories));
 
   return (
     <aside
@@ -108,9 +109,9 @@ export function Sidebar() {
             onClick={() => setCollapsed((prev) => !prev)}
             className="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-accent transition-colors">
             {collapsed ? (
-              <Menu className="h-5 w-5 flex-shrink-0" />
+              <Menu className="h-5 w-5 shrink-0" />
             ) : (
-              <ChevronLeft className="h-5 w-5 flex-shrink-0" />
+              <ChevronLeft className="h-5 w-5 shrink-0" />
             )}
           </button>
           <div
@@ -142,7 +143,7 @@ export function Sidebar() {
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
                 )}>
-                <Icon className="h-5 w-5 flex-shrink-0" />
+                <Icon className="h-5 w-5 shrink-0" />
                 <span
                   className={cn(
                     "block overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200",
@@ -169,7 +170,7 @@ export function Sidebar() {
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
               )}>
-              <Settings className="h-5 w-5 flex-shrink-0" />
+              <Settings className="h-5 w-5 shrink-0" />
               <span
                 className={cn(
                   "block overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200",
@@ -223,5 +224,4 @@ export function Sidebar() {
     </aside>
   );
 }
-
 
