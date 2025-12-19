@@ -21,6 +21,7 @@ model Shop {
   phone        String?
   countryCode  String         @default("US")
   currencyCode String         @default("USD")
+  timezone     String         @default("UTC")
 
   // Configuración de alertas de stock
   lowStockThreshold Int?       @default(10) // Umbral de stock bajo

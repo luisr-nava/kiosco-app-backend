@@ -11,6 +11,7 @@ import { CashRegisterService } from '../cash-register/cash-register.service';
 import { Shop } from './entities/shop.entity';
 import { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface';
 import { DEFAULT_CURRENCY_CODE } from '../common/constants/currencies';
+import { getTimezoneForCountry } from '../common/utils/timezone.util';
 
 @Injectable()
 export class ShopService {
@@ -27,6 +28,13 @@ export class ShopService {
     const currencyCode = dto.currencyCode
       ? dto.currencyCode.toUpperCase()
       : DEFAULT_CURRENCY_CODE;
+    const timezone = getTimezoneForCountry(countryCode);
+
+    if (!timezone) {
+      throw new BadRequestException(
+        'No se pudo determinar la zona horaria para el país seleccionado',
+      );
+    }
 
     const shopCount = await this.prisma.shop.count({
       where: { ownerId: user.id },
@@ -48,6 +56,7 @@ export class ShopService {
         ...(dto.isActive !== undefined ? { isActive: dto.isActive } : {}),
         countryCode,
         currencyCode,
+        timezone,
       },
     });
 
@@ -112,6 +121,7 @@ export class ShopService {
             isActive: shop.isActive,
             countryCode: shop.countryCode,
             currencyCode: shop.currencyCode,
+            timezone: shop.timezone,
             createdAt: shop.createdAt,
             // Estadísticas
             employeesCount: shop._count.employees,
@@ -174,6 +184,7 @@ export class ShopService {
             isActive: shop.isActive,
             countryCode: shop.countryCode,
             currencyCode: shop.currencyCode,
+            timezone: shop.timezone,
             // Información básica del empleado
             myRole: employee.role,
             myHireDate: employee.hireDate,
@@ -300,6 +311,7 @@ export class ShopService {
           isActive: shop.isActive,
           countryCode: shop.countryCode,
           currencyCode: shop.currencyCode,
+          timezone: shop.timezone,
           createdAt: shop.createdAt,
           // Empleados completos con salarios
           employees: shop.employees,
@@ -416,6 +428,7 @@ export class ShopService {
           isActive: shop.isActive,
           countryCode: shop.countryCode,
           currencyCode: shop.currencyCode,
+          timezone: shop.timezone,
           // Mi información como empleado
           myInfo: {
             id: employee.id,
@@ -467,6 +480,23 @@ export class ShopService {
       throw new ForbiddenException('Tienda no encontrada o sin permiso');
     }
 
+    const countryCode = updateShopDto.countryCode
+      ? updateShopDto.countryCode.toUpperCase()
+      : shop.countryCode;
+    const currencyCode = updateShopDto.currencyCode
+      ? updateShopDto.currencyCode.toUpperCase()
+      : shop.currencyCode;
+    const timezone =
+      updateShopDto.countryCode || !shop.timezone
+        ? getTimezoneForCountry(countryCode)
+        : shop.timezone;
+
+    if (!timezone) {
+      throw new BadRequestException(
+        'No se pudo determinar la zona horaria para el país seleccionado',
+      );
+    }
+
     const updateShop = await this.prisma.shop.update({
       where: { id },
       data: {
@@ -474,12 +504,9 @@ export class ShopService {
         address: updateShopDto.address ?? shop.address,
         isActive: updateShopDto.isActive ?? shop.isActive,
         phone: updateShopDto.phone ?? shop.phone,
-        countryCode: updateShopDto.countryCode
-          ? updateShopDto.countryCode.toUpperCase()
-          : shop.countryCode,
-        currencyCode: updateShopDto.currencyCode
-          ? updateShopDto.currencyCode.toUpperCase()
-          : shop.currencyCode,
+        countryCode,
+        currencyCode,
+        timezone,
       },
     });
 
