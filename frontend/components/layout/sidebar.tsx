@@ -90,10 +90,8 @@ export function Sidebar() {
   const [collapsed, setCollapsed] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
-  const isInSettings = pathname.startsWith("/dashboard/settings");
-  const isInCategories = pathname.startsWith("/dashboard/category");
-  const showSettingsExpanded =
-    settingsOpen || (!collapsed && (isInSettings || isInCategories));
+  const isInSettings = pathname.startsWith("/settings");
+  const showSettingsExpanded = settingsOpen || (!collapsed && isInSettings);
 
   return (
     <aside
@@ -158,15 +156,14 @@ export function Sidebar() {
           })}
 
           <div className="space-y-1">
-            <button
-              type="button"
-              onClick={() => setSettingsOpen((prev) => !prev)}
+            <Link
+              href="/settings/configuration"
               className={cn(
-                "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 collapsed
                   ? "justify-center group-hover:justify-start"
                   : "justify-start",
-                isInSettings || isInCategories
+                isInSettings
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
               )}>
@@ -180,48 +177,10 @@ export function Sidebar() {
                 )}>
                 Ajustes
               </span>
-              {!collapsed &&
-                (showSettingsExpanded ? (
-                  <ChevronDown className="ml-auto h-4 w-4" />
-                ) : (
-                  <ChevronRight className="ml-auto h-4 w-4" />
-                ))}
-            </button>
-
-            {showSettingsExpanded && (
-              <div
-                className={cn(
-                  "pl-10 pr-2 space-y-1",
-                  collapsed
-                    ? "opacity-0 group-hover:opacity-100 group-hover:pl-3"
-                    : "opacity-100",
-                )}>
-                <Link
-                  href="/settings/preferences"
-                  className={cn(
-                    "flex items-center gap-2 rounded-md px-2 py-1 text-sm transition-colors",
-                    pathname === "/settings/preferences"
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                  )}>
-                  <span>Preferencias</span>
-                </Link>
-                <Link
-                  href="/settings/category"
-                  className={cn(
-                    "flex items-center gap-2 rounded-md px-2 py-1 text-sm transition-colors",
-                    isInCategories
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                  )}>
-                  <span>Categorías</span>
-                </Link>
-              </div>
-            )}
+            </Link>
           </div>
         </nav>
       </div>
     </aside>
   );
 }
-
