@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Employee } from "../interfaces";
+import { Employee } from "../../interfaces";
 import { expandableRowVariants } from "@/lib/animations";
 import {
   Mail,
@@ -76,7 +76,7 @@ export const EmployeeTable = ({
                 onClick={() => setExpandedRow(isOpen ? null : employee.id)}>
                 <div className="sm:col-span-1 flex items-start justify-between gap-2">
                   <div className="flex items-start gap-3 min-w-0">
-                    <div className="h-10 w-10 rounded-full overflow-hidden border bg-muted/50 flex-shrink-0">
+                    <div className="h-10 w-10 rounded-full overflow-hidden border bg-muted/50 shrink-0">
                       <Image
                         src={
                           employee.profileImage && employee.profileImage.trim()
@@ -182,7 +182,9 @@ export const EmployeeTable = ({
                             </span>
                             <p className="font-medium text-right sm:text-left">
                               {employee.hireDate
-                                ? new Date(employee.hireDate).toLocaleDateString()
+                                ? new Date(
+                                    employee.hireDate,
+                                  ).toLocaleDateString()
                                 : "Sin fecha"}
                             </p>
                           </div>
@@ -217,7 +219,9 @@ export const EmployeeTable = ({
                             onDelete(employee);
                           }}>
                           <Trash2 className="h-4 w-4 mr-2" />
-                          {deletingId === employee.id ? "Eliminando..." : "Eliminar"}
+                          {deletingId === employee.id
+                            ? "Eliminando..."
+                            : "Eliminar"}
                         </Button>
                       </div>
                     </div>
@@ -238,3 +242,4 @@ export const EmployeeTable = ({
     </div>
   );
 };
+

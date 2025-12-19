@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useShopStore } from "@/app/(private)/store/shops.slice";
-import { getEmployeesAction } from "../actions/get-all.employee.action";
+import { getEmployeesAction } from "../actions";
 
 interface UseEmployeeQueryParams {
   search: string;
@@ -41,3 +41,4 @@ export const useEmployeeQuery = ({
     refetch: query.refetch,
   };
 };
+

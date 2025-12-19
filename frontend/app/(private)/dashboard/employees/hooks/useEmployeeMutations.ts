@@ -1,11 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useShopStore } from "@/app/(private)/store/shops.slice";
-import { createEmployeeAction } from "../actions/create.employee.action";
-import { updateEmployeeAction } from "../actions/update.employee.action";
-import { deleteEmployeeAction } from "../actions/delete.employee.action";
+import {
+  deleteEmployeeAction,
+  createEmployeeAction,
+  updateEmployeeAction,
+} from "../actions";
 import { CreateEmployeeDto } from "../interfaces";
-import { getErrorMessage } from "@/lib/error-handler";
 
 export const useEmployeeMutations = () => {
   const queryClient = useQueryClient();
@@ -21,29 +22,24 @@ export const useEmployeeMutations = () => {
       invalidateList();
     },
     onError: (error: unknown) => {
-      toast.error("Error", {
-        description: getErrorMessage(
-          error,
-          "No se pudo crear el empleado",
-        ).message,
-      });
+      toast.error("No se pudo crear el empleado");
     },
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: Partial<CreateEmployeeDto> }) =>
-      updateEmployeeAction(id, payload),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: Partial<CreateEmployeeDto>;
+    }) => updateEmployeeAction(id, payload),
     onSuccess: () => {
       toast.success("Empleado actualizado");
       invalidateList();
     },
     onError: (error: unknown) => {
-      toast.error("Error", {
-        description: getErrorMessage(
-          error,
-          "No se pudo actualizar el empleado",
-        ).message,
-      });
+      toast.error("No se pudo actualizar el empleado");
     },
   });
 
@@ -54,12 +50,7 @@ export const useEmployeeMutations = () => {
       invalidateList();
     },
     onError: (error: unknown) => {
-      toast.error("Error", {
-        description: getErrorMessage(
-          error,
-          "No se pudo eliminar el empleado",
-        ).message,
-      });
+      toast.error("No se pudo eliminar el empleado");
     },
   });
 
@@ -69,3 +60,4 @@ export const useEmployeeMutations = () => {
     deleteMutation,
   };
 };
+

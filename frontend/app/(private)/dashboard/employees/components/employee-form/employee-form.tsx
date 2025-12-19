@@ -3,9 +3,13 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { PasswordInput } from "@/components/ui/password-input";
-import { Employee, EmployeeRole } from "../interfaces";
+import { Employee, EmployeeRole } from "../../interfaces";
 
 const RequiredMark = () => (
   <Tooltip>
@@ -234,8 +238,8 @@ export const EmployeeForm = ({
               ? "Guardando..."
               : "Creando..."
             : editingEmployee
-              ? "Actualizar empleado"
-              : "Crear empleado"}
+            ? "Actualizar empleado"
+            : "Crear empleado"}
         </Button>
         {editingEmployee && (
           <Button
@@ -250,3 +254,4 @@ export const EmployeeForm = ({
     </form>
   );
 };
+
