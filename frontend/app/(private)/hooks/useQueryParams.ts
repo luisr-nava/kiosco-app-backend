@@ -136,7 +136,7 @@ export function usePaginationParams(debounceDelay: number = 500) {
   const page = Number(params.page) || 1;
   const limit = Number(params.limit) || 10;
 
-  // Aplicar debounce solo a la búsqueda
+  // Aplicar debounce solo para usarlo en queries, no para la URL
   const debouncedSearch = useDebounce(search, debounceDelay);
 
   /**

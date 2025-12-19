@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/app/(auth)/hooks";
 import { useShopStore } from "@/app/(private)/store/shops.slice";
 import {
@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertTriangle, ShieldAlert, Users } from "lucide-react";
+import { ShieldAlert, Users } from "lucide-react";
 import { Employee, CreateEmployeeDto } from "./interfaces";
 import { useEmployees } from "./hooks/useEmployees";
 import { useEmployeeMutations } from "./hooks/useEmployeeMutations";
@@ -22,25 +22,40 @@ import { EmployeeTable } from "./components/employee-table";
 import { toast } from "sonner";
 import { ShopLoading } from "@/components/shop-loading";
 import { Modal } from "@/components/ui/modal";
+import { usePaginationParams } from "../../hooks/useQueryParams";
+import { Pagination } from "@/app/(private)/components";
 
 export default function EmployeesPage() {
   const { user } = useAuth();
   const isOwner = user?.role === "OWNER";
   const { activeShopId, activeShop, activeShopLoading } = useShopStore();
 
-  const { employees, isLoading, isFetching } = useEmployees(isOwner);
+  const {
+    search,
+    setSearch,
+    debouncedSearch,
+    page,
+    limit,
+    setPage,
+    setLimit,
+  } = usePaginationParams(300);
+
+  const { employees, pagination, employeesLoading, isFetching } = useEmployees(
+    debouncedSearch,
+    page,
+    limit,
+    isOwner,
+  );
   const { createMutation, updateMutation, deleteMutation } =
     useEmployeeMutations();
 
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Employee | null>(null);
-  const [search, setSearch] = useState("");
-
-  const deletingId = useMemo(
-    () => (deleteMutation.variables as string | undefined) ?? null,
-    [deleteMutation.variables],
-  );
+  const deletingId =
+    deleteMutation.isPending && deleteMutation.variables
+      ? (deleteMutation.variables as string)
+      : null;
 
   const handleSubmit = (values: EmployeeFormValues) => {
     if (!activeShopId) {
@@ -122,17 +137,6 @@ export default function EmployeesPage() {
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
   const isDeleting = deleteMutation.isPending;
 
-  const filteredEmployees = useMemo(() => {
-    if (!search.trim()) return employees;
-    const term = search.toLowerCase();
-    return employees.filter(
-      (emp) =>
-        emp.fullName.toLowerCase().includes(term) ||
-        emp.email.toLowerCase().includes(term) ||
-        (emp.phone || "").toLowerCase().includes(term),
-    );
-  }, [employees, search]);
-
   const confirmDelete = () => {
     if (!deleteTarget) return;
     deleteMutation.mutate(deleteTarget.id, {
@@ -144,6 +148,14 @@ export default function EmployeesPage() {
       },
     });
   };
+
+  useEffect(() => {
+    if (!pagination) return;
+    const maxPage = Math.max(pagination.totalPages, 1);
+    if (page > maxPage) {
+      setPage(maxPage);
+    }
+  }, [page, pagination, setPage]);
 
   if (!isOwner) {
     return (
@@ -216,14 +228,14 @@ export default function EmployeesPage() {
           <Users className="h-4 w-4" />
           <div className="text-right leading-tight">
             <p className="font-medium">{activeShop?.name || "Tienda activa"}</p>
-            <p>Empleados: {employees.length}</p>
+            <p>Empleados: {pagination?.total ?? employees.length}</p>
           </div>
         </div>
       </div>
 
       <EmployeeTable
-        employees={filteredEmployees}
-        isLoading={isLoading}
+        employees={employees}
+        isLoading={employeesLoading}
         isFetching={isFetching}
         onEdit={(employee) => {
           setEditingEmployee(employee);
@@ -232,10 +244,20 @@ export default function EmployeesPage() {
         onDelete={handleDelete}
         deletingId={deletingId}
       />
-      {deleteMutation.isError && (
-        <p className="mt-3 text-xs text-destructive">
-          No se pudo eliminar el empleado, intenta nuevamente.
-        </p>
+
+      {employees.length > 0 && (
+        <Pagination
+          page={page}
+          totalPages={pagination?.totalPages ?? 1}
+          limit={limit}
+          onPageChange={(nextPage) => {
+            if (nextPage < 1) return;
+            setPage(nextPage);
+          }}
+          onLimitChange={(nextLimit) => setLimit(nextLimit)}
+          isLoading={isFetching}
+          totalItems={pagination?.total ?? 0}
+        />
       )}
 
       <Modal
@@ -281,4 +303,3 @@ export default function EmployeesPage() {
     </div>
   );
 }
-

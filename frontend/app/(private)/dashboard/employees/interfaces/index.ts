@@ -38,3 +38,14 @@ export interface CreateEmployeeDto {
 }
 
 export type UpdateEmployeeDto = Partial<CreateEmployeeDto>;
+
+export interface GetEmployeesResponse {
+  message?: string;
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+  data: Employee[];
+}
