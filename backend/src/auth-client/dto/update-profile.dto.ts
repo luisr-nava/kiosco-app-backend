@@ -11,13 +11,6 @@ export class UpdateProfileDto {
 
   @IsOptional()
   @IsString()
-  @Length(8, 20, {
-    message: 'La contraseña debe tener entre 8 y 20 caracteres',
-  })
-  password?: string;
-
-  @IsOptional()
-  @IsString()
   phone?: string;
 
   @IsOptional()

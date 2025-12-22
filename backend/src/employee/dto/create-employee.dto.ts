@@ -5,6 +5,9 @@ import {
   IsNumber,
   IsDateString,
   Length,
+  IsUUID,
+  IsArray,
+  ArrayNotEmpty,
 } from 'class-validator';
 
 export class CreateEmployeeDto {
@@ -12,12 +15,16 @@ export class CreateEmployeeDto {
   @Length(3, 50)
   fullName: string;
 
-  @IsEmail()
-  email: string;
+  @IsUUID()
+  userId: string;
 
-  @IsString()
-  @Length(8, 20)
-  password: string;
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsUUID(undefined, { each: true })
+  shopIds: string[];
+
+  @IsEmail()
+  email: string; // LEGACY_EMPLOYEE_COMPAT: requerido por el esquema local, no para autenticación
 
   @IsString()
   @IsOptional()
@@ -54,7 +61,4 @@ export class CreateEmployeeDto {
   @IsOptional()
   @IsString()
   emergencyContact?: string;
-
-  @IsString()
-  shopId: string;
 }

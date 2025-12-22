@@ -30,13 +30,8 @@ export class ShopService {
       : DEFAULT_CURRENCY_CODE;
     const timezone = getTimezoneForCountry(countryCode);
 
-    const subscription = await this.prisma.subscription.findUnique({
-      where: { projectId: user.projectId },
-      select: { status: true },
-    });
-
     const hasActiveSubscription =
-      subscription && ['ACTIVE', 'TRIALING'].includes(subscription.status);
+      (user.subscriptionStatus ?? '').toLowerCase() === 'active';
     const maxShopsAllowed = hasActiveSubscription ? 3 : 1;
 
     if (!timezone) {
@@ -46,7 +41,7 @@ export class ShopService {
     }
 
     const shopCount = await this.prisma.shop.count({
-      where: { ownerId: user.id, projectId: user.projectId },
+      where: { ownerId: user.id },
     });
 
     if (shopCount >= maxShopsAllowed) {
@@ -61,7 +56,7 @@ export class ShopService {
       data: {
         name: dto.name,
         ownerId: user.id,
-        projectId: user.projectId,
+        projectId: user.projectId ?? user.id,
         ...(dto.address !== undefined ? { address: dto.address } : {}),
         ...(dto.phone !== undefined ? { phone: dto.phone } : {}),
         ...(dto.isActive !== undefined ? { isActive: dto.isActive } : {}),
@@ -89,7 +84,7 @@ export class ShopService {
         include: {
           _count: {
             select: {
-              employees: true,
+              employeeShops: true,
               shopProducts: true,
               purchases: true,
               sales: true,
@@ -137,7 +132,7 @@ export class ShopService {
             timezone: shop.timezone,
             createdAt: shop.createdAt,
             // Estadísticas
-            employeesCount: shop._count.employees,
+            employeesCount: shop._count.employeeShops,
             productsCount: shop._count.shopProducts,
             categoriesCount: shop._count.categories,
             purchasesCount: shop._count.purchases,
@@ -160,53 +155,52 @@ export class ShopService {
     }
 
     if (user.role === 'EMPLOYEE') {
-      const employee = await this.prisma.employee.findFirst({
-        where: { email: user.email },
-        include: { shop: true },
-      });
-
-      if (!employee) {
-        throw new ForbiddenException('No estás asignado a ninguna tienda');
-      }
-
-      const shop = await this.prisma.shop.findUnique({
-        where: { id: employee.shopId },
+      const employee = await this.prisma.employee.findUnique({
+        where: { id: user.id },
         include: {
-          _count: {
-            select: {
-              shopProducts: true,
-              categories: true,
+          employeeShops: {
+            include: {
+              shop: {
+                include: {
+                  _count: {
+                    select: {
+                      shopProducts: true,
+                      categories: true,
+                    },
+                  },
+                },
+              },
             },
           },
         },
       });
 
-      if (!shop) {
-        throw new NotFoundException('Tienda no encontrada');
+      const assignedShops =
+        employee?.employeeShops.map((relation) => relation.shop) ?? [];
+
+      if (!employee || assignedShops.length === 0) {
+        throw new ForbiddenException('No estás asignado a ninguna tienda');
       }
 
+      const data = assignedShops.map((shop) => ({
+        id: shop.id,
+        name: shop.name,
+        address: shop.address,
+        phone: shop.phone,
+        isActive: shop.isActive,
+        countryCode: shop.countryCode,
+        currencyCode: shop.currencyCode,
+        timezone: shop.timezone,
+        myRole: employee.role,
+        myHireDate: employee.hireDate,
+        productsCount: shop._count.shopProducts,
+        categoriesCount: shop._count.categories,
+      }));
+
       return {
-        message: 'Tu tienda asignada',
+        message: 'Tiendas asignadas',
         role: 'EMPLOYEE',
-        data: [
-          {
-            id: shop.id,
-            name: shop.name,
-            address: shop.address,
-            phone: shop.phone,
-            isActive: shop.isActive,
-            countryCode: shop.countryCode,
-            currencyCode: shop.currencyCode,
-            timezone: shop.timezone,
-            // Información básica del empleado
-            myRole: employee.role,
-            myHireDate: employee.hireDate,
-            // Información limitada
-            productsCount: shop._count.shopProducts,
-            categoriesCount: shop._count.categories,
-            // Sin acceso a datos fiscales ni financieros
-          },
-        ],
+        data,
       };
     }
 
@@ -222,21 +216,25 @@ export class ShopService {
           projectId: user.projectId,
         },
         include: {
-          employees: {
-            select: {
-              id: true,
-              fullName: true,
-              email: true,
-              role: true,
-              phone: true,
-              hireDate: true,
-              salary: true,
-              isActive: true,
+          employeeShops: {
+            include: {
+              employee: {
+                select: {
+                  id: true,
+                  fullName: true,
+                  email: true,
+                  role: true,
+                  phone: true,
+                  hireDate: true,
+                  salary: true,
+                  isActive: true,
+                },
+              },
             },
           },
           _count: {
             select: {
-              employees: true,
+              employeeShops: true,
               shopProducts: true,
               purchases: true,
               sales: true,
@@ -327,8 +325,8 @@ export class ShopService {
           timezone: shop.timezone,
           createdAt: shop.createdAt,
           // Empleados completos con salarios
-          employees: shop.employees,
-          employeesCount: shop._count.employees,
+          employees: shop.employeeShops.map((relation) => relation.employee),
+          employeesCount: shop._count.employeeShops,
           // Contadores
           productsCount: shop._count.shopProducts,
           categoriesCount: shop._count.categories,
@@ -372,29 +370,41 @@ export class ShopService {
     }
 
     if (user.role === 'EMPLOYEE') {
-      const employee = await this.prisma.employee.findFirst({
-        where: { email: user.email },
-      });
-
-      if (!employee) {
-        throw new ForbiddenException('No estás asignado a ninguna tienda');
-      }
-
-      if (employee.shopId !== id) {
-        throw new ForbiddenException('No podés acceder a esta tienda');
-      }
-
-      const shop = await this.prisma.shop.findFirst({
-        where: { id: employee.shopId },
+      const employeeShop = await this.prisma.employeeShop.findFirst({
+        where: { employeeId: user.id, shopId: id },
         include: {
-          _count: {
-            select: {
-              shopProducts: true,
-              categories: true,
+          shop: {
+            include: {
+              _count: {
+                select: {
+                  shopProducts: true,
+                  categories: true,
+                },
+              },
             },
           },
         },
       });
+
+      if (!employeeShop?.shop) {
+        throw new ForbiddenException('No podés acceder a esta tienda');
+      }
+
+      const shop = employeeShop.shop;
+      const employee = await this.prisma.employee.findUnique({
+        where: { id: user.id },
+        select: {
+          id: true,
+          fullName: true,
+          role: true,
+          hireDate: true,
+          phone: true,
+        },
+      });
+
+      if (!employee) {
+        throw new ForbiddenException('Empleado no encontrado');
+      }
 
       if (!shop) {
         throw new NotFoundException('Tienda no encontrada');

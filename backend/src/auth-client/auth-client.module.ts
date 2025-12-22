@@ -9,10 +9,7 @@ import { RolesGuard } from './guards/roles.guard';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { TokenBlacklistService } from './services/token-blacklist.service';
 import { ShopModule } from '../shop/shop.module';
-import { FailedAttemptsGuard } from '../common/guards/failed-attempts.guard';
 import { envs } from '../config/envs';
-import { CashRegisterModule } from '../cash-register/cash-register.module';
-import { SubscriptionModule } from '../subscription/subscription.module';
 
 @Module({
   imports: [
@@ -23,8 +20,6 @@ import { SubscriptionModule } from '../subscription/subscription.module';
     }),
     HttpModule,
     ShopModule,
-    CashRegisterModule,
-    SubscriptionModule,
   ],
   controllers: [AuthClientController],
   providers: [
@@ -33,7 +28,6 @@ import { SubscriptionModule } from '../subscription/subscription.module';
     RolesGuard,
     AuthClientService,
     TokenBlacklistService,
-    FailedAttemptsGuard,
   ],
   exports: [JwtAuthGuard, RolesGuard, AuthClientService, TokenBlacklistService],
 })

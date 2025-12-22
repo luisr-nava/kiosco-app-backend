@@ -1,6 +1,6 @@
 generator client {
   provider      = "prisma-client-js"
-  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -26,7 +26,7 @@ model Shop {
   // Configuración de alertas de stock
   lowStockThreshold Int?       @default(10) // Umbral de stock bajo
 
-  employees    Employee[]
+  employeeShops EmployeeShop[]
   expenses     Expense[]
   incomes      Income[]
   purchases    Purchase[]
@@ -44,6 +44,7 @@ model Shop {
   paymentMethods PaymentMethod[]
   webhooks     Webhook[]
   stockAlerts  StockAlert[]
+  measurementUnits ShopMeasurementUnit[]
 }
 
 
@@ -474,6 +475,38 @@ model PurchaseDeletionHistory {
   itemsSnapshot String  @db.Text // Guardamos los items en formato JSON
 }
 
+model MeasurementUnit {
+  id                String                 @id @default(uuid())
+  name              String
+  code              String
+  category          MeasurementUnitCategory
+  baseUnit          MeasurementBaseUnit
+  conversionFactor  Decimal                @db.Decimal(18, 6)
+  isBaseUnit        Boolean                @default(false)
+  isDefault         Boolean                @default(false)
+  createdByUserId   String?
+  createdAt         DateTime               @default(now())
+
+  shopMeasurementUnits ShopMeasurementUnit[]
+  products             Product[]
+
+  @@unique([code, baseUnit])
+}
+
+model ShopMeasurementUnit {
+  id                 String          @id @default(uuid())
+  shopId             String
+  measurementUnitId  String
+  assignedByUserId   String?
+  createdAt          DateTime        @default(now())
+
+  shop              Shop             @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  measurementUnit   MeasurementUnit  @relation(fields: [measurementUnitId], references: [id], onDelete: Cascade)
+
+  @@unique([shopId, measurementUnitId])
+  @@index([measurementUnitId])
+}
+
 model Product {
   id          String   @id @default(uuid())
   name        String
@@ -488,6 +521,8 @@ model Product {
 
   categoryId String? // <--- agregado
   category   Category? @relation(fields: [categoryId], references: [id])
+  measurementUnitId String
+  measurementUnit   MeasurementUnit @relation(fields: [measurementUnitId], references: [id])
 
   shopProducts ShopProduct[]
 }
@@ -573,7 +608,6 @@ model Employee {
   role             String
   hireDate         DateTime?
   salary           Float?
-  shopId           String
   address          String?
   createdAt        DateTime  @default(now())
   dni              String?
@@ -582,8 +616,21 @@ model Employee {
   notes            String?
   phone            String?
   profileImage     String?
-  shop             Shop      @relation(fields: [shopId], references: [id])
   sales            Sale[]
+  employeeShops    EmployeeShop[]
+}
+
+model EmployeeShop {
+  id         String   @id @default(uuid())
+  employeeId String
+  shopId     String
+  createdAt  DateTime @default(now())
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+  shop     Shop     @relation(fields: [shopId], references: [id])
+
+  @@unique([employeeId, shopId])
+  @@index([shopId])
 }
 
 model Customer {
@@ -795,6 +842,18 @@ enum SubscriptionStatus {
   CANCELED
 }
 
+enum MeasurementUnitCategory {
+  UNIT
+  WEIGHT
+  VOLUME
+}
+
+enum MeasurementBaseUnit {
+  UNIT
+  KG
+  L
+}
+
 // Webhooks para notificaciones
 model Webhook {
   id          String        @id @default(uuid())
@@ -870,8 +929,6 @@ model Subscription {
   ownerId              String
   plan                 String              @default("FREE")
   status               SubscriptionStatus  @default(FREE)
-  stripeCustomerId     String?
-  stripeSubscriptionId String?
   currentPeriodEnd     DateTime?
   cancelAt             DateTime?
   createdAt            DateTime            @default(now())

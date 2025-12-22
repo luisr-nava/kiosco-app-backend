@@ -222,7 +222,7 @@ export class PaymentMethodService {
 
     if (user.role === 'EMPLOYEE') {
       const employee = await this.prisma.employee.findFirst({
-        where: { id: user.id, shopId },
+        where: { id: user.id, employeeShops: { some: { shopId } } },
       });
 
       if (!employee) {

@@ -1,9 +1,12 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import type { Request } from 'express';
 import { envs } from '../../config/envs';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
 import { TokenBlacklistService } from '../services/token-blacklist.service';
+
+type JwtPayloadWithSub = JwtPayload & { sub?: string };
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -16,7 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  async validate(req: any, payload: JwtPayload): Promise<JwtPayload> {
+  async validate(req: Request, payload: JwtPayload): Promise<JwtPayload> {
     // Extraer el token raw del header
     const token = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
 
@@ -25,10 +28,25 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       throw new UnauthorizedException('Token has been revoked. Please login again.');
     }
 
-    if (!payload.id || !payload.role || !payload.projectId) {
+    const id = payload.id ?? (payload as JwtPayloadWithSub).sub;
+
+    if (!id || !payload.role) {
       throw new UnauthorizedException('Token inválido o incompleto');
     }
 
-    return payload;
+    if ((payload.appKey ?? '').toLowerCase() !== 'kiosco') {
+      throw new UnauthorizedException('Token appKey no permitido para Kiosco');
+    }
+
+    const normalizedPayload: JwtPayload = {
+      ...payload,
+      id,
+      appKey: payload.appKey?.toLowerCase() ?? 'kiosco',
+      ownerId:
+        payload.ownerId ??
+        (payload.role === 'OWNER' ? id : undefined),
+    };
+
+    return normalizedPayload;
   }
 }

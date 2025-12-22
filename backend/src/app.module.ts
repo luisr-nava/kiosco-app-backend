@@ -23,14 +23,17 @@ import { CustomerModule } from './customer/customer.module';
 import { SaleModule } from './sale/sale.module';
 import { ReportsModule } from './reports/reports.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggerModule } from './common/logger/logger.module';
 import { SecurityHeadersMiddleware } from './common/middleware/security-headers.middleware';
 import { PaymentMethodModule } from './payment-method/payment-method.module';
 import { CashRegisterModule } from './cash-register/cash-register.module';
 import { WebhookModule } from './webhook/webhook.module';
 import { ScheduleModule } from '@nestjs/schedule';
-import { SubscriptionModule } from './subscription/subscription.module';
+import { MeasurementUnitModule } from './measurement-unit/measurement-unit.module';
+import { SubscriptionInterceptor } from './common/authorization/subscription.interceptor';
+import { PlanValidationService } from './common/authorization/plan-validation.service';
+import { JwtAuthGuard } from './auth-client/guards/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -63,13 +66,22 @@ import { SubscriptionModule } from './subscription/subscription.module';
     PaymentMethodModule,
     CashRegisterModule,
     WebhookModule,
-    SubscriptionModule,
+    MeasurementUnitModule,
   ],
   controllers: [AppController],
   providers: [
+    PlanValidationService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: SubscriptionInterceptor,
     },
   ],
 })

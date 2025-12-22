@@ -271,32 +271,38 @@ export class WebhookService {
       return; // Stock OK, no hacer nada
     }
 
-    // Verificar si ya existe una alerta no resuelta
-    const existingAlert = await this.prisma.stockAlert.findFirst({
-      where: {
-        shopProductId,
-        isResolved: false,
-      },
-    });
+    // Evitar alertas duplicadas bajo concurrencia: actualizar si existe, crear si no.
+    const { alert, created } = await this.prisma.$transaction(
+      async (tx) => {
+        const existingAlert = await tx.stockAlert.findFirst({
+          where: { shopProductId, isResolved: false },
+        });
 
-    if (existingAlert) {
-      // Actualizar stock actual de la alerta existente
-      await this.prisma.stockAlert.update({
-        where: { id: existingAlert.id },
-        data: { currentStock },
-      });
-      return; // No crear alerta duplicada
+        if (existingAlert) {
+          await tx.stockAlert.update({
+            where: { id: existingAlert.id },
+            data: { currentStock },
+          });
+          return { alert: existingAlert, created: false };
+        }
+
+        const newAlert = await tx.stockAlert.create({
+          data: {
+            shopId: shopProduct.shopId,
+            shopProductId: shopProduct.id,
+            currentStock,
+            threshold,
+          },
+        });
+
+        return { alert: newAlert, created: true };
+      },
+      { isolationLevel: 'Serializable' },
+    );
+
+    if (!created) {
+      return; // Ya había alerta abierta, solo se actualizó stock
     }
-
-    // Crear nueva alerta de stock
-    const alert = await this.prisma.stockAlert.create({
-      data: {
-        shopId: shopProduct.shopId,
-        shopProductId: shopProduct.id,
-        currentStock,
-        threshold,
-      },
-    });
 
     // Preparar payload
     const payload = {
@@ -446,7 +452,7 @@ export class WebhookService {
 
     if (user.role === 'EMPLOYEE') {
       const employee = await this.prisma.employee.findFirst({
-        where: { id: user.id, shopId },
+        where: { id: user.id, employeeShops: { some: { shopId } } },
       });
 
       if (!employee) {

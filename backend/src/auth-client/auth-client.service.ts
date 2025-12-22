@@ -1,16 +1,9 @@
 import { HttpService } from '@nestjs/axios';
 import { HttpException, Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
-import { LoginDto } from './dto/login.dto';
-import { CreateUserDto } from './dto/create.dto';
 import { envs } from '../config/envs';
-import { CreateEmployeeDto } from './dto/create-employee.dto';
-import { VerifyCodeDto } from './dto/verify-code.dto';
-import { ResendVerificationCodeDto } from './dto/resend-verification-code.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class AuthClientService {
@@ -40,80 +33,6 @@ export class AuthClientService {
     throw new HttpException({ message: defaultMessage }, 500);
   }
 
-  async create(createUserDto: CreateUserDto) {
-    try {
-      const { data } = await this.http.axiosRef.post(
-        `${this.baseUrl}/register`,
-        createUserDto,
-      );
-
-      const user = this.extractUserFromResponse(data);
-
-      // Si no hay usuario en la respuesta, devolvemos el resultado crudo
-      if (!user) {
-        return data;
-      }
-
-      return {
-        ...data,
-        user: { ...user, stripeCustomerId: user.stripeCustomerId },
-      };
-    } catch (error) {
-      this.handleError(error, 'Error al registrar usuario');
-    }
-  }
-
-  async login(loginUserDto: LoginDto) {
-    try {
-      const { data } = await this.http.axiosRef.post(
-        `${this.baseUrl}/login`,
-        loginUserDto,
-      );
-
-      const user = this.extractUserFromResponse(data);
-
-      return user
-        ? {
-            ...data,
-            user: { ...user, stripeCustomerId: user.stripeCustomerId },
-          }
-        : data;
-    } catch (error) {
-      this.handleError(error, 'Error al iniciar sesión');
-    }
-  }
-
-  async verifyCode(verifyCodeDto: VerifyCodeDto) {
-    try {
-      const { data } = await this.http.axiosRef.post(
-        `${this.baseUrl}/verify-code`,
-        verifyCodeDto,
-      );
-      return data;
-    } catch (error) {
-      this.handleError(error, 'Error al verificar el código');
-    }
-  }
-
-  async resendVerificationCode(resendDto: ResendVerificationCodeDto) {
-    try {
-      const { data } = await this.http.axiosRef.post(
-        `${this.baseUrl}/resend-verification-code`,
-        resendDto,
-      );
-      return data;
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        const { status, data } = error.response;
-        throw new HttpException(data, status);
-      }
-      throw new HttpException(
-        { message: 'Error al reenviar el código de verificación' },
-        500,
-      );
-    }
-  }
-
   async getEmployeesByProject(token: string) {
     try {
       const { data } = await this.http.axiosRef.get(
@@ -126,19 +45,6 @@ export class AuthClientService {
         error.response?.data || { message: 'Error al obtener empleados' },
         error.response?.status || 500,
       );
-    }
-  }
-
-  async createEmployee(createEmployeeDto: CreateEmployeeDto, token: string) {
-    try {
-      const { data } = await this.http.axiosRef.post(
-        `${this.baseUrl}/employee`,
-        createEmployeeDto,
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
-      return data;
-    } catch (error) {
-      this.handleError(error, 'Error al crear empleado');
     }
   }
 
@@ -198,70 +104,5 @@ export class AuthClientService {
       }
       throw new HttpException({ message: 'Error al actualizar usuario' }, 500);
     }
-  }
-
-  async validateToken(token: string) {
-    try {
-      const { data } = await this.http.axiosRef.get(
-        `${this.baseUrl}/get-user`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
-      return data;
-    } catch (error) {
-      throw new HttpException(
-        error.response?.data || { message: 'Error al validar token' },
-        error.response?.status || 500,
-      );
-    }
-  }
-
-  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
-    try {
-      const { data } = await this.http.axiosRef.post(
-        `${this.baseUrl}/forgot-password`,
-        forgotPasswordDto,
-      );
-      return data;
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        const { status, data } = error.response;
-        throw new HttpException(data, status);
-      }
-      throw new HttpException(
-        { message: 'Error al solicitar recuperación de contraseña' },
-        500,
-      );
-    }
-  }
-
-  async resetPassword(resetPasswordDto: ResetPasswordDto) {
-    try {
-      const { data } = await this.http.axiosRef.post(
-        `${this.baseUrl}/reset-password`,
-        resetPasswordDto,
-      );
-      return data;
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        const { status, data } = error.response;
-        throw new HttpException(data, status);
-      }
-      throw new HttpException(
-        { message: 'Error al resetear la contraseña' },
-        500,
-      );
-    }
-  }
-
-  private extractUserFromResponse(response: any): any {
-    if (!response) return undefined;
-    // Posibles formas de respuesta: { user }, { data: { user } }, { data: { ...user } }, { ...user }
-    if (response.user) return response.user;
-    if (response.data?.user) return response.data.user;
-    if (response.data && response.data.email) return response.data;
-    if (response.email) return response;
-    return undefined;
   }
 }

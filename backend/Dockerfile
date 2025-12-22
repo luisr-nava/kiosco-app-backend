@@ -1,24 +1,35 @@
-FROM node:20-alpine AS deps
+FROM node:20 AS deps
 
 WORKDIR /app
 
 COPY package*.json ./
 RUN npm ci --legacy-peer-deps
 
-# 👇 INSTALA EL CLI DE NEST
-RUN npm install -g @nestjs/cli typescript
-
-FROM node:20-alpine AS builder
+FROM node:20 AS builder
 
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
 RUN npx prisma generate
 RUN npm run build
 
-FROM node:20-alpine AS prod-deps
+# Development runtime (keeps dev deps for start:dev/watch)
+FROM node:20 AS dev
+
+WORKDIR /app
+ENV NODE_ENV=development
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN npx prisma generate
+COPY docker-entrypoint.sh ./docker-entrypoint.sh
+RUN chmod +x docker-entrypoint.sh
+
+ENTRYPOINT ["./docker-entrypoint.sh"]
+CMD ["npm", "run", "start:dev"]
+
+FROM node:20 AS prod-deps
 
 WORKDIR /app
 
@@ -27,7 +38,7 @@ RUN npm ci --omit=dev --legacy-peer-deps
 COPY prisma ./prisma
 RUN npx prisma generate
 
-FROM node:20-alpine
+FROM node:20-alpine AS prod-runner
 
 WORKDIR /app
 ENV NODE_ENV=production
@@ -35,12 +46,10 @@ ENV NODE_ENV=production
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
-COPY .env .env 
-COPY package*.json ./
-
-# 👇 INSTALA NEST CLI TAMBIÉN EN PRODUCCIÓN (POR EL OVERRIDE)
-RUN npm install -g @nestjs/cli typescript
+COPY docker-entrypoint.sh ./docker-entrypoint.sh
+RUN chmod +x docker-entrypoint.sh
 
 EXPOSE 3000
 
+ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["node", "dist/main"]

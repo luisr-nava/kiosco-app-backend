@@ -25,6 +25,7 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
+      target: prod-runner
     container_name: kiosco-service
     restart: unless-stopped
     depends_on:
@@ -39,11 +40,7 @@ services:
     networks:
       - kiosco-network
       - microservices-network
-    command: >
-      sh -c "
-        npx prisma migrate deploy &&
-        node dist/main 
-      "
+    command: []
 networks:
   kiosco-network:
     driver: bridge

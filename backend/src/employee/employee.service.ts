@@ -1,153 +1,172 @@
 import {
+  BadRequestException,
+  ConflictException,
   ForbiddenException,
-  HttpException,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
-import { envs } from '../config/envs';
 import type { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface';
 import { PrismaService } from '../prisma/prisma.service';
-import { AuthClientService } from '../auth-client/auth-client.service';
-import { CreateEmployeeDto as AuthCreateEmployeeDto } from '../auth-client/dto/create-employee.dto';
-import { UpdateUserDto } from '../auth-client/dto/update-user.dto';
-import { UserRole } from '../auth-client/dto/create.dto';
 
 @Injectable()
 export class EmployeeService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly authClientService: AuthClientService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
   async registerEmployee(
     dto: CreateEmployeeDto,
     user: JwtPayload,
-    token: string,
   ) {
     if (user.role !== 'OWNER') {
       throw new ForbiddenException('Solo los OWNER pueden crear empleados');
     }
-    const shop = await this.prisma.shop.findUnique({
-      where: { id: dto.shopId },
+    const uniqueShopIds = Array.from(new Set(dto.shopIds));
+    if (uniqueShopIds.length === 0) {
+      throw new BadRequestException('shopIds no puede estar vacío');
+    }
+
+    const shops = await this.prisma.shop.findMany({
+      where: { id: { in: uniqueShopIds } },
+      select: { id: true, ownerId: true },
     });
 
-    if (!shop) {
-      throw new NotFoundException('La tienda indicada no existe');
+    if (shops.length !== uniqueShopIds.length) {
+      throw new NotFoundException('Alguna de las tiendas indicadas no existe');
     }
 
-    if (shop.ownerId !== user.id) {
+    const unauthorizedShop = shops.find((shop) => shop.ownerId !== user.id);
+    if (unauthorizedShop) {
       throw new ForbiddenException(
-        'No tenés permiso para asignar empleados a esta tienda',
+        'Solo podés asignar empleados a tus propias tiendas',
       );
     }
 
-    try {
-      // Usar auth-client en lugar de llamada directa
-      const authEmployeeDto: AuthCreateEmployeeDto = {
-        fullName: dto.fullName,
-        email: dto.email,
-        password: dto.password,
-        phone: dto.phone,
-        dni: dto.dni,
-        address: dto.address,
-        hireDate: dto.hireDate,
-        salary: dto.salary?.toString(),
-        notes: dto.notes,
-      };
+    const existingEmployee = await this.prisma.employee.findUnique({
+      where: { id: dto.userId },
+      include: {
+        employeeShops: {
+          include: {
+            shop: {
+              select: { id: true, ownerId: true },
+            },
+          },
+        },
+      },
+    });
 
-      const authUser = await this.authClientService.createEmployee(
-        authEmployeeDto,
-        token,
+    const existingShopIds =
+      existingEmployee?.employeeShops.map((relation) => relation.shopId) ?? [];
+
+    const differentOrgRelation = existingEmployee?.employeeShops.find(
+      (relation) => relation.shop.ownerId !== user.id,
+    );
+    if (differentOrgRelation) {
+      throw new ForbiddenException('El empleado pertenece a otra organización');
+    }
+
+    const duplicatedShopIds = uniqueShopIds.filter((shopId) =>
+      existingShopIds.includes(shopId),
+    );
+    if (duplicatedShopIds.length > 0) {
+      throw new ConflictException(
+        'El empleado ya está asignado a una de las tiendas indicadas',
       );
-      const userId = authUser.id ?? authUser.userId ?? authUser.user?.id;
-      if (!userId) {
-        throw new InternalServerErrorException(
-          'Auth Service no devolvió userId',
-        );
+    }
+
+    const employeeData = {
+      id: dto.userId,
+      fullName: dto.fullName,
+      email: dto.email,
+      role: dto.role ?? 'EMPLOYEE',
+      dni: dto.dni,
+      phone: dto.phone,
+      address: dto.address,
+      hireDate: dto.hireDate ? new Date(dto.hireDate) : undefined,
+      salary: dto.salary,
+      notes: dto.notes,
+      profileImage: dto.profileImage,
+      emergencyContact: dto.emergencyContact,
+    };
+
+    const createdEmployee = await this.prisma.$transaction(async (tx) => {
+      if (!existingEmployee) {
+        await tx.employee.create({ data: employeeData });
       }
-      const kioskEmployee = await this.prisma.employee.create({
-        data: {
-          id: userId,
-          fullName: dto.fullName,
-          email: dto.email,
-          role: dto.role ?? 'EMPLOYEE',
-          dni: dto.dni,
-          phone: dto.phone,
-          address: dto.address,
-          hireDate: dto.hireDate ? new Date(dto.hireDate) : undefined,
-          salary: dto.salary,
-          notes: dto.notes,
-          profileImage: dto.profileImage,
-          emergencyContact: dto.emergencyContact,
-          shopId: dto.shopId,
+
+      await Promise.all(
+        uniqueShopIds.map((shopId) =>
+          tx.employeeShop.create({
+            data: {
+              employeeId: dto.userId,
+              shopId,
+            },
+          }),
+        ),
+      );
+
+      return tx.employee.findUnique({
+        where: { id: dto.userId },
+        include: {
+          employeeShops: {
+            select: {
+              shopId: true,
+            },
+          },
         },
       });
+    });
 
-      return kioskEmployee;
-    } catch (error) {
-      throw error;
-    }
+    return createdEmployee;
   }
 
   async updateEmployee(
     id: string,
     dto: UpdateEmployeeDto,
     user: JwtPayload,
-    token: string,
   ) {
-    const employee = await this.prisma.employee.findUnique({ where: { id } });
+    const employee = await this.prisma.employee.findUnique({
+      where: { id },
+      include: {
+        employeeShops: {
+          include: {
+            shop: {
+              select: { ownerId: true, id: true },
+            },
+          },
+        },
+      },
+    });
     if (!employee) throw new NotFoundException('Empleado no encontrado');
 
     const isOwner = user.role === 'OWNER';
     const isSelf = user.id === employee.id;
 
-    if (!isOwner && !isSelf) {
+    if (isOwner) {
+      const ownsEmployee = employee.employeeShops.some(
+        (relation) => relation.shop.ownerId === user.id,
+      );
+      if (!ownsEmployee) {
+        throw new ForbiddenException(
+          'No tenés permiso para actualizar este empleado',
+        );
+      }
+    } else if (!isSelf) {
       throw new ForbiddenException(
         'No tenés permiso para actualizar este empleado',
       );
     }
-    if (dto.shopId) {
-      const shop = await this.prisma.shop.findUnique({
-        where: { id: dto.shopId },
-      });
 
-      if (!shop) {
-        throw new NotFoundException('La tienda indicada no existe');
-      }
-
-      if (isOwner && shop.ownerId !== user.id) {
-        throw new ForbiddenException(
-          'No tenés permiso para asignar empleados a otra tienda',
-        );
-      }
-    }
-    const { password, ...employeeData } = dto;
-    const authData: UpdateUserDto = {
-      fullName: dto.fullName,
-      email: dto.email,
-      password: dto.password,
-      role: dto.role as UserRole,
-      dni: dto.dni,
-      phone: dto.phone,
-      address: dto.address,
-      hireDate: dto.hireDate,
-      salary: dto.salary ? String(dto.salary) : undefined,
-      notes: dto.notes,
-      profileImage: dto.profileImage,
-      emergencyContact: dto.emergencyContact,
-    };
-
-    try {
-      await this.authClientService.updateEmployee(id, authData, token);
-    } catch (error) {
-      console.log(error);
-      throw new HttpException(
-        { message: 'Error al actualizar datos en Auth Service' },
-        500,
+    if (dto.shopIds) {
+      throw new BadRequestException(
+        'Las asignaciones de tiendas no se actualizan desde este endpoint',
       );
     }
+
+    if (dto.userId && dto.userId !== id) {
+      throw new BadRequestException('No se puede modificar el userId del empleado');
+    }
+
+    const { userId: _ignoreUserId, shopIds: _ignoreShopIds, ...employeeData } = dto;
 
     const updatedEmployee = await this.prisma.employee.update({
       where: { id },
@@ -159,45 +178,42 @@ export class EmployeeService {
 
   async findAll(
     user: JwtPayload,
-    shopId?: string,
+    shopId: string,
     page = 1,
     limit = 10,
   ) {
     if (user.role !== 'OWNER') {
       throw new ForbiddenException('Solo los OWNER pueden ver los empleados');
     }
-    if (shopId) {
-      const shop = await this.prisma.shop.findUnique({
-        where: { id: shopId },
-        include: { employees: true }, // o cualquier relación
-      });
-      if (!shop) {
-        throw new NotFoundException('La tienda indicada no existe');
-      }
-      if (shop.ownerId !== user.id) {
-        throw new ForbiddenException('No tenés acceso a esta tienda');
-      }
-    }
-    const shops = await this.prisma.shop.findMany({
-      where: { ownerId: user.id },
-      select: { id: true },
+    const shop = await this.prisma.shop.findUnique({
+      where: { id: shopId },
+      select: { id: true, ownerId: true, name: true },
     });
+    if (!shop) {
+      throw new NotFoundException('La tienda indicada no existe');
+    }
+    if (shop.ownerId !== user.id) {
+      throw new ForbiddenException('No tenés acceso a esta tienda');
+    }
 
-    const shopIds = shopId ? [shopId] : shops.map((shop) => shop.id);
     const skip = (page - 1) * limit;
 
     const where = {
-      shopId: { in: shopIds },
+      employeeShops: {
+        some: {
+          shopId,
+        },
+      },
     };
 
     const [employees, total] = await Promise.all([
       this.prisma.employee.findMany({
         where,
         include: {
-          shop: {
+          employeeShops: {
+            where: { shopId },
             select: {
-              id: true,
-              name: true,
+              shopId: true,
             },
           },
         },
@@ -226,11 +242,15 @@ export class EmployeeService {
     const employee = await this.prisma.employee.findUnique({
       where: { id },
       include: {
-        shop: {
+        employeeShops: {
           select: {
-            id: true,
-            name: true,
-            ownerId: true,
+            shop: {
+              select: {
+                id: true,
+                name: true,
+                ownerId: true,
+              },
+            },
           },
         },
       },
@@ -243,7 +263,10 @@ export class EmployeeService {
     const isOwner = user.role === 'OWNER';
     const isSelf = user.id === employee.id;
     if (isOwner) {
-      if (employee.shop.ownerId !== user.id) {
+      const belongsToOwner = employee.employeeShops.some(
+        (relation) => relation.shop.ownerId === user.id,
+      );
+      if (!belongsToOwner) {
         throw new ForbiddenException('No tenés acceso a este empleado');
       }
     } else if (!isSelf) {

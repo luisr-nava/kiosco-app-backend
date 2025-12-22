@@ -38,19 +38,23 @@ export class SupplierService {
 
     const employee = await this.prisma.employee.findUnique({
       where: { id: user.id },
-      select: { shopId: true },
+      select: {
+        employeeShops: {
+          select: {
+            shopId: true,
+            shop: { select: { ownerId: true } },
+          },
+        },
+      },
     });
 
-    if (!employee) throw new ForbiddenException('Empleado no encontrado.');
+    const primaryRelation = employee?.employeeShops[0];
+    if (!primaryRelation) throw new ForbiddenException('Empleado no encontrado.');
 
-    const shop = await this.prisma.shop.findUnique({
-      where: { id: employee.shopId },
-      select: { ownerId: true },
-    });
-
-    if (!shop) throw new ForbiddenException('Tienda no encontrada.');
-
-    return { ownerId: shop.ownerId, shopId: employee.shopId };
+    return {
+      ownerId: primaryRelation.shop.ownerId,
+      shopId: primaryRelation.shopId,
+    };
   }
 
   private async getSupplierOrFail(

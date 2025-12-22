@@ -50,15 +50,18 @@ export class ProductCategoryService {
       targetShopIds = uniqueIds;
     } else {
       const employee = await this.prisma.employee.findFirst({
-        where: { email: user.email },
-        select: { shopId: true },
+        where: { id: user.id },
+        select: { employeeShops: { select: { shopId: true } } },
       });
 
-      if (!employee) {
+      const employeeShopIds =
+        employee?.employeeShops.map((relation) => relation.shopId) ?? [];
+
+      if (employeeShopIds.length === 0) {
         throw new ForbiddenException('No tenés permiso para crear categorías');
       }
 
-      targetShopIds = [employee.shopId];
+      targetShopIds = employeeShopIds;
     }
 
     // Verificar que no exista una categoría con el mismo nombre en la tienda
@@ -118,15 +121,18 @@ export class ProductCategoryService {
       accessibleShopIds = shops.map((s) => s.id);
     } else {
       const employee = await this.prisma.employee.findFirst({
-        where: { email: user.email },
-        select: { shopId: true },
+        where: { id: user.id },
+        select: { employeeShops: { select: { shopId: true } } },
       });
 
-      if (!employee) {
+      const employeeShopIds =
+        employee?.employeeShops.map((relation) => relation.shopId) ?? [];
+
+      if (employeeShopIds.length === 0) {
         throw new ForbiddenException('No se encontró información del empleado');
       }
 
-      accessibleShopIds = [employee.shopId];
+      accessibleShopIds = employeeShopIds;
     }
 
     if (shopId && !accessibleShopIds.includes(shopId)) {
@@ -214,7 +220,10 @@ export class ProductCategoryService {
       throw new ForbiddenException('No tenés permiso para ver esta categoría');
     } else if (user.role === 'EMPLOYEE') {
       const employee = await this.prisma.employee.findFirst({
-        where: { email: user.email, shopId: category.shopId },
+        where: {
+          id: user.id,
+          employeeShops: { some: { shopId: category.shopId } },
+        },
       });
       if (!employee) {
         throw new ForbiddenException('No tenés permiso para ver esta categoría');
@@ -260,7 +269,10 @@ export class ProductCategoryService {
       throw new ForbiddenException('No tenés permiso para actualizar esta categoría');
     } else if (user.role === 'EMPLOYEE') {
       const employee = await this.prisma.employee.findFirst({
-        where: { email: user.email, shopId: category.shopId },
+        where: {
+          id: user.id,
+          employeeShops: { some: { shopId: category.shopId } },
+        },
       });
       if (!employee) {
         throw new ForbiddenException('No tenés permiso para actualizar esta categoría');

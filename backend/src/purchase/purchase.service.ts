@@ -169,7 +169,10 @@ export class PurchaseService {
 
     // Si es EMPLOYEE, validar que esté asignado a esta tienda específica
     const employee = await this.prisma.employee.findFirst({
-      where: { id: user.id, shopId },
+      where: {
+        id: user.id,
+        employeeShops: { some: { shopId } },
+      },
     });
 
     if (!employee) {
@@ -267,15 +270,18 @@ export class PurchaseService {
       accessibleShopIds = shops.map((s) => s.id);
     } else {
       const employee = await this.prisma.employee.findFirst({
-        where: { email: user.email },
-        select: { shopId: true },
+        where: { id: user.id },
+        select: { employeeShops: { select: { shopId: true } } },
       });
 
-      if (!employee) {
+      const employeeShopIds =
+        employee?.employeeShops.map((relation) => relation.shopId) ?? [];
+
+      if (employeeShopIds.length === 0) {
         throw new ForbiddenException('No se encontró información del empleado');
       }
 
-      accessibleShopIds = [employee.shopId];
+      accessibleShopIds = employeeShopIds;
     }
 
     if (shopId && !accessibleShopIds.includes(shopId)) {
@@ -435,7 +441,10 @@ export class PurchaseService {
       throw new ForbiddenException('No tenés permiso para ver esta compra');
     } else if (user.role === 'EMPLOYEE') {
       const employee = await this.prisma.employee.findFirst({
-        where: { email: user.email, shopId: purchase.shopId },
+        where: {
+          id: user.id,
+          employeeShops: { some: { shopId: purchase.shopId } },
+        },
       });
       if (!employee) {
         throw new ForbiddenException('No tenés permiso para ver esta compra');
@@ -504,7 +513,10 @@ export class PurchaseService {
       throw new ForbiddenException('No tenés permiso para actualizar esta compra');
     } else if (user.role === 'EMPLOYEE') {
       const employee = await this.prisma.employee.findFirst({
-        where: { email: user.email, shopId: purchase.shopId },
+        where: {
+          id: user.id,
+          employeeShops: { some: { shopId: purchase.shopId } },
+        },
       });
       if (!employee) {
         throw new ForbiddenException('No tenés permiso para actualizar esta compra');
@@ -924,7 +936,7 @@ export class PurchaseService {
         supplierName: purchase.supplier?.name,
         totalAmount: purchase.totalAmount,
         itemsCount: purchase.items.length,
-        cancelledBy: user.email || 'unknown@email.com',
+        cancelledBy: user.id,
         cancellationReason: deletePurchaseDto.deletionReason,
         cancelledAt: new Date(),
       },

@@ -8,7 +8,7 @@ import {
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { Supplier } from '@prisma/client';
+import { Prisma, Supplier } from '@prisma/client';
 import { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface';
 import { DEFAULT_CURRENCY_CODE } from '../common/constants/currencies';
 
@@ -19,12 +19,27 @@ interface ProductQuery {
   shopId?: string;
 }
 
+type MeasurementUnitWithShops = Prisma.MeasurementUnitGetPayload<{
+  include: { shopMeasurementUnits: { select: { shopId: true } } };
+}>;
+
+type MeasurementUnitLike = {
+  id: string;
+  name: string;
+  code: string;
+  category: string;
+  baseUnit: string;
+  conversionFactor: Prisma.Decimal | number;
+  isBaseUnit: boolean;
+  isDefault: boolean;
+};
+
 @Injectable()
 export class ProductService {
   constructor(private readonly prisma: PrismaService) {}
 
   async createProduct(createProductDto: CreateProductDto, user: JwtPayload) {
-    const { id: userId, role, email } = user;
+    const { id: userId, role } = user;
     const shop = await this.prisma.shop.findUnique({
       where: { id: createProductDto.shopId },
     });
@@ -67,6 +82,11 @@ export class ProductService {
       }
     }
 
+    const measurementUnit = await this.validateMeasurementUnitForShop(
+      createProductDto.measurementUnitId,
+      createProductDto.shopId,
+    );
+
     const product = await this.prisma.product.create({
       data: {
         name: createProductDto.name,
@@ -76,6 +96,7 @@ export class ProductService {
         taxCategory: createProductDto.taxCategory,
         categoryId: createProductDto.categoryId,
         supplierId: createProductDto.supplierId,
+        measurementUnitId: measurementUnit.id,
       },
     });
 
@@ -100,8 +121,8 @@ export class ProductService {
         newCost: createProductDto.costPrice,
         newStock: createProductDto.stock ?? 0,
         note: supplier
-          ? `Creado por ${email} con proveedor ${supplier.name}`
-          : `Creado por ${email} sin proveedor asociado`,
+          ? `Creado por ${userId} con proveedor ${supplier.name}`
+          : `Creado por ${userId} sin proveedor asociado`,
       },
     });
 
@@ -109,6 +130,7 @@ export class ProductService {
       message: 'Producto creado correctamente',
       data: {
         product,
+        measurementUnit: this.serializeMeasurementUnit(measurementUnit),
         shopProduct: {
           ...shopProduct,
           finalSalePrice: createProductDto.salePrice,
@@ -123,7 +145,7 @@ export class ProductService {
     updateProductDto: UpdateProductDto,
     user: JwtPayload,
   ) {
-    const { id: userId, email } = user;
+    const { id: userId } = user;
 
     const shopProduct = await this.prisma.shopProduct.findUnique({
       where: { id },
@@ -169,6 +191,13 @@ export class ProductService {
       }
     }
 
+    const measurementUnit = updateProductDto.measurementUnitId
+      ? await this.validateMeasurementUnitForShop(
+          updateProductDto.measurementUnitId,
+          shop.id,
+        )
+      : null;
+
     const updatedProduct = await this.prisma.product.update({
       where: { id: product.id },
       data: {
@@ -179,6 +208,7 @@ export class ProductService {
         taxCategory: updateProductDto.taxCategory ?? product.taxCategory,
         categoryId: updateProductDto.categoryId !== undefined ? updateProductDto.categoryId : product.categoryId,
         supplierId: updateProductDto.supplierId !== undefined ? updateProductDto.supplierId : product.supplierId,
+        measurementUnitId: measurementUnit ? measurementUnit.id : undefined,
       },
     });
 
@@ -200,11 +230,11 @@ export class ProductService {
 
     // Determinar el tipo de cambio para el historial
     let changeType = 'UPDATE';
-    let historyNote = `Actualizado por ${email}`;
+    let historyNote = `Actualizado por ${userId}`;
 
     if (updateProductDto.isActive !== undefined && updateProductDto.isActive !== shopProduct.isActive) {
       changeType = updateProductDto.isActive ? 'REACTIVATE' : 'DEACTIVATE';
-      historyNote = `Producto ${updateProductDto.isActive ? 'activado' : 'desactivado'} por ${email}`;
+      historyNote = `Producto ${updateProductDto.isActive ? 'activado' : 'desactivado'} por ${userId}`;
     }
 
     await this.prisma.productHistory.create({
@@ -218,10 +248,19 @@ export class ProductService {
       },
     });
 
+    const measurementUnitForResponse =
+      measurementUnit ??
+      (await this.prisma.measurementUnit.findUnique({
+        where: { id: updatedProduct.measurementUnitId },
+      }));
+
     return {
       message: 'Producto actualizado correctamente',
       data: {
         product: updatedProduct,
+        measurementUnit: this.serializeMeasurementUnit(
+          measurementUnitForResponse,
+        ),
         shopProduct: {
           ...updatedShopProduct,
           finalSalePrice: updatedShopProduct.salePrice,
@@ -242,15 +281,18 @@ export class ProductService {
       accessibleShopIds = shops.map((s) => s.id);
     } else {
       const employee = await this.prisma.employee.findFirst({
-        where: { email: user.email },
-        select: { shopId: true },
+        where: { id: user.id },
+        select: { employeeShops: { select: { shopId: true } } },
       });
 
       if (!employee) {
         throw new ForbiddenException('No se encontró información del empleado');
       }
 
-      accessibleShopIds = [employee.shopId];
+      accessibleShopIds = employee.employeeShops.map((relation) => relation.shopId);
+      if (accessibleShopIds.length === 0) {
+        throw new ForbiddenException('No tenés tiendas asignadas');
+      }
     }
 
     if (shopId && !accessibleShopIds.includes(shopId)) {
@@ -288,6 +330,7 @@ export class ProductService {
         include: {
           product: {
             include: {
+              measurementUnit: true,
               category: {
                 select: { id: true, name: true },
               },
@@ -335,6 +378,9 @@ export class ProductService {
         isActive: sp.isActive,
         createdAt: sp.createdAt,
         currency: sp.currency,
+        measurementUnit: this.serializeMeasurementUnit(
+          sp.product.measurementUnit,
+        ),
       })),
     };
   }
@@ -367,7 +413,7 @@ export class ProductService {
         shopProductId: shopProduct.id,
         userId: user.id,
         changeType: newStatus ? 'REACTIVATE' : 'DEACTIVATE',
-        note: `Producto ${shopProduct.product.name} ${newStatus ? 'activado' : 'desactivado'} por ${user.email}`,
+        note: `Producto ${shopProduct.product.name} ${newStatus ? 'activado' : 'desactivado'} por ${user.id}`,
       },
     });
 
@@ -400,6 +446,7 @@ export class ProductService {
       include: {
         product: {
           include: {
+            measurementUnit: true,
             category: {
               select: { id: true, name: true },
             },
@@ -433,7 +480,60 @@ export class ProductService {
         stock: shopProduct.stock,
         isActive: shopProduct.isActive,
         currency: shopProduct.currency,
+        measurementUnit: this.serializeMeasurementUnit(
+          shopProduct.product.measurementUnit,
+        ),
       },
+    };
+  }
+
+  private async validateMeasurementUnitForShop(
+    measurementUnitId: string,
+    shopId: string,
+  ): Promise<MeasurementUnitWithShops> {
+    const measurementUnit = await this.prisma.measurementUnit.findUnique({
+      where: { id: measurementUnitId },
+      include: { shopMeasurementUnits: { select: { shopId: true } } },
+    });
+
+    if (!measurementUnit) {
+      throw new NotFoundException('La unidad de medida no existe');
+    }
+
+    const isAvailable =
+      measurementUnit.isDefault ||
+      measurementUnit.shopMeasurementUnits.some(
+        (assignment) => assignment.shopId === shopId,
+      );
+
+    if (!isAvailable) {
+      throw new ForbiddenException(
+        'La unidad de medida no está disponible para esta tienda',
+      );
+    }
+
+    return measurementUnit;
+  }
+
+  private serializeMeasurementUnit(unit?: MeasurementUnitLike | null) {
+    if (!unit) {
+      return null;
+    }
+
+    const conversionFactor =
+      typeof unit.conversionFactor === 'number'
+        ? unit.conversionFactor
+        : Number(unit.conversionFactor);
+
+    return {
+      id: unit.id,
+      name: unit.name,
+      code: unit.code,
+      category: unit.category,
+      baseUnit: unit.baseUnit,
+      conversionFactor,
+      isBaseUnit: unit.isBaseUnit,
+      isDefault: unit.isDefault,
     };
   }
 }

@@ -58,4 +58,7 @@ export class CreateProductDto {
   @IsOptional()
   @IsUUID()
   categoryId?: string;
+
+  @IsUUID()
+  measurementUnitId: string;
 }
