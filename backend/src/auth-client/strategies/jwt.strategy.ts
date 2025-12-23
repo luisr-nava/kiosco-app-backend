@@ -34,6 +34,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       throw new UnauthorizedException('Token inválido o incompleto');
     }
 
+    const projectId = payload.projectId ?? payload.ownerId ?? id;
+
     if ((payload.appKey ?? '').toLowerCase() !== 'kiosco') {
       throw new UnauthorizedException('Token appKey no permitido para Kiosco');
     }
@@ -41,6 +43,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     const normalizedPayload: JwtPayload = {
       ...payload,
       id,
+      projectId,
       appKey: payload.appKey?.toLowerCase() ?? 'kiosco',
       ownerId:
         payload.ownerId ??
