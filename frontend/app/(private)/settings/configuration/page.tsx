@@ -17,6 +17,28 @@ import { useCategory, useCategoryForm } from "../category/hooks";
 import { PaymentMethodForm, PaymentMethodTable } from "../payment-method/components";
 import { usePaymentMethodMutations, usePaymentMethods } from "../payment-method/hooks";
 import type { PaymentMethod } from "../payment-method/interfaces";
+import {
+  MeasurementUnitForm,
+  MeasurementUnitTable,
+} from "../measurement-unit/components";
+import {
+  useMeasurementUnitMutations,
+  useMeasurementUnits,
+} from "../measurement-unit/hooks";
+import type {
+  MeasurementBaseUnit,
+  MeasurementUnit,
+  MeasurementUnitCategory,
+} from "../measurement-unit/interfaces";
+
+const BASE_UNIT_BY_CATEGORY: Record<
+  MeasurementUnitCategory,
+  MeasurementBaseUnit
+> = {
+  UNIT: "UNIT",
+  WEIGHT: "KG",
+  VOLUME: "L",
+};
 
 export default function ConfigurationPage() {
   const {
@@ -72,11 +94,24 @@ export default function ConfigurationPage() {
     deleteMutation: deletePaymentMethod,
   } = usePaymentMethodMutations();
 
-  const [panel, setPanel] = useState<"categories" | "payment-methods">(
-    "categories",
-  );
+  const {
+    measurementUnits,
+    isLoading: measurementUnitsLoading,
+    isFetching: measurementUnitsFetching,
+  } = useMeasurementUnits();
+  const {
+    createMutation: createMeasurementUnit,
+    updateMutation: updateMeasurementUnit,
+    deleteMutation: deleteMeasurementUnit,
+  } = useMeasurementUnitMutations();
+
+  const [panel, setPanel] = useState<
+    "categories" | "payment-methods" | "measurement-units"
+  >("categories");
   const [editingPaymentMethod, setEditingPaymentMethod] = useState<PaymentMethod | null>(null);
   const [deletingPaymentMethodId, setDeletingPaymentMethodId] = useState<string | null>(null);
+  const [editingMeasurementUnit, setEditingMeasurementUnit] = useState<MeasurementUnit | null>(null);
+  const [deletingMeasurementUnitId, setDeletingMeasurementUnitId] = useState<string | null>(null);
 
   if (activeShopLoading) {
     return <ShopLoading />;
@@ -225,6 +260,75 @@ export default function ConfigurationPage() {
     </div>
   );
 
+  const measurementUnitsView = (
+    <div className="space-y-4">
+      <Card>
+        <CardContent className="space-y-4">
+          <div>
+            <CardTitle>Unidades de medida</CardTitle>
+            <CardDescription>
+              Administra las unidades disponibles para tus productos.
+            </CardDescription>
+          </div>
+          <MeasurementUnitForm
+            onSubmit={(values) => {
+              if (!activeShopId) return;
+
+              const payload = {
+                name: values.name,
+                code: values.code.toUpperCase(),
+                category: values.category,
+                baseUnit: BASE_UNIT_BY_CATEGORY[values.category],
+                conversionFactor: values.conversionFactor,
+              };
+
+              if (editingMeasurementUnit) {
+                updateMeasurementUnit.mutate(
+                  { id: editingMeasurementUnit.id, payload },
+                  { onSuccess: () => setEditingMeasurementUnit(null) },
+                );
+                return;
+              }
+
+              createMeasurementUnit.mutate(
+                { ...payload, shopIds: [activeShopId] },
+                {
+                  onSuccess: () => setEditingMeasurementUnit(null),
+                },
+              );
+            }}
+            isSubmitting={
+              editingMeasurementUnit
+                ? updateMeasurementUnit.isPending
+                : createMeasurementUnit.isPending
+            }
+            editing={editingMeasurementUnit}
+            onCancelEdit={() => setEditingMeasurementUnit(null)}
+            disabled={!activeShopId}
+          />
+        </CardContent>
+      </Card>
+
+      <MeasurementUnitTable
+        measurementUnits={measurementUnits}
+        isLoading={measurementUnitsLoading}
+        isFetching={measurementUnitsFetching}
+        deletingId={deletingMeasurementUnitId}
+        onEdit={(unit) => {
+          if (unit.isDefault || unit.isBaseUnit) return;
+          setEditingMeasurementUnit(unit);
+        }}
+        onDelete={(unit) => {
+          if (unit.isDefault || unit.isBaseUnit) return;
+          setDeletingMeasurementUnitId(unit.id);
+          deleteMeasurementUnit.mutate(unit.id, {
+            onSettled: () => setDeletingMeasurementUnitId(null),
+          });
+        }}
+      />
+    </div>
+  );
+
   const configurationView = (
     <div className="grid gap-4 md:grid-cols-[220px_1fr]">
       <div className="space-y-2 pt-6">
@@ -250,9 +354,26 @@ export default function ConfigurationPage() {
           onClick={() => setPanel("payment-methods")}>
           Métodos de pago
         </button>
+        <button
+          type="button"
+          className={cn(
+            "w-full rounded-md px-3 py-2 text-sm font-medium transition-colors",
+            panel === "measurement-units"
+              ? "bg-white text-black shadow-sm"
+              : "bg-muted text-muted-foreground hover:text-foreground",
+          )}
+          onClick={() => setPanel("measurement-units")}>
+          Unidades de medida
+        </button>
       </div>
 
-      <div>{panel === "categories" ? categoriesView : paymentMethodsView}</div>
+      <div>
+        {panel === "categories"
+          ? categoriesView
+          : panel === "payment-methods"
+          ? paymentMethodsView
+          : measurementUnitsView}
+      </div>
     </div>
   );
 
