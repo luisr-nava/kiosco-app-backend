@@ -18,6 +18,7 @@ const initialForm: CreateProductDto = {
   stock: 1,
   supplierId: "",
   isActive: true,
+  measurementUnitId: "",
 };
 
 export const useProductForm = () => {
@@ -37,6 +38,7 @@ export const useProductForm = () => {
     reset,
     setValue,
     control,
+    getValues,
     formState: { errors },
   } = useForm<CreateProductDto>({
       defaultValues: {
@@ -61,6 +63,7 @@ export const useProductForm = () => {
       costPrice: cost,
       salePrice: sale,
       stock,
+      measurementUnitId: restValues.measurementUnitId,
     };
 
     if (editProductModal.isOpen && editProductModal.data) {
@@ -85,6 +88,7 @@ export const useProductForm = () => {
       stock: product.stock ?? 0,
       supplierId: product.supplierId || "",
       isActive: product.isActive,
+      measurementUnitId: product.measurementUnitId || product.measurementUnit?.id || "",
     });
     editProductModal.open(product.id);
   };
@@ -147,6 +151,7 @@ export const useProductForm = () => {
     initialForm,
     setValue,
     control,
+    getValues,
     errors,
   };
 };

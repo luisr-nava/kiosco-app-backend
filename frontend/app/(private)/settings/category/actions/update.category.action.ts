@@ -10,10 +10,9 @@ export const updateCategoryProductAction = async (
   id: string,
   payload: Partial<CreateCategoryProductDto>,
 ): Promise<CategoryProduct> => {
-  const { data } = await kioscoApi.patch<{ data: { categoryProduct: CategoryProduct } }>(
-    `/category/${id}`,
-    payload,
-  );
+  const { data } = await kioscoApi.patch<{
+    data: { categoryProduct: CategoryProduct };
+  }>(`/product-category/${id}`, payload);
   return data.data.categoryProduct;
 };
 
@@ -27,3 +26,4 @@ export const updateCategorySupplierAction = async (
   );
   return data.data.categorySupplier;
 };
+

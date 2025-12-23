@@ -12,7 +12,7 @@ export const GetAllCategoryProductAction = async (params?: {
   const { data } = await kioscoApi.get<{
     data: CategoryProduct[];
     pagination: Pagination;
-  }>(`/category`, {
+  }>(`/product-category`, {
     params: {
       page: params?.page ?? 1,
       limit: params?.limit ?? 10,
@@ -47,4 +47,5 @@ export const GetAllCategorySupplierAction = async (params?: {
     pagination: data.pagination,
   };
 };
+
 

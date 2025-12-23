@@ -17,6 +17,7 @@ import { usePaginationParams } from "../../hooks/useQueryParams";
 import { ShopEmpty } from "@/components/shop-emty";
 import { supplierApi } from "@/lib/api/supplier.api";
 import { Pagination } from "../../components";
+import { useMeasurementUnits } from "@/app/(private)/settings/measurement-unit/hooks";
 
 export default function ProductosPage() {
   const { activeShopId, activeShopLoading } = useShopStore();
@@ -30,7 +31,7 @@ export default function ProductosPage() {
     isFetching,
   } = useProducts(debouncedSearch, page, limit, Boolean(activeShopId));
   const form = useProductForm();
-  const { productModal, editProductModal, initialForm, setValue, reset } = form;
+  const { productModal, editProductModal, initialForm, setValue, reset, getValues } = form;
 
   // ? Move to supplier hook
   const { data: suppliers = [], isLoading: suppliersLoading } = useQuery({
@@ -39,12 +40,31 @@ export default function ProductosPage() {
     enabled: Boolean(activeShopId),
     staleTime: 1000 * 30,
   });
+  const {
+    measurementUnits,
+    isLoading: measurementUnitsLoading,
+  } = useMeasurementUnits();
 
   useEffect(() => {
     if (activeShopId) {
       setValue("shopId", activeShopId);
     }
   }, [activeShopId, setValue]);
+
+  useEffect(() => {
+    if (!measurementUnits.length) return;
+    if (editProductModal.isOpen) return;
+    const current = getValues("measurementUnitId");
+    if (!current) {
+      setValue("measurementUnitId", measurementUnits[0].id);
+    }
+  }, [
+    editProductModal.isOpen,
+    getValues,
+    measurementUnits,
+    productModal.isOpen,
+    setValue,
+  ]);
 
   if (!activeShopId) return <ShopEmpty />;
 
@@ -105,6 +125,8 @@ export default function ProductosPage() {
           errors={form.errors}
           suppliers={suppliers}
           suppliersLoading={suppliersLoading}
+          measurementUnits={measurementUnits}
+          measurementUnitsLoading={measurementUnitsLoading}
         />
       </Modal>
     </div>

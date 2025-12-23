@@ -12,7 +12,7 @@ export const createCategoryProductAction = async (
   payload: Partial<CreateCategoryProductDto>,
 ): Promise<CategoryProduct> => {
   const { data } = await kioscoApi.post<CreateCategoryProductResponse>(
-    "/category",
+    "/product-category",
     payload,
   );
 
@@ -29,3 +29,4 @@ export const createCategorySuppliertAction = async (
 
   return data.data.categorySupplier;
 };
+

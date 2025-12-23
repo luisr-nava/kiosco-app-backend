@@ -7,6 +7,7 @@ import type { CreateProductDto } from "../interfaces";
 import type { UseProductFormReturn } from "../hooks/useProductForm";
 import type { Supplier } from "@/lib/types/supplier";
 import { Switch } from "@/components/ui/switch";
+import type { MeasurementUnit } from "@/app/(private)/settings/measurement-unit/interfaces";
 
 type Props = Pick<
   UseProductFormReturn,
@@ -24,6 +25,8 @@ type Props = Pick<
 > & {
   suppliers: Supplier[];
   suppliersLoading: boolean;
+  measurementUnits: MeasurementUnit[];
+  measurementUnitsLoading: boolean;
 };
 
 export const ProductForm = ({
@@ -40,12 +43,27 @@ export const ProductForm = ({
   errors,
   suppliers,
   suppliersLoading,
+  measurementUnits,
+  measurementUnitsLoading,
 }: Props) => {
-  const [watchName, watchCost, watchSalePrice, watchStock, watchShopId] =
-    useWatch<CreateProductDto>({
-      control,
-      name: ["name", "costPrice", "salePrice", "stock", "shopId"],
-    });
+  const [
+    watchName,
+    watchCost,
+    watchSalePrice,
+    watchStock,
+    watchShopId,
+    watchMeasurementUnitId,
+  ] = useWatch<CreateProductDto>({
+    control,
+    name: [
+      "name",
+      "costPrice",
+      "salePrice",
+      "stock",
+      "shopId",
+      "measurementUnitId",
+    ],
+  });
 
   const salePriceValue =
     typeof watchSalePrice === "number"
@@ -65,7 +83,8 @@ export const ProductForm = ({
       watchShopId &&
       salePriceValue > 0 &&
       costPriceValue < salePriceValue &&
-      stockValue > 0,
+      stockValue > 0 &&
+      watchMeasurementUnitId,
   );
 
   return (
@@ -174,6 +193,25 @@ export const ProductForm = ({
               </option>
             ))}
           </select>
+        </div>
+        <div className="grid gap-1">
+          <Label>Unidad de medida *</Label>
+          <select
+            className="h-10 rounded-md border bg-background px-3 text-sm"
+            {...register("measurementUnitId", { required: true })}
+            disabled={measurementUnitsLoading || measurementUnits.length === 0}>
+            <option value="">Seleccionar unidad</option>
+            {measurementUnits.map((unit) => (
+              <option key={unit.id} value={unit.id}>
+                {unit.name} ({unit.code})
+              </option>
+            ))}
+          </select>
+          {measurementUnits.length === 0 && !measurementUnitsLoading && (
+            <p className="text-xs text-destructive">
+              No hay unidades disponibles para esta tienda.
+            </p>
+          )}
         </div>
         {editProductModal.isOpen && (
           <Controller

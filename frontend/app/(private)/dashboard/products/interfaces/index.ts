@@ -22,6 +22,8 @@ export interface Product {
   taxCategory: boolean | null;
   isActive: boolean;
   currency: string;
+  measurementUnitId?: string;
+  measurementUnit?: ProductMeasurementUnit | null;
 }
 
 export interface CreateProductDto {
@@ -35,6 +37,7 @@ export interface CreateProductDto {
   supplierId?: string | null;
   categoryId?: string;
   isActive?: boolean;
+  measurementUnitId: string;
 }
 
 export interface CreateProductResponse {
@@ -58,4 +61,15 @@ export interface ShopProduct {
   isActive: boolean;
   finalSalePrice: number;
   supplier: null;
+}
+
+export interface ProductMeasurementUnit {
+  id: string;
+  name: string;
+  code: string;
+  category: string;
+  baseUnit: string;
+  conversionFactor: number;
+  isBaseUnit: boolean;
+  isDefault: boolean;
 }
