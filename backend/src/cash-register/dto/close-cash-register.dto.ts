@@ -1,5 +1,10 @@
-
-import { IsNumber, Min, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  IsNumber,
+  Min,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 
 export class CloseCashRegisterDto {
   @IsOptional()

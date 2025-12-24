@@ -1,9 +1,4 @@
-import {
-  ArrayNotEmpty,
-  ArrayUnique,
-  IsArray,
-  IsUUID,
-} from 'class-validator';
+import { ArrayNotEmpty, ArrayUnique, IsArray, IsUUID } from 'class-validator';
 
 export class AssignMeasurementUnitDto {
   @IsArray()

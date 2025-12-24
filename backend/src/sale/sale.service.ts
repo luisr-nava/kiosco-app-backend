@@ -59,7 +59,9 @@ export class SaleService {
       if (paymentMethod.code === 'ACCOUNT') {
         // Calcularemos el total despu�s, por ahora solo verificamos que tenga l�mite
         if (customer.creditLimit === 0) {
-          throw new BadRequestException('El cliente no tiene cr�dito habilitado');
+          throw new BadRequestException(
+            'El cliente no tiene cr�dito habilitado',
+          );
         }
       }
     } else if (paymentMethod.code === 'ACCOUNT') {
@@ -90,7 +92,9 @@ export class SaleService {
     // Validar stock suficiente
     const stockErrors: string[] = [];
     for (const item of dto.items) {
-      const shopProduct = shopProducts.find((sp) => sp.id === item.shopProductId);
+      const shopProduct = shopProducts.find(
+        (sp) => sp.id === item.shopProductId,
+      );
       if (!shopProduct) continue;
 
       if (shopProduct.stock !== null && shopProduct.stock < item.quantity) {
@@ -122,7 +126,9 @@ export class SaleService {
     }> = [];
 
     for (const item of dto.items) {
-      const shopProduct = shopProducts.find((sp) => sp.id === item.shopProductId);
+      const shopProduct = shopProducts.find(
+        (sp) => sp.id === item.shopProductId,
+      );
       if (!shopProduct) continue;
 
       const unitPrice = shopProduct.salePrice;
@@ -180,8 +186,7 @@ export class SaleService {
           taxAmount: totalTaxAmount,
           totalAmount,
           paymentMethodId: dto.paymentMethodId,
-          paymentStatus:
-            paymentMethod.code === 'ACCOUNT' ? 'PENDING' : 'PAID',
+          paymentStatus: paymentMethod.code === 'ACCOUNT' ? 'PENDING' : 'PAID',
           notes: dto.notes,
           invoiceType: dto.invoiceType,
           invoiceNumber: dto.invoiceNumber,

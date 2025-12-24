@@ -79,7 +79,9 @@ export class CreateSaleDto {
   invoiceType?: InvoiceType;
 
   @IsString()
-  @MaxLength(50, { message: 'El número de factura no puede exceder 50 caracteres' })
+  @MaxLength(50, {
+    message: 'El número de factura no puede exceder 50 caracteres',
+  })
   @IsOptional()
   invoiceNumber?: string;
 }

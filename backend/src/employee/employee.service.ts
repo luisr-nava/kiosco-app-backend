@@ -13,10 +13,7 @@ import { PrismaService } from '../prisma/prisma.service';
 @Injectable()
 export class EmployeeService {
   constructor(private readonly prisma: PrismaService) {}
-  async registerEmployee(
-    dto: CreateEmployeeDto,
-    user: JwtPayload,
-  ) {
+  async registerEmployee(dto: CreateEmployeeDto, user: JwtPayload) {
     if (user.role !== 'OWNER') {
       throw new ForbiddenException('Solo los OWNER pueden crear empleados');
     }
@@ -119,11 +116,7 @@ export class EmployeeService {
     return createdEmployee;
   }
 
-  async updateEmployee(
-    id: string,
-    dto: UpdateEmployeeDto,
-    user: JwtPayload,
-  ) {
+  async updateEmployee(id: string, dto: UpdateEmployeeDto, user: JwtPayload) {
     const employee = await this.prisma.employee.findUnique({
       where: { id },
       include: {
@@ -163,10 +156,16 @@ export class EmployeeService {
     }
 
     if (dto.userId && dto.userId !== id) {
-      throw new BadRequestException('No se puede modificar el userId del empleado');
+      throw new BadRequestException(
+        'No se puede modificar el userId del empleado',
+      );
     }
 
-    const { userId: _ignoreUserId, shopIds: _ignoreShopIds, ...employeeData } = dto;
+    const {
+      userId: _ignoreUserId,
+      shopIds: _ignoreShopIds,
+      ...employeeData
+    } = dto;
 
     const updatedEmployee = await this.prisma.employee.update({
       where: { id },
@@ -176,12 +175,7 @@ export class EmployeeService {
     return updatedEmployee;
   }
 
-  async findAll(
-    user: JwtPayload,
-    shopId: string,
-    page = 1,
-    limit = 10,
-  ) {
+  async findAll(user: JwtPayload, shopId: string, page = 1, limit = 10) {
     if (user.role !== 'OWNER') {
       throw new ForbiddenException('Solo los OWNER pueden ver los empleados');
     }

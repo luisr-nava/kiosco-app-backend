@@ -21,7 +21,9 @@ export class CreateProductDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(50, { message: 'El código de barras no puede exceder 50 caracteres' })
+  @MaxLength(50, {
+    message: 'El código de barras no puede exceder 50 caracteres',
+  })
   barcode?: string;
 
   @IsUUID()

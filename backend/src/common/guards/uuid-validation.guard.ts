@@ -1,4 +1,9 @@
-import { Injectable, CanActivate, ExecutionContext, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  BadRequestException,
+} from '@nestjs/common';
 
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -22,7 +27,9 @@ export class UuidValidationGuard implements CanActivate {
     for (const [key, value] of Object.entries(params)) {
       if ((key.endsWith('Id') || key === 'id') && typeof value === 'string') {
         if (!isValidUUID(value)) {
-          throw new BadRequestException(`El parámetro '${key}' debe ser un UUID válido`);
+          throw new BadRequestException(
+            `El parámetro '${key}' debe ser un UUID válido`,
+          );
         }
       }
     }

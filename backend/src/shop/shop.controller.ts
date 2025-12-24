@@ -55,5 +55,4 @@ export class ShopController {
   toggleShop(@Param('id') id: string, @GetUser() user: JwtPayload) {
     return this.shopsService.toggleShop(id, user);
   }
-  
 }

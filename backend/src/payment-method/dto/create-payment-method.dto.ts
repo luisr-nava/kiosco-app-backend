@@ -1,4 +1,3 @@
-
 import { IsString, IsUUID, IsOptional, MaxLength } from 'class-validator';
 
 export class CreatePaymentMethodDto {

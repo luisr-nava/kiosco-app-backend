@@ -17,9 +17,7 @@ export class ExpenseService {
   async create(createExpenseDto: CreateExpenseDto, user: JwtPayload) {
     // Solo OWNER puede crear gastos
     if (user.role !== 'OWNER') {
-      throw new ForbiddenException(
-        'Solo un Dueño puede registrar gastos',
-      );
+      throw new ForbiddenException('Solo un Dueño puede registrar gastos');
     }
 
     // Verificar que la tienda pertenezca al usuario
@@ -38,7 +36,10 @@ export class ExpenseService {
     }
 
     // Validar método de pago
-    await this.validatePaymentMethod(createExpenseDto.paymentMethodId, createExpenseDto.shopId);
+    await this.validatePaymentMethod(
+      createExpenseDto.paymentMethodId,
+      createExpenseDto.shopId,
+    );
 
     // Validar que la caja esté abierta y sea de la tienda
     await this.validateOpenCashRegister(
@@ -53,7 +54,9 @@ export class ExpenseService {
           amount: createExpenseDto.amount,
           shopId: createExpenseDto.shopId,
           paymentMethodId: createExpenseDto.paymentMethodId,
-          date: createExpenseDto.date ? new Date(createExpenseDto.date) : new Date(),
+          date: createExpenseDto.date
+            ? new Date(createExpenseDto.date)
+            : new Date(),
           createdBy: user.id,
         },
         include: {
@@ -106,9 +109,7 @@ export class ExpenseService {
   ) {
     // Solo OWNER puede ver gastos
     if (user.role !== 'OWNER') {
-      throw new ForbiddenException(
-        'Solo un Dueño puede ver los gastos',
-      );
+      throw new ForbiddenException('Solo un Dueño puede ver los gastos');
     }
 
     const page = filters.page || 1;
@@ -187,9 +188,7 @@ export class ExpenseService {
   async findOne(id: string, user: JwtPayload) {
     // Solo OWNER puede ver gastos
     if (user.role !== 'OWNER') {
-      throw new ForbiddenException(
-        'Solo un Dueño puede ver los gastos',
-      );
+      throw new ForbiddenException('Solo un Dueño puede ver los gastos');
     }
 
     const expense = await this.prisma.expense.findFirst({
@@ -228,12 +227,14 @@ export class ExpenseService {
     };
   }
 
-  async update(id: string, updateExpenseDto: UpdateExpenseDto, user: JwtPayload) {
+  async update(
+    id: string,
+    updateExpenseDto: UpdateExpenseDto,
+    user: JwtPayload,
+  ) {
     // Solo OWNER puede actualizar gastos
     if (user.role !== 'OWNER') {
-      throw new ForbiddenException(
-        'Solo un Dueño puede actualizar gastos',
-      );
+      throw new ForbiddenException('Solo un Dueño puede actualizar gastos');
     }
 
     // Verificar que el gasto pertenezca al usuario
@@ -289,7 +290,9 @@ export class ExpenseService {
           description: updateExpenseDto.description ?? expense.description,
           amount: updateExpenseDto.amount ?? expense.amount,
           shopId: expense.shopId,
-          date: updateExpenseDto.date ? new Date(updateExpenseDto.date) : expense.date,
+          date: updateExpenseDto.date
+            ? new Date(updateExpenseDto.date)
+            : expense.date,
         },
         include: {
           shop: {
@@ -337,9 +340,7 @@ export class ExpenseService {
   async remove(id: string, user: JwtPayload) {
     // Solo OWNER puede eliminar gastos
     if (user.role !== 'OWNER') {
-      throw new ForbiddenException(
-        'Solo un Dueño puede eliminar gastos',
-      );
+      throw new ForbiddenException('Solo un Dueño puede eliminar gastos');
     }
 
     // Verificar que el gasto pertenezca al usuario
@@ -383,7 +384,10 @@ export class ExpenseService {
     }
   }
 
-  private async validateOpenCashRegister(cashRegisterId: string, shopId: string) {
+  private async validateOpenCashRegister(
+    cashRegisterId: string,
+    shopId: string,
+  ) {
     const cashRegister = await this.prisma.cashRegister.findFirst({
       where: {
         id: cashRegisterId,

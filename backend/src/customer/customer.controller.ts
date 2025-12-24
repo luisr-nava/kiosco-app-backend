@@ -73,10 +73,7 @@ export class CustomerController {
   }
 
   @Delete(':id')
-  remove(
-    @Param('id', ParseUUIDPipe) id: string,
-    @GetUser() user: JwtPayload,
-  ) {
+  remove(@Param('id', ParseUUIDPipe) id: string, @GetUser() user: JwtPayload) {
     return this.customerService.remove(id, user);
   }
 

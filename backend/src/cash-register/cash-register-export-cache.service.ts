@@ -98,22 +98,36 @@ export class CashRegisterExportCacheService {
       }),
     );
 
-    this.logger.log(`Purgadas ${expired.length} exportaciones de caja expiradas`);
+    this.logger.log(
+      `Purgadas ${expired.length} exportaciones de caja expiradas`,
+    );
   }
 
   private async deleteById(id: string) {
     try {
       await this.prisma.cashRegisterExport.delete({ where: { id } });
     } catch (error) {
-      this.logger.warn(`No se pudo eliminar cache de exportación ${id}: ${(error as Error).message}`);
+      this.logger.warn(
+        `No se pudo eliminar cache de exportación ${id}: ${(error as Error).message}`,
+      );
     }
   }
 
-  private buildStorageKey(cashRegisterId: string, format: CashRegisterExportFormat) {
-    return pathJoin('cash-register', cashRegisterId, `${format.toLowerCase()}-${Date.now()}.bin`);
+  private buildStorageKey(
+    cashRegisterId: string,
+    format: CashRegisterExportFormat,
+  ) {
+    return pathJoin(
+      'cash-register',
+      cashRegisterId,
+      `${format.toLowerCase()}-${Date.now()}.bin`,
+    );
   }
 
-  private buildFileName(format: CashRegisterExportFormat, cashRegisterId: string) {
+  private buildFileName(
+    format: CashRegisterExportFormat,
+    cashRegisterId: string,
+  ) {
     const ext = format === 'PDF' ? 'pdf' : 'xlsx';
     return `cash-register-${cashRegisterId}.${ext}`;
   }

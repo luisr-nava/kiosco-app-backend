@@ -1,4 +1,9 @@
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
+import {
+  Injectable,
+  NestInterceptor,
+  ExecutionContext,
+  CallHandler,
+} from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { v4 as uuidv4 } from 'uuid';
@@ -11,7 +16,10 @@ type RequestWithId = Request & { requestId?: string };
 export class RequestIdInterceptor implements NestInterceptor {
   constructor(private readonly logger: CustomLoggerService) {}
 
-  intercept<T = unknown>(context: ExecutionContext, next: CallHandler<T>): Observable<T> {
+  intercept<T = unknown>(
+    context: ExecutionContext,
+    next: CallHandler<T>,
+  ): Observable<T> {
     const request = context.switchToHttp().getRequest<RequestWithId>();
     const response = context.switchToHttp().getResponse<Response>();
 
@@ -56,7 +64,8 @@ export class RequestIdInterceptor implements NestInterceptor {
         },
         error: (error: unknown) => {
           const duration = Date.now() - startTime;
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          const errorMessage =
+            error instanceof Error ? error.message : 'Unknown error';
           const errorStack = error instanceof Error ? error.stack : undefined;
           const errorName = error instanceof Error ? error.name : 'Error';
 

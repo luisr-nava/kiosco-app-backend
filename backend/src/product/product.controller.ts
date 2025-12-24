@@ -43,10 +43,7 @@ export class ProductController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  findAll(
-    @GetUser() user: JwtPayload,
-    @Query() query: SearchQueryWithShopDto,
-  ) {
+  findAll(@GetUser() user: JwtPayload, @Query() query: SearchQueryWithShopDto) {
     return this.productService.getAllProducts(user, query);
   }
 

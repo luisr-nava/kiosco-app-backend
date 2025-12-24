@@ -170,7 +170,9 @@ export class MeasurementUnitService {
       where: { id: measurementUnitId },
       include: {
         shopMeasurementUnits: {
-          include: { shop: { select: { id: true, ownerId: true, projectId: true } } },
+          include: {
+            shop: { select: { id: true, ownerId: true, projectId: true } },
+          },
         },
       },
     });
@@ -285,7 +287,9 @@ export class MeasurementUnitService {
       where: { id },
       include: {
         shopMeasurementUnits: {
-          include: { shop: { select: { id: true, ownerId: true, projectId: true } } },
+          include: {
+            shop: { select: { id: true, ownerId: true, projectId: true } },
+          },
         },
       },
     });
@@ -295,7 +299,9 @@ export class MeasurementUnitService {
     }
 
     if (unit.isDefault || unit.isBaseUnit) {
-      throw new BadRequestException('No se pueden eliminar unidades base o por defecto');
+      throw new BadRequestException(
+        'No se pueden eliminar unidades base o por defecto',
+      );
     }
 
     if (user.role !== 'OWNER') {
@@ -377,7 +383,10 @@ export class MeasurementUnitService {
     }
 
     const employeeShop = await this.getEmployeeShop(user);
-    if (dtoShopIds && (dtoShopIds.length !== 1 || dtoShopIds[0] !== employeeShop.id)) {
+    if (
+      dtoShopIds &&
+      (dtoShopIds.length !== 1 || dtoShopIds[0] !== employeeShop.id)
+    ) {
       throw new ForbiddenException('Solo podés asignar unidades a tu tienda');
     }
     return [employeeShop.id];
@@ -423,7 +432,11 @@ export class MeasurementUnitService {
     }
 
     const shops = await this.prisma.shop.findMany({
-      where: { id: { in: shopIds }, ownerId: user.id, projectId: user.projectId },
+      where: {
+        id: { in: shopIds },
+        ownerId: user.id,
+        projectId: user.projectId,
+      },
       select: { id: true },
     });
 

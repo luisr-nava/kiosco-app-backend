@@ -37,7 +37,9 @@ export class CreateShopDto {
   countryCode: string;
 
   @IsString()
-  @IsIn(CURRENCY_CODES, { message: 'currencyCode must be a valid ISO 4217 code' })
+  @IsIn(CURRENCY_CODES, {
+    message: 'currencyCode must be a valid ISO 4217 code',
+  })
   currencyCode: string;
 
   @IsOptional()

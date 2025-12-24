@@ -14,7 +14,9 @@ import { envs } from '../config/envs';
 import type { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface';
 
 @WebSocketGateway({ cors: true })
-export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class NotificationsGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server;
 
@@ -24,7 +26,9 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
     try {
       const token =
         client.handshake.auth?.token ||
-        client.handshake.headers.authorization?.toString().replace('Bearer ', '');
+        client.handshake.headers.authorization
+          ?.toString()
+          .replace('Bearer ', '');
 
       if (!token) {
         throw new WsException('Token requerido');

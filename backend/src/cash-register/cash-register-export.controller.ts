@@ -8,9 +8,7 @@ import type { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface
 @UseGuards(JwtAuthGuard)
 @Controller('cash-register')
 export class CashRegisterExportController {
-  constructor(
-    private readonly exportService: CashRegisterExportService,
-  ) {}
+  constructor(private readonly exportService: CashRegisterExportService) {}
 
   @Get(':cashRegisterId/export/pdf')
   async exportPdf(
@@ -18,9 +16,15 @@ export class CashRegisterExportController {
     @GetUser() user: JwtPayload,
     @Res() res: Response,
   ) {
-    const exportResult = await this.exportService.exportPdf(cashRegisterId, user);
+    const exportResult = await this.exportService.exportPdf(
+      cashRegisterId,
+      user,
+    );
     res.setHeader('Content-Type', exportResult.contentType);
-    res.setHeader('Content-Disposition', `attachment; filename="${exportResult.filename}"`);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${exportResult.filename}"`,
+    );
     res.send(exportResult.buffer);
   }
 
@@ -30,9 +34,15 @@ export class CashRegisterExportController {
     @GetUser() user: JwtPayload,
     @Res() res: Response,
   ) {
-    const exportResult = await this.exportService.exportExcel(cashRegisterId, user);
+    const exportResult = await this.exportService.exportExcel(
+      cashRegisterId,
+      user,
+    );
     res.setHeader('Content-Type', exportResult.contentType);
-    res.setHeader('Content-Disposition', `attachment; filename="${exportResult.filename}"`);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${exportResult.filename}"`,
+    );
     res.send(exportResult.buffer);
   }
 }

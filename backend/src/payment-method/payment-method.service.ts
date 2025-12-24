@@ -42,12 +42,7 @@ export class PaymentMethodService {
     };
   }
 
-  async findAll(
-    shopId: string,
-    user: JwtPayload,
-    page = 1,
-    limit = 10,
-  ) {
+  async findAll(shopId: string, user: JwtPayload, page = 1, limit = 10) {
     await this.validateShopAccess(shopId, user);
 
     await this.ensureDefaultCash(shopId);

@@ -25,7 +25,8 @@ export class AuthClientService {
       // En producción, filtrar información sensible
       if (envs.nodeEnv === 'production') {
         // Solo retornar mensajes de error seguros
-        const safeMessage = (data as { message?: string })?.message || defaultMessage;
+        const safeMessage =
+          (data as { message?: string })?.message || defaultMessage;
         throw new HttpException({ message: safeMessage }, status);
       }
 
@@ -45,15 +46,9 @@ export class AuthClientService {
       return data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response) {
-        throw new HttpException(
-          error.response.data,
-          error.response.status,
-        );
+        throw new HttpException(error.response.data, error.response.status);
       }
-      throw new HttpException(
-        { message: 'Error al obtener empleados' },
-        500,
-      );
+      throw new HttpException({ message: 'Error al obtener empleados' }, 500);
     }
   }
 

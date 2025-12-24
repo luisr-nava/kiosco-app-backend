@@ -35,11 +35,7 @@ export class EmployeeController {
     @Body() updateEmployeeDto: UpdateEmployeeDto,
     @GetUser() user: JwtPayload,
   ) {
-    return this.employeeService.updateEmployee(
-      id,
-      updateEmployeeDto,
-      user,
-    );
+    return this.employeeService.updateEmployee(id, updateEmployeeDto, user);
   }
 
   @Get('shops/:shopId/employees')

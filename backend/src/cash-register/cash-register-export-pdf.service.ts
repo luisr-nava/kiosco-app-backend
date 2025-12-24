@@ -28,9 +28,7 @@ const palette = {
 export class CashRegisterExportPdfService {
   private logoDataUrl: string | null = null;
 
-  constructor(
-    private readonly dataService: CashRegisterExportDataService,
-  ) {}
+  constructor(private readonly dataService: CashRegisterExportDataService) {}
 
   async generate(cashRegisterId: string, user: JwtPayload) {
     const context = await this.dataService.getClosedCashRegisterContext(
@@ -53,12 +51,22 @@ export class CashRegisterExportPdfService {
     return this.buildBuffer(pdfDoc);
   }
 
-  private buildDocument(context: CashRegisterExportContext): TDocumentDefinitions {
-    const { cashRegister, employee, totals, differenceStatus } = context;
-    const movements = [...cashRegister.movements]
+  private buildDocument(
+    context: CashRegisterExportContext,
+  ): TDocumentDefinitions {
+    const { cashRegister, totals, differenceStatus, responsibleName } = context;
+    type MovementWithMeta =
+      CashRegisterExportContext['cashRegister']['movements'][number] & {
+        formattedDate: string;
+        formattedTime: string;
+        isClosing?: boolean;
+      };
+    const movements: MovementWithMeta[] = [...cashRegister.movements]
       .slice(0, 50)
       .map((movement) => {
-        const [formattedDate, formattedTime] = this.formatDateAndTime(movement.createdAt);
+        const [formattedDate, formattedTime] = this.formatDateAndTime(
+          movement.createdAt,
+        );
         return {
           ...movement,
           formattedDate,
@@ -68,11 +76,15 @@ export class CashRegisterExportPdfService {
 
     // Agregar evento de cierre como último movimiento
     if (cashRegister.closedAt) {
-      const [closeDate, closeTime] = this.formatDateAndTime(cashRegister.closedAt);
+      const [closeDate, closeTime] = this.formatDateAndTime(
+        cashRegister.closedAt,
+      );
+      const closingAmount =
+        cashRegister.actualAmount ?? cashRegister.closingAmount ?? 0;
       movements.push({
         id: 'cash-register-close',
         type: 'ADJUSTMENT',
-        amount: cashRegister.actualAmount ?? 0,
+        amount: closingAmount,
         description: 'Cierre de caja',
         createdAt: cashRegister.closedAt,
         formattedDate: closeDate,
@@ -94,19 +106,24 @@ export class CashRegisterExportPdfService {
     }
 
     const currency = cashRegister.shop.currencyCode || 'USD';
+    const responsibleText = responsibleName
+      ? `Responsable: ${responsibleName}`
+      : 'Responsable: No disponible';
     const movementRows = movements.map((movement) => {
-      const signedAmount =
-        movement.type === 'OPENING'
+      const isClosing = movement.id === 'cash-register-close';
+      const signedAmount = isClosing
+        ? movement.amount
+        : movement.type === 'OPENING'
           ? movement.amount
           : this.getSignedAmount(movement.type, movement.amount);
 
       return {
         date: movement.formattedDate,
         time: movement.formattedTime,
-        type: this.mapMovementType(movement.type),
+        type: isClosing ? 'Cierre' : this.mapMovementType(movement.type),
         reference: this.getMovementReference(movement),
         amount: this.formatCurrency(signedAmount, currency),
-        user: this.getUserDisplayName(movement.userId, context),
+        user: movement.userId,
       };
     });
 
@@ -115,7 +132,10 @@ export class CashRegisterExportPdfService {
       pageMargins: [40, 40, 40, 60] as [number, number, number, number],
       footer: (currentPage, pageCount) => ({
         columns: [
-          { text: 'Documento generado automáticamente por Balanzio', alignment: 'left' },
+          {
+            text: 'Documento generado automáticamente por Balanzio',
+            alignment: 'left',
+          },
           { text: `${currentPage} / ${pageCount}`, alignment: 'right' },
         ],
         margin: [40, 0, 40, 0] as [number, number, number, number],
@@ -123,21 +143,24 @@ export class CashRegisterExportPdfService {
         color: palette.textMuted,
       }),
       content: [
-        this.buildHeader(context),
-        { text: 'Responsable', style: 'sectionTitle' },
-        {
-          text: employee?.fullName ?? '',
-          style: 'responsibleName',
-          margin: [0, 0, 0, 12] as [number, number, number, number],
-        },
+        this.buildHeader(context, responsibleText),
         { text: 'Resumen del arqueo', style: 'sectionTitle' },
         {
           table: {
             widths: ['*', 'auto'],
             body: [
-              ['Monto de apertura', this.formatCurrency(cashRegister.openingAmount, currency)],
-              ['Total ingresos', this.formatCurrency(totals.totalIncome, currency)],
-              ['Total egresos', this.formatCurrency(totals.totalExpense, currency)],
+              [
+                'Monto de apertura',
+                this.formatCurrency(cashRegister.openingAmount, currency),
+              ],
+              [
+                'Total ingresos',
+                this.formatCurrency(totals.totalIncome, currency),
+              ],
+              [
+                'Total egresos',
+                this.formatCurrency(totals.totalExpense, currency),
+              ],
               [
                 'Balance esperado',
                 this.formatCurrency(
@@ -149,17 +172,25 @@ export class CashRegisterExportPdfService {
                 'Monto real declarado',
                 this.formatCurrency(cashRegister.actualAmount ?? 0, currency),
               ],
-              ['Diferencia', this.formatCurrency(cashRegister.difference ?? 0, currency)],
+              [
+                'Diferencia',
+                this.formatCurrency(cashRegister.difference ?? 0, currency),
+              ],
               ['Estado del cierre', differenceStatus],
             ],
           },
           layout: {
-            fillColor: (rowIndex: number) => (rowIndex % 2 === 0 ? '#f9fafb' : null),
+            fillColor: (rowIndex: number) =>
+              rowIndex % 2 === 0 ? '#f9fafb' : null,
             hLineColor: () => '#e5e7eb',
             vLineColor: () => '#e5e7eb',
           },
         },
-        { text: 'Totales por tipo de movimiento', style: 'sectionTitle', margin: [0, 12, 0, 6] as [number, number, number, number] },
+        {
+          text: 'Totales por tipo de movimiento',
+          style: 'sectionTitle',
+          margin: [0, 12, 0, 6] as [number, number, number, number],
+        },
         {
           table: {
             widths: ['*', 'auto'],
@@ -180,7 +211,8 @@ export class CashRegisterExportPdfService {
             ],
           },
           layout: {
-            fillColor: (rowIndex: number) => (rowIndex % 2 === 0 ? '#f9fafb' : null),
+            fillColor: (rowIndex: number) =>
+              rowIndex % 2 === 0 ? '#f9fafb' : null,
             hLineColor: () => '#e5e7eb',
             vLineColor: () => '#e5e7eb',
           },
@@ -196,15 +228,27 @@ export class CashRegisterExportPdfService {
               {
                 table: {
                   headerRows: 1,
-                  widths: ['15%', '8%', '20%', '*', '20%'] as [string, string, string, string, string],
+                  widths: ['15%', '8%', '20%', '*', '20%'] as [
+                    string,
+                    string,
+                    string,
+                    string,
+                    string,
+                  ],
                   body: [
                     this.buildMovementsHeaderRow(),
-                    ...movementRows.map((row) => this.buildMovementsBodyRow(row)),
+                    ...movementRows.map((row) =>
+                      this.buildMovementsBodyRow(row),
+                    ),
                   ],
                 },
                 layout: {
                   fillColor: (rowIndex: number) =>
-                    rowIndex === 0 ? '#e5e7eb' : rowIndex % 2 === 0 ? '#f9fafb' : null,
+                    rowIndex === 0
+                      ? '#e5e7eb'
+                      : rowIndex % 2 === 0
+                        ? '#f9fafb'
+                        : null,
                   hLineColor: () => '#e5e7eb',
                   vLineColor: () => '#e5e7eb',
                 },
@@ -214,13 +258,25 @@ export class CashRegisterExportPdfService {
           : []),
         ...(cashRegister.closingNotes
           ? [
-              { text: 'Observaciones del cierre', style: 'sectionTitle', margin: [0, 12, 0, 4] as [number, number, number, number] },
-              { text: cashRegister.closingNotes, margin: [0, 0, 0, 8] as [number, number, number, number] },
+              {
+                text: 'Observaciones del cierre',
+                style: 'sectionTitle',
+                margin: [0, 12, 0, 4] as [number, number, number, number],
+              },
+              {
+                text: cashRegister.closingNotes,
+                margin: [0, 0, 0, 8] as [number, number, number, number],
+              },
             ]
           : []),
       ],
       styles: {
-        sectionTitle: { fontSize: 14, bold: true, margin: [0, 8, 0, 12], color: '#111827' },
+        sectionTitle: {
+          fontSize: 14,
+          bold: true,
+          margin: [0, 8, 0, 12],
+          color: '#111827',
+        },
         infoGrid: { margin: [0, 2, 0, 2], fontSize: 11 },
         headerTitle: { fontSize: 18, bold: true, color: '#111827' },
         subHeader: { fontSize: 11, color: '#374151', margin: [0, 2, 0, 0] },
@@ -235,7 +291,10 @@ export class CashRegisterExportPdfService {
     return docDefinition;
   }
 
-  private buildHeader(context: CashRegisterExportContext): Content {
+  private buildHeader(
+    context: CashRegisterExportContext,
+    responsibleText: string,
+  ): Content {
     const { cashRegister } = context;
     const logo = this.getLogoDataUrl();
     const emissionDate = this.formatDateOnly(new Date());
@@ -243,12 +302,17 @@ export class CashRegisterExportPdfService {
     const columns: ContentColumns = {
       columns: [
         logo
-          ? { image: logo, width: 110, margin: [0, 0, 12, 0] as [number, number, number, number] }
+          ? {
+              image: logo,
+              width: 110,
+              margin: [0, 0, 12, 0] as [number, number, number, number],
+            }
           : { text: '' },
         {
           stack: [
             { text: cashRegister.shop.name, style: 'headerTitle' },
             { text: `Fecha: ${emissionDate}`, style: 'subHeader' },
+            { text: responsibleText, style: 'subHeader' },
           ],
           width: '*',
         },
@@ -371,11 +435,17 @@ export class CashRegisterExportPdfService {
     }
 
     if (movement.income) {
-      return movement.income.description || `Ingreso #${movement.income.id.substring(0, 8)}`;
+      return (
+        movement.income.description ||
+        `Ingreso #${movement.income.id.substring(0, 8)}`
+      );
     }
 
     if (movement.expense) {
-      return movement.expense.description || `Gasto #${movement.expense.id.substring(0, 8)}`;
+      return (
+        movement.expense.description ||
+        `Gasto #${movement.expense.id.substring(0, 8)}`
+      );
     }
 
     return movement.description ?? '-';
@@ -398,14 +468,6 @@ export class CashRegisterExportPdfService {
       default:
         return amount;
     }
-  }
-
-  private getUserDisplayName(userId: string, context: CashRegisterExportContext) {
-    const user = context.userMap.get(userId);
-    if (user) {
-      return user.fullName;
-    }
-    return userId;
   }
 
   private getLogoDataUrl() {

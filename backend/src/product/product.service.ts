@@ -78,7 +78,9 @@ export class ProductService {
         throw new NotFoundException('La categoría especificada no existe');
       }
       if (category.shopId !== createProductDto.shopId) {
-        throw new BadRequestException('La categoría no pertenece a esta tienda');
+        throw new BadRequestException(
+          'La categoría no pertenece a esta tienda',
+        );
       }
     }
 
@@ -101,7 +103,6 @@ export class ProductService {
     });
 
     const shopProduct = await this.prisma.shopProduct.create({
-      
       data: {
         shopId: createProductDto.shopId,
         productId: product.id,
@@ -187,7 +188,9 @@ export class ProductService {
         throw new NotFoundException('La categoría especificada no existe');
       }
       if (category.shopId !== shop.id) {
-        throw new BadRequestException('La categoría no pertenece a esta tienda');
+        throw new BadRequestException(
+          'La categoría no pertenece a esta tienda',
+        );
       }
     }
 
@@ -206,8 +209,14 @@ export class ProductService {
         barcode: updateProductDto.barcode ?? product.barcode,
         taxRate: updateProductDto.taxRate ?? product.taxRate,
         taxCategory: updateProductDto.taxCategory ?? product.taxCategory,
-        categoryId: updateProductDto.categoryId !== undefined ? updateProductDto.categoryId : product.categoryId,
-        supplierId: updateProductDto.supplierId !== undefined ? updateProductDto.supplierId : product.supplierId,
+        categoryId:
+          updateProductDto.categoryId !== undefined
+            ? updateProductDto.categoryId
+            : product.categoryId,
+        supplierId:
+          updateProductDto.supplierId !== undefined
+            ? updateProductDto.supplierId
+            : product.supplierId,
         measurementUnitId: measurementUnit ? measurementUnit.id : undefined,
       },
     });
@@ -232,7 +241,10 @@ export class ProductService {
     let changeType = 'UPDATE';
     let historyNote = `Actualizado por ${userId}`;
 
-    if (updateProductDto.isActive !== undefined && updateProductDto.isActive !== shopProduct.isActive) {
+    if (
+      updateProductDto.isActive !== undefined &&
+      updateProductDto.isActive !== shopProduct.isActive
+    ) {
       changeType = updateProductDto.isActive ? 'REACTIVATE' : 'DEACTIVATE';
       historyNote = `Producto ${updateProductDto.isActive ? 'activado' : 'desactivado'} por ${userId}`;
     }
@@ -289,7 +301,9 @@ export class ProductService {
         throw new ForbiddenException('No se encontró información del empleado');
       }
 
-      accessibleShopIds = employee.employeeShops.map((relation) => relation.shopId);
+      accessibleShopIds = employee.employeeShops.map(
+        (relation) => relation.shopId,
+      );
       if (accessibleShopIds.length === 0) {
         throw new ForbiddenException('No tenés tiendas asignadas');
       }
@@ -368,8 +382,8 @@ export class ProductService {
         description: sp.product.description,
         barcode: sp.product.barcode,
         categoryId: sp.product.categoryId,
-        categoryName: sp.product.category?.name || "",
-        supplierName: sp.product.supplier?.name || "",
+        categoryName: sp.product.category?.name || '',
+        supplierName: sp.product.supplier?.name || '',
         costPrice: sp.costPrice,
         salePrice: sp.salePrice,
         stock: sp.stock,
@@ -473,8 +487,8 @@ export class ProductService {
         description: shopProduct.product.description,
         barcode: shopProduct.product.barcode,
         categoryId: shopProduct.product.categoryId,
-        categoryName: shopProduct.product.category?.name || "",
-        supplierName: shopProduct.product.supplier?.name || "",
+        categoryName: shopProduct.product.category?.name || '',
+        supplierName: shopProduct.product.supplier?.name || '',
         salePrice: shopProduct.salePrice,
         costPrice: shopProduct.costPrice,
         stock: shopProduct.stock,

@@ -17,7 +17,10 @@ const TIMEZONES_BY_COUNTRY: TimezonesByCountry = rawTimeZones.reduce(
 const TIMEZONE_CACHE = new Map<string, string>();
 
 const normalize = (value: string) =>
-  value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
 
 const pickByCapital = (countryCode: string, timezones: RawTimeZone[]) => {
   const capital = countries[countryCode]?.capital;

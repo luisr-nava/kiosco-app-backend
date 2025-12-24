@@ -403,7 +403,10 @@ export class WebhookService {
   }
 
   // Método para disparar un webhook específico
-  private async triggerWebhook(webhook: WebhookDeliveryTarget, payload: StockAlertPayload) {
+  private async triggerWebhook(
+    webhook: WebhookDeliveryTarget,
+    payload: StockAlertPayload,
+  ) {
     let attempts = 0;
     let success = false;
     let responseStatus: number | null = null;
@@ -477,7 +480,10 @@ export class WebhookService {
     }
   }
 
-  private generateSignature(payload: StockAlertPayload, secret: string): string {
+  private generateSignature(
+    payload: StockAlertPayload,
+    secret: string,
+  ): string {
     const hmac = crypto.createHmac('sha256', secret);
     hmac.update(JSON.stringify(payload));
     return hmac.digest('hex');

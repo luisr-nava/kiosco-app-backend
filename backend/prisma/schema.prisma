@@ -5,48 +5,46 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  
-  url      = env("DATABASE_URL")
+
+  url = env("DATABASE_URL")
 }
 
-
 model Shop {
-  id           String         @id @default(uuid())
+  id           String   @id @default(uuid())
   name         String
   address      String?
   ownerId      String
-  createdAt    DateTime       @default(now())
+  createdAt    DateTime @default(now())
   projectId    String
-  isActive     Boolean        @default(true)
+  isActive     Boolean  @default(true)
   phone        String?
-  countryCode  String         @default("US")
-  currencyCode String         @default("USD")
-  timezone     String         @default("UTC")
+  countryCode  String   @default("US")
+  currencyCode String   @default("USD")
+  timezone     String   @default("UTC")
 
   // Configuración de alertas de stock
-  lowStockThreshold Int?       @default(10) // Umbral de stock bajo
+  lowStockThreshold Int? @default(10) // Umbral de stock bajo
 
-  employeeShops EmployeeShop[]
-  expenses     Expense[]
-  incomes      Income[]
-  purchases    Purchase[]
-  sales        Sale[]
-  shopProducts ShopProduct[]
-  supplierShop SupplierShop[]
-  categories   Category[]
-  supplierCategories SupplierCategory[]
-  saleReturns  SaleReturn[]
-  purchaseReturns PurchaseReturn[]
-  creditNotes  CreditNote[]
+  employeeShops           EmployeeShop[]
+  expenses                Expense[]
+  incomes                 Income[]
+  purchases               Purchase[]
+  sales                   Sale[]
+  shopProducts            ShopProduct[]
+  supplierShop            SupplierShop[]
+  categories              Category[]
+  supplierCategories      SupplierCategory[]
+  saleReturns             SaleReturn[]
+  purchaseReturns         PurchaseReturn[]
+  creditNotes             CreditNote[]
   merchandiseReplacements MerchandiseReplacement[]
-  customers    Customer[]
-  cashRegisters CashRegister[]
-  paymentMethods PaymentMethod[]
-  webhooks     Webhook[]
-  stockAlerts  StockAlert[]
-  measurementUnits ShopMeasurementUnit[]
+  customers               Customer[]
+  cashRegisters           CashRegister[]
+  paymentMethods          PaymentMethod[]
+  webhooks                Webhook[]
+  stockAlerts             StockAlert[]
+  measurementUnits        ShopMeasurementUnit[]
 }
-
 
 model Supplier {
   id          String   @id @default(uuid())
@@ -63,11 +61,11 @@ model Supplier {
   categoryId String?
   category   SupplierCategory? @relation(fields: [categoryId], references: [id])
 
-  products     Product[]
-  purchases    Purchase[]
-  supplierShop SupplierShop[]
-  purchaseReturns PurchaseReturn[]
-  creditNotes  CreditNote[]
+  products                Product[]
+  purchases               Purchase[]
+  supplierShop            SupplierShop[]
+  purchaseReturns         PurchaseReturn[]
+  creditNotes             CreditNote[]
   merchandiseReplacements MerchandiseReplacement[]
 }
 
@@ -106,49 +104,49 @@ model SupplierCategory {
 }
 
 model Sale {
-  id              String        @id @default(uuid())
+  id              String  @id @default(uuid())
   shopId          String
-  customerId      String?       // Cliente (opcional, puede ser venta al público)
-  employeeId      String?       // Empleado que realizó la venta
-  cashRegisterId  String?       // Caja donde se registró
-  paymentMethodId String        // Método de pago (obligatorio)
+  customerId      String? // Cliente (opcional, puede ser venta al público)
+  employeeId      String? // Empleado que realizó la venta
+  cashRegisterId  String? // Caja donde se registró
+  paymentMethodId String // Método de pago (obligatorio)
 
   // Montos
-  subtotal        Float         // Suma de items sin descuentos
-  discountAmount  Float         @default(0) // Descuento total aplicado
-  taxAmount       Float         @default(0) // IVA total
-  totalAmount     Float         // Total final a pagar
+  subtotal       Float // Suma de items sin descuentos
+  discountAmount Float @default(0) // Descuento total aplicado
+  taxAmount      Float @default(0) // IVA total
+  totalAmount    Float // Total final a pagar
 
   // Métodos de pago
-  paymentStatus   PaymentStatus @default(PAID)
+  paymentStatus PaymentStatus @default(PAID)
 
   // Datos adicionales
-  saleDate        DateTime      @default(now())
-  notes           String?
-  invoiceNumber   String?       // Número de factura (si aplica)
-  invoiceType     InvoiceType?  // Tipo de comprobante fiscal
+  saleDate      DateTime     @default(now())
+  notes         String?
+  invoiceNumber String? // Número de factura (si aplica)
+  invoiceType   InvoiceType? // Tipo de comprobante fiscal
 
   // Estado
-  status          SaleStatus    @default(COMPLETED)
-  isActive        Boolean       @default(true)
+  status   SaleStatus @default(COMPLETED)
+  isActive Boolean    @default(true)
 
   // Cancelación
-  cancelledAt     DateTime?
-  cancelledBy     String?       // User ID
+  cancelledAt        DateTime?
+  cancelledBy        String? // User ID
   cancellationReason String?
 
   // Relaciones
-  shop            Shop          @relation(fields: [shopId], references: [id])
-  customer        Customer?     @relation(fields: [customerId], references: [id])
-  employee        Employee?     @relation(fields: [employeeId], references: [id])
-  paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
+  shop            Shop                     @relation(fields: [shopId], references: [id])
+  customer        Customer?                @relation(fields: [customerId], references: [id])
+  employee        Employee?                @relation(fields: [employeeId], references: [id])
+  paymentMethod   PaymentMethod            @relation(fields: [paymentMethodId], references: [id])
   items           SaleItem[]
-  saleReturns     SaleReturn[]  @relation("SaleToReturn")
+  saleReturns     SaleReturn[]             @relation("SaleToReturn")
   accountMovement CustomerAccountMovement?
   cashMovement    CashMovement?
 
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([shopId, saleDate])
   @@index([customerId, saleDate])
@@ -157,14 +155,14 @@ model Sale {
 }
 
 model SaleHistory {
-  id          String   @id @default(uuid())
-  saleId      String
-  userId      String   // Usuario que realizó la acción
-  action      String   // CREATE, CANCEL, UPDATE
-  previousData String? @db.Text // JSON con datos anteriores
-  newData     String?  @db.Text // JSON con datos nuevos
-  reason      String?  // Razón del cambio (especialmente para cancelaciones)
-  createdAt   DateTime @default(now())
+  id           String   @id @default(uuid())
+  saleId       String
+  userId       String // Usuario que realizó la acción
+  action       String // CREATE, CANCEL, UPDATE
+  previousData String?  @db.Text // JSON con datos anteriores
+  newData      String?  @db.Text // JSON con datos nuevos
+  reason       String? // Razón del cambio (especialmente para cancelaciones)
+  createdAt    DateTime @default(now())
 
   @@index([saleId])
   @@index([userId])
@@ -172,36 +170,36 @@ model SaleHistory {
 }
 
 model SaleItem {
-  id            String      @id @default(uuid())
+  id            String @id @default(uuid())
   saleId        String
   shopProductId String
 
   // Cantidades y precios
-  quantity      Int
-  unitPrice     Float       // Precio unitario al momento de la venta
-  subtotal      Float       // quantity * unitPrice
-  discount      Float       @default(0) // Descuento aplicado a este item
-  taxRate       Float       @default(0) // % de IVA
-  taxAmount     Float       @default(0) // IVA calculado
-  total         Float       // Subtotal - discount + taxAmount
+  quantity  Int
+  unitPrice Float // Precio unitario al momento de la venta
+  subtotal  Float // quantity * unitPrice
+  discount  Float @default(0) // Descuento aplicado a este item
+  taxRate   Float @default(0) // % de IVA
+  taxAmount Float @default(0) // IVA calculado
+  total     Float // Subtotal - discount + taxAmount
 
   // Relaciones
-  sale          Sale        @relation(fields: [saleId], references: [id], onDelete: Cascade)
-  shopProduct   ShopProduct @relation(fields: [shopProductId], references: [id])
+  sale        Sale        @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  shopProduct ShopProduct @relation(fields: [shopProductId], references: [id])
 
-  createdAt     DateTime    @default(now())
+  createdAt DateTime @default(now())
 }
 
 // Enums para ventas
 model PaymentMethod {
-  id          String    @id @default(uuid())
+  id          String   @id @default(uuid())
   shopId      String
-  name        String    // Nombre del método (ej: "Efectivo", "Tarjeta Débito")
-  code        String    // Código único (ej: "CASH", "DEBIT_CARD")
+  name        String // Nombre del método (ej: "Efectivo", "Tarjeta Débito")
+  code        String // Código único (ej: "CASH", "DEBIT_CARD")
   description String?
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   shop             Shop              @relation(fields: [shopId], references: [id])
   sales            Sale[]
@@ -215,55 +213,55 @@ model PaymentMethod {
 }
 
 enum PaymentStatus {
-  PENDING         // Pendiente de pago
-  PAID            // Pagado
-  PARTIAL         // Pago parcial
-  OVERDUE         // Vencido (cuenta corriente)
-  CANCELLED       // Cancelado
+  PENDING // Pendiente de pago
+  PAID // Pagado
+  PARTIAL // Pago parcial
+  OVERDUE // Vencido (cuenta corriente)
+  CANCELLED // Cancelado
 }
 
 enum SaleStatus {
-  DRAFT           // Borrador (no finalizada)
-  COMPLETED       // Completada
-  CANCELLED       // Cancelada
-  RETURNED        // Devuelta (total o parcial)
+  DRAFT // Borrador (no finalizada)
+  COMPLETED // Completada
+  CANCELLED // Cancelada
+  RETURNED // Devuelta (total o parcial)
 }
 
 enum InvoiceType {
-  TICKET          // Ticket no fiscal
-  FACTURA_A       // Factura A (responsables inscriptos)
-  FACTURA_B       // Factura B (consumidor final)
-  FACTURA_C       // Factura C (monotributista)
-  NOTA_CREDITO_A  // Nota de crédito A
-  NOTA_CREDITO_B  // Nota de crédito B
-  NOTA_CREDITO_C  // Nota de crédito C
+  TICKET // Ticket no fiscal
+  FACTURA_A // Factura A (responsables inscriptos)
+  FACTURA_B // Factura B (consumidor final)
+  FACTURA_C // Factura C (monotributista)
+  NOTA_CREDITO_A // Nota de crédito A
+  NOTA_CREDITO_B // Nota de crédito B
+  NOTA_CREDITO_C // Nota de crédito C
 }
 
 // Devoluciones de ventas (clientes devuelven productos)
 model SaleReturn {
-  id          String   @id @default(uuid())
-  saleId      String?  // Opcional, puede ser una devolución sin venta específica
-  sale        Sale?    @relation("SaleToReturn", fields: [saleId], references: [id])
+  id          String           @id @default(uuid())
+  saleId      String? // Opcional, puede ser una devolución sin venta específica
+  sale        Sale?            @relation("SaleToReturn", fields: [saleId], references: [id])
   shopId      String
   totalAmount Float
   reason      String
-  returnDate  DateTime @default(now())
+  returnDate  DateTime         @default(now())
   status      SaleReturnStatus @default(PENDING)
 
   // Qué se hizo con el dinero
-  refundType  RefundType @default(CASH) // CASH, CREDIT, EXCHANGE
+  refundType   RefundType @default(CASH) // CASH, CREDIT, EXCHANGE
   refundAmount Float // Monto efectivamente devuelto
 
-  notes       String?
+  notes String?
 
-  shop        Shop              @relation(fields: [shopId], references: [id])
-  items       SaleReturnItem[]
+  shop            Shop             @relation(fields: [shopId], references: [id])
+  items           SaleReturnItem[]
   purchaseReturns PurchaseReturn[] // Devoluciones al proveedor generadas
-  cashMovement CashMovement?
+  cashMovement    CashMovement?
 }
 
 model SaleReturnItem {
-  id            String      @id @default(uuid())
+  id            String  @id @default(uuid())
   saleReturnId  String
   shopProductId String
   quantity      Int
@@ -272,37 +270,37 @@ model SaleReturnItem {
   reason        String? // Razón específica del producto
   condition     String? // Estado del producto (DEFECTIVE, EXPIRED, etc)
 
-  saleReturn    SaleReturn  @relation(fields: [saleReturnId], references: [id], onDelete: Cascade)
-  shopProduct   ShopProduct @relation(fields: [shopProductId], references: [id])
+  saleReturn  SaleReturn  @relation(fields: [saleReturnId], references: [id], onDelete: Cascade)
+  shopProduct ShopProduct @relation(fields: [shopProductId], references: [id])
 }
 
 // Devoluciones a proveedores
 model PurchaseReturn {
-  id               String   @id @default(uuid())
-  purchaseId       String?  // Compra original (opcional)
-  supplierId       String
-  shopId           String
-  saleReturnId     String?  // Si viene de una devolución de venta
-  totalAmount      Float
-  returnDate       DateTime @default(now())
-  status           PurchaseReturnStatus @default(PENDING)
+  id           String               @id @default(uuid())
+  purchaseId   String? // Compra original (opcional)
+  supplierId   String
+  shopId       String
+  saleReturnId String? // Si viene de una devolución de venta
+  totalAmount  Float
+  returnDate   DateTime             @default(now())
+  status       PurchaseReturnStatus @default(PENDING)
 
   // Tipo de resolución
-  resolutionType   ResolutionType @default(CREDIT_NOTE) // CREDIT_NOTE, REPLACEMENT, REFUND
+  resolutionType ResolutionType @default(CREDIT_NOTE) // CREDIT_NOTE, REPLACEMENT, REFUND
 
-  reason           String
-  notes            String?
+  reason String
+  notes  String?
 
-  supplier         Supplier        @relation(fields: [supplierId], references: [id])
-  shop             Shop            @relation(fields: [shopId], references: [id])
-  saleReturn       SaleReturn?     @relation(fields: [saleReturnId], references: [id])
-  items            PurchaseReturnItem[]
-  creditNote       CreditNote?     // Si se generó nota de crédito
-  replacement      MerchandiseReplacement? // Si se generó reposición
+  supplier    Supplier                @relation(fields: [supplierId], references: [id])
+  shop        Shop                    @relation(fields: [shopId], references: [id])
+  saleReturn  SaleReturn?             @relation(fields: [saleReturnId], references: [id])
+  items       PurchaseReturnItem[]
+  creditNote  CreditNote? // Si se generó nota de crédito
+  replacement MerchandiseReplacement? // Si se generó reposición
 }
 
 model PurchaseReturnItem {
-  id               String         @id @default(uuid())
+  id               String  @id @default(uuid())
   purchaseReturnId String
   shopProductId    String
   quantity         Int
@@ -310,67 +308,67 @@ model PurchaseReturnItem {
   subtotal         Float
   reason           String?
 
-  purchaseReturn   PurchaseReturn @relation(fields: [purchaseReturnId], references: [id], onDelete: Cascade)
-  shopProduct      ShopProduct    @relation(fields: [shopProductId], references: [id])
+  purchaseReturn PurchaseReturn @relation(fields: [purchaseReturnId], references: [id], onDelete: Cascade)
+  shopProduct    ShopProduct    @relation(fields: [shopProductId], references: [id])
 }
 
 // Notas de crédito de proveedores
 model CreditNote {
-  id                String   @id @default(uuid())
-  purchaseReturnId  String   @unique
-  supplierId        String
-  shopId            String
-  amount            Float
-  remainingAmount   Float    // Monto disponible
-  issueDate         DateTime @default(now())
-  expiryDate        DateTime? // Fecha de vencimiento (opcional)
-  status            CreditNoteStatus @default(ACTIVE)
-  notes             String?
+  id               String           @id @default(uuid())
+  purchaseReturnId String           @unique
+  supplierId       String
+  shopId           String
+  amount           Float
+  remainingAmount  Float // Monto disponible
+  issueDate        DateTime         @default(now())
+  expiryDate       DateTime? // Fecha de vencimiento (opcional)
+  status           CreditNoteStatus @default(ACTIVE)
+  notes            String?
 
-  purchaseReturn    PurchaseReturn @relation(fields: [purchaseReturnId], references: [id])
-  supplier          Supplier       @relation(fields: [supplierId], references: [id])
-  shop              Shop           @relation(fields: [shopId], references: [id])
-  applications      CreditNoteApplication[] // Usos de la nota de crédito
+  purchaseReturn PurchaseReturn          @relation(fields: [purchaseReturnId], references: [id])
+  supplier       Supplier                @relation(fields: [supplierId], references: [id])
+  shop           Shop                    @relation(fields: [shopId], references: [id])
+  applications   CreditNoteApplication[] // Usos de la nota de crédito
 }
 
 model CreditNoteApplication {
-  id            String   @id @default(uuid())
-  creditNoteId  String
-  purchaseId    String
-  amountApplied Float
+  id              String   @id @default(uuid())
+  creditNoteId    String
+  purchaseId      String
+  amountApplied   Float
   applicationDate DateTime @default(now())
-  notes         String?
+  notes           String?
 
-  creditNote    CreditNote @relation(fields: [creditNoteId], references: [id])
-  purchase      Purchase   @relation(fields: [purchaseId], references: [id])
+  creditNote CreditNote @relation(fields: [creditNoteId], references: [id])
+  purchase   Purchase   @relation(fields: [purchaseId], references: [id])
 }
 
 // Reposiciones de mercadería
 model MerchandiseReplacement {
-  id                String   @id @default(uuid())
-  purchaseReturnId  String   @unique
-  supplierId        String
-  shopId            String
-  status            ReplacementStatus @default(PENDING)
-  requestDate       DateTime @default(now())
-  deliveryDate      DateTime?
-  notes             String?
+  id               String            @id @default(uuid())
+  purchaseReturnId String            @unique
+  supplierId       String
+  shopId           String
+  status           ReplacementStatus @default(PENDING)
+  requestDate      DateTime          @default(now())
+  deliveryDate     DateTime?
+  notes            String?
 
-  purchaseReturn    PurchaseReturn @relation(fields: [purchaseReturnId], references: [id])
-  supplier          Supplier       @relation(fields: [supplierId], references: [id])
-  shop              Shop           @relation(fields: [shopId], references: [id])
-  items             ReplacementItem[]
+  purchaseReturn PurchaseReturn    @relation(fields: [purchaseReturnId], references: [id])
+  supplier       Supplier          @relation(fields: [supplierId], references: [id])
+  shop           Shop              @relation(fields: [shopId], references: [id])
+  items          ReplacementItem[]
 }
 
 model ReplacementItem {
-  id                      String                @id @default(uuid())
+  id                       String @id @default(uuid())
   merchandiseReplacementId String
-  shopProductId           String
-  requestedQuantity       Int
-  deliveredQuantity       Int                   @default(0)
+  shopProductId            String
+  requestedQuantity        Int
+  deliveredQuantity        Int    @default(0)
 
-  replacement             MerchandiseReplacement @relation(fields: [merchandiseReplacementId], references: [id], onDelete: Cascade)
-  shopProduct             ShopProduct            @relation(fields: [shopProductId], references: [id])
+  replacement MerchandiseReplacement @relation(fields: [merchandiseReplacementId], references: [id], onDelete: Cascade)
+  shopProduct ShopProduct            @relation(fields: [shopProductId], references: [id])
 }
 
 // Enums
@@ -394,15 +392,15 @@ enum PurchaseStatus {
 }
 
 enum RefundType {
-  CASH        // Devolución en efectivo
-  CREDIT      // Crédito en tienda
-  EXCHANGE    // Cambio de producto
+  CASH // Devolución en efectivo
+  CREDIT // Crédito en tienda
+  EXCHANGE // Cambio de producto
 }
 
 enum ResolutionType {
-  CREDIT_NOTE  // Nota de crédito
-  REPLACEMENT  // Reposición de mercadería
-  REFUND       // Devolución de dinero
+  CREDIT_NOTE // Nota de crédito
+  REPLACEMENT // Reposición de mercadería
+  REFUND // Devolución de dinero
 }
 
 enum CreditNoteStatus {
@@ -421,24 +419,24 @@ enum ReplacementStatus {
 }
 
 model Purchase {
-  id              String           @id @default(uuid())
-  supplierId      String?
-  shopId          String
-  paymentMethodId String
-  totalAmount     Float?
-  purchaseDate    DateTime         @default(now())
-  status          PurchaseStatus   @default(COMPLETED)
-  notes           String?
-  cancelledAt     DateTime?
-  cancelledBy     String?
-  cancellationReason String?
-  histories       ProductHistory[]
-  shop            Shop             @relation(fields: [shopId], references: [id])
-  supplier        Supplier?        @relation(fields: [supplierId], references: [id])
-  paymentMethod   PaymentMethod    @relation(fields: [paymentMethodId], references: [id])
-  items           PurchaseItem[]
+  id                     String                  @id @default(uuid())
+  supplierId             String?
+  shopId                 String
+  paymentMethodId        String
+  totalAmount            Float?
+  purchaseDate           DateTime                @default(now())
+  status                 PurchaseStatus          @default(COMPLETED)
+  notes                  String?
+  cancelledAt            DateTime?
+  cancelledBy            String?
+  cancellationReason     String?
+  histories              ProductHistory[]
+  shop                   Shop                    @relation(fields: [shopId], references: [id])
+  supplier               Supplier?               @relation(fields: [supplierId], references: [id])
+  paymentMethod          PaymentMethod           @relation(fields: [paymentMethodId], references: [id])
+  items                  PurchaseItem[]
   creditNoteApplications CreditNoteApplication[]
-  cashMovement    CashMovement?
+  cashMovement           CashMovement?
 
   @@index([paymentMethodId])
 }
@@ -455,37 +453,37 @@ model PurchaseItem {
 }
 
 model PurchaseDeletionHistory {
-  id           String   @id @default(uuid())
-  purchaseId   String   // ID de la compra eliminada
-  shopId       String
-  shopName     String
-  supplierId   String?
-  supplierName String?
-  totalAmount  Float?
-  purchaseDate DateTime
+  id            String   @id @default(uuid())
+  purchaseId    String // ID de la compra eliminada
+  shopId        String
+  shopName      String
+  supplierId    String?
+  supplierName  String?
+  totalAmount   Float?
+  purchaseDate  DateTime
   originalNotes String?
 
   // Datos de la eliminación
-  deletedBy    String   // User ID
+  deletedBy      String // User ID
   deletedByEmail String
-  deletedAt    DateTime @default(now())
+  deletedAt      DateTime @default(now())
   deletionReason String // Razón obligatoria de eliminación
 
   // JSON con los items de la compra
-  itemsSnapshot String  @db.Text // Guardamos los items en formato JSON
+  itemsSnapshot String @db.Text // Guardamos los items en formato JSON
 }
 
 model MeasurementUnit {
-  id                String                 @id @default(uuid())
-  name              String
-  code              String
-  category          MeasurementUnitCategory
-  baseUnit          MeasurementBaseUnit
-  conversionFactor  Decimal                @db.Decimal(18, 6)
-  isBaseUnit        Boolean                @default(false)
-  isDefault         Boolean                @default(false)
-  createdByUserId   String?
-  createdAt         DateTime               @default(now())
+  id               String                  @id @default(uuid())
+  name             String
+  code             String
+  category         MeasurementUnitCategory
+  baseUnit         MeasurementBaseUnit
+  conversionFactor Decimal                 @db.Decimal(18, 6)
+  isBaseUnit       Boolean                 @default(false)
+  isDefault        Boolean                 @default(false)
+  createdByUserId  String?
+  createdAt        DateTime                @default(now())
 
   shopMeasurementUnits ShopMeasurementUnit[]
   products             Product[]
@@ -494,14 +492,14 @@ model MeasurementUnit {
 }
 
 model ShopMeasurementUnit {
-  id                 String          @id @default(uuid())
-  shopId             String
-  measurementUnitId  String
-  assignedByUserId   String?
-  createdAt          DateTime        @default(now())
+  id                String   @id @default(uuid())
+  shopId            String
+  measurementUnitId String
+  assignedByUserId  String?
+  createdAt         DateTime @default(now())
 
-  shop              Shop             @relation(fields: [shopId], references: [id], onDelete: Cascade)
-  measurementUnit   MeasurementUnit  @relation(fields: [measurementUnitId], references: [id], onDelete: Cascade)
+  shop            Shop            @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  measurementUnit MeasurementUnit @relation(fields: [measurementUnitId], references: [id], onDelete: Cascade)
 
   @@unique([shopId, measurementUnitId])
   @@index([measurementUnitId])
@@ -519,8 +517,8 @@ model Product {
   supplierId String?
   supplier   Supplier? @relation(fields: [supplierId], references: [id])
 
-  categoryId String? // <--- agregado
-  category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId        String? // <--- agregado
+  category          Category?       @relation(fields: [categoryId], references: [id])
   measurementUnitId String
   measurementUnit   MeasurementUnit @relation(fields: [measurementUnitId], references: [id])
 
@@ -528,25 +526,25 @@ model Product {
 }
 
 model ShopProduct {
-  id               String           @id @default(uuid())
-  shopId           String
-  productId        String
-  costPrice        Float
-  salePrice        Float
-  stock            Int?
-  createdAt        DateTime         @default(now())
-  createdBy        String?
-  currency         String           @default("USD")
-  isActive         Boolean          @default(true)
-  productHistories ProductHistory[]
-  purchaseItems    PurchaseItem[]
-  product          Product          @relation(fields: [productId], references: [id])
-  shop             Shop             @relation(fields: [shopId], references: [id])
-  saleReturnItems  SaleReturnItem[]
+  id                  String               @id @default(uuid())
+  shopId              String
+  productId           String
+  costPrice           Float
+  salePrice           Float
+  stock               Int?
+  createdAt           DateTime             @default(now())
+  createdBy           String?
+  currency            String               @default("USD")
+  isActive            Boolean              @default(true)
+  productHistories    ProductHistory[]
+  purchaseItems       PurchaseItem[]
+  product             Product              @relation(fields: [productId], references: [id])
+  shop                Shop                 @relation(fields: [shopId], references: [id])
+  saleReturnItems     SaleReturnItem[]
   purchaseReturnItems PurchaseReturnItem[]
-  replacementItems ReplacementItem[]
-  saleItems        SaleItem[]
-  stockAlerts      StockAlert[]
+  replacementItems    ReplacementItem[]
+  saleItems           SaleItem[]
+  stockAlerts         StockAlert[]
 
   @@unique([shopId, productId])
 }
@@ -583,7 +581,6 @@ model Income {
   @@index([paymentMethodId])
 }
 
-
 model Expense {
   id              String        @id @default(uuid())
   shopId          String
@@ -600,19 +597,18 @@ model Expense {
   @@index([paymentMethodId])
 }
 
-
 model Employee {
-  id               String    @id @default(uuid())
+  id               String         @id @default(uuid())
   fullName         String
-  email            String    @unique
+  email            String         @unique
   role             String
   hireDate         DateTime?
   salary           Float?
   address          String?
-  createdAt        DateTime  @default(now())
+  createdAt        DateTime       @default(now())
   dni              String?
   emergencyContact String?
-  isActive         Boolean   @default(true)
+  isActive         Boolean        @default(true)
   notes            String?
   phone            String?
   profileImage     String?
@@ -661,32 +657,32 @@ model Notification {
 }
 
 model Customer {
-  id              String   @id @default(uuid())
-  shopId          String
+  id     String @id @default(uuid())
+  shopId String
 
   // Datos personales
-  fullName        String
-  email           String?
-  phone           String?
-  dni             String?
-  address         String?
+  fullName String
+  email    String?
+  phone    String?
+  dni      String?
+  address  String?
 
   // Cuenta corriente
-  creditLimit     Float    @default(0) // Límite de crédito
-  currentBalance  Float    @default(0) // Saldo actual (lo que debe)
+  creditLimit    Float @default(0) // Límite de crédito
+  currentBalance Float @default(0) // Saldo actual (lo que debe)
 
   // Estado
-  isActive        Boolean  @default(true)
-  notes           String?
+  isActive Boolean @default(true)
+  notes    String?
 
   // Fechas
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relaciones
-  shop            Shop     @relation(fields: [shopId], references: [id])
-  sales           Sale[]
-  payments        CustomerPayment[]
+  shop             Shop                      @relation(fields: [shopId], references: [id])
+  sales            Sale[]
+  payments         CustomerPayment[]
   accountMovements CustomerAccountMovement[]
 
   @@unique([shopId, dni]) // DNI único por tienda
@@ -694,69 +690,68 @@ model Customer {
 }
 
 model CustomerPayment {
-  id              String   @id @default(uuid())
+  id              String @id @default(uuid())
   customerId      String
   shopId          String
-  paymentMethodId String   // Método de pago usado
+  paymentMethodId String // Método de pago usado
 
   // Monto
-  amount          Float
+  amount Float
 
   // Referencia
-  referenceNumber String?  // Número de comprobante, transferencia, etc.
+  referenceNumber String? // Número de comprobante, transferencia, etc.
   notes           String?
 
   // Fechas
-  paymentDate     DateTime @default(now())
-  createdAt       DateTime @default(now())
+  paymentDate DateTime @default(now())
+  createdAt   DateTime @default(now())
 
   // Relaciones
-  customer        Customer @relation(fields: [customerId], references: [id])
-  paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
-  movement        CustomerAccountMovement?
+  customer      Customer                 @relation(fields: [customerId], references: [id])
+  paymentMethod PaymentMethod            @relation(fields: [paymentMethodId], references: [id])
+  movement      CustomerAccountMovement?
 
   @@index([customerId, paymentDate])
   @@index([paymentMethodId])
 }
 
 model CustomerAccountMovement {
-  id              String   @id @default(uuid())
-  customerId      String
-  shopId          String
+  id         String @id @default(uuid())
+  customerId String
+  shopId     String
 
   // Tipo de movimiento
-  type            AccountMovementType
-  amount          Float
+  type   AccountMovementType
+  amount Float
 
   // Saldo antes y después
   previousBalance Float
   newBalance      Float
 
   // Referencias
-  saleId          String?  @unique
-  paymentId       String?  @unique
+  saleId    String? @unique
+  paymentId String? @unique
 
   // Detalles
-  description     String?
+  description String?
 
   // Fecha
-  createdAt       DateTime @default(now())
+  createdAt DateTime @default(now())
 
   // Relaciones
-  customer        Customer @relation(fields: [customerId], references: [id])
-  sale            Sale?    @relation(fields: [saleId], references: [id])
-  payment         CustomerPayment? @relation(fields: [paymentId], references: [id])
+  customer Customer         @relation(fields: [customerId], references: [id])
+  sale     Sale?            @relation(fields: [saleId], references: [id])
+  payment  CustomerPayment? @relation(fields: [paymentId], references: [id])
 
   @@index([customerId, createdAt])
   @@index([shopId, createdAt])
 }
 
 enum AccountMovementType {
-  SALE      // Venta a crédito (aumenta deuda)
-  PAYMENT   // Pago (reduce deuda)
+  SALE // Venta a crédito (aumenta deuda)
+  PAYMENT // Pago (reduce deuda)
   ADJUSTMENT // Ajuste manual
 }
-
 
 model Category {
   id     String @id @default(uuid())
@@ -780,86 +775,82 @@ model Category {
   @@unique([name, shopId])
 }
 
-
 model CashRegister {
-  id                String           @id @default(uuid())
-  shopId            String
-  employeeId        String
-
-  // Apertura
-  openingAmount     Float            // Monto inicial al abrir
-  openedAt          DateTime         @default(now())
-  openedBy          String           // User ID
-
-  // Cierre
-  closingAmount     Float?           // Monto al cerrar (esperado según ventas)
-  actualAmount      Float?           // Monto real contado
-  difference        Float?           // Diferencia (falta/sobrante)
-  closedAt          DateTime?
-  closedBy          String?          // User ID
-  closingNotes      String?
+  id             String    @id @default(uuid())
+  shopId         String
+  employeeId     String
+  openingAmount  Float // Monto inicial al abrir
+  openedAt       DateTime  @default(now())
+  openedByUserId String?
+  openedByName   String?
+  closingAmount  Float? // Monto al cerrar (esperado según ventas)
+  actualAmount   Float? // Monto real contado
+  difference     Float? // Diferencia (falta/sobrante)
+  closedAt       DateTime?
+  closedBy       String? // User ID
+  closingNotes   String?
 
   // Estado
-  status            CashRegisterStatus @default(OPEN)
+  status CashRegisterStatus @default(OPEN)
 
   // Relaciones
-  shop              Shop             @relation(fields: [shopId], references: [id])
-  movements         CashMovement[]
-  exports           CashRegisterExport[]
+  shop      Shop                 @relation(fields: [shopId], references: [id])
+  movements CashMovement[]
+  exports   CashRegisterExport[]
 
   @@index([shopId, status])
   @@index([openedAt])
 }
 
 model CashMovement {
-  id              String         @id @default(uuid())
-  cashRegisterId  String
-  shopId          String
+  id             String @id @default(uuid())
+  cashRegisterId String
+  shopId         String
 
   // Tipo y monto
-  type            CashMovementType
-  amount          Float
-  description     String?
+  type        CashMovementType
+  amount      Float
+  description String?
 
   // Referencia
-  saleId          String?        @unique
-  purchaseId      String?        @unique
-  saleReturnId    String?        @unique
-  incomeId        String?        @unique
-  expenseId       String?        @unique
-  userId          String
+  saleId       String? @unique
+  purchaseId   String? @unique
+  saleReturnId String? @unique
+  incomeId     String? @unique
+  expenseId    String? @unique
+  userId       String
 
   // Fecha
-  createdAt       DateTime       @default(now())
+  createdAt DateTime @default(now())
 
   // Relaciones
-  cashRegister    CashRegister   @relation(fields: [cashRegisterId], references: [id])
-  sale            Sale?          @relation(fields: [saleId], references: [id])
-  purchase        Purchase?      @relation(fields: [purchaseId], references: [id])
-  saleReturn      SaleReturn?    @relation(fields: [saleReturnId], references: [id])
-  income          Income?        @relation(fields: [incomeId], references: [id])
-  expense         Expense?       @relation(fields: [expenseId], references: [id])
+  cashRegister CashRegister @relation(fields: [cashRegisterId], references: [id])
+  sale         Sale?        @relation(fields: [saleId], references: [id])
+  purchase     Purchase?    @relation(fields: [purchaseId], references: [id])
+  saleReturn   SaleReturn?  @relation(fields: [saleReturnId], references: [id])
+  income       Income?      @relation(fields: [incomeId], references: [id])
+  expense      Expense?     @relation(fields: [expenseId], references: [id])
 
   @@index([cashRegisterId, createdAt])
   @@index([shopId, createdAt])
 }
 
 enum CashRegisterStatus {
-  OPEN      // Caja abierta
-  CLOSED    // Caja cerrada
+  OPEN // Caja abierta
+  CLOSED // Caja cerrada
   CANCELLED // Caja cancelada
 }
 
 enum CashMovementType {
-  SALE          // Venta en efectivo (ingreso)
-  PURCHASE      // Pago a proveedor (egreso)
-  RETURN        // Devolución de venta (egreso)
-  INCOME        // Ingreso extra
-  EXPENSE       // Egreso
-  OPENING       // Apertura de caja
-  WITHDRAWAL    // Retiro de efectivo
-  DEPOSIT       // Depósito adicional
-  ADJUSTMENT    // Ajuste manual
+  SALE // Venta en efectivo (ingreso)
+  PURCHASE // Pago a proveedor (egreso)
+  RETURN // Devolución de venta (egreso)
+  INCOME // Ingreso extra
+  EXPENSE // Egreso
+  OPENING // Apertura de caja
+  WITHDRAWAL // Retiro de efectivo
+  DEPOSIT // Depósito adicional
+  ADJUSTMENT // Ajuste manual
 }
 
 enum CashRegisterExportFormat {
@@ -868,13 +859,13 @@ enum CashRegisterExportFormat {
 }
 
 model CashRegisterExport {
-  id             String                    @id @default(uuid())
+  id             String                   @id @default(uuid())
   cashRegisterId String
   format         CashRegisterExportFormat
   url            String
   contentType    String
   expiresAt      DateTime
-  createdAt      DateTime                  @default(now())
+  createdAt      DateTime                 @default(now())
 
   cashRegister CashRegister @relation(fields: [cashRegisterId], references: [id])
 
@@ -903,94 +894,94 @@ enum MeasurementBaseUnit {
 
 // Webhooks para notificaciones
 model Webhook {
-  id          String        @id @default(uuid())
-  shopId      String
-  name        String        // Nombre descriptivo del webhook
-  url         String        // URL a la que se enviarán las notificaciones
-  event       WebhookEvent  // Tipo de evento que dispara el webhook
-  isActive    Boolean       @default(true)
-  secret      String?       // Secret para firmar el payload (opcional)
+  id       String       @id @default(uuid())
+  shopId   String
+  name     String // Nombre descriptivo del webhook
+  url      String // URL a la que se enviarán las notificaciones
+  event    WebhookEvent // Tipo de evento que dispara el webhook
+  isActive Boolean      @default(true)
+  secret   String? // Secret para firmar el payload (opcional)
 
   // Configuración
-  retryAttempts Int         @default(3)
-  timeoutMs     Int         @default(5000)
+  retryAttempts Int @default(3)
+  timeoutMs     Int @default(5000)
 
   // Metadata
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  createdBy   String?       // User ID
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String? // User ID
 
   // Relaciones
-  shop        Shop          @relation(fields: [shopId], references: [id], onDelete: Cascade)
-  logs        WebhookLog[]
+  shop Shop         @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  logs WebhookLog[]
 
   @@index([shopId, event, isActive])
 }
 
 model WebhookLog {
-  id          String        @id @default(uuid())
-  webhookId   String
-  event       WebhookEvent
-  payload     String        @db.Text // JSON payload enviado
-  responseStatus Int?       // HTTP status code de la respuesta
-  responseBody   String?    @db.Text // Respuesta del servidor
-  success     Boolean       @default(false)
-  attempts    Int           @default(1)
-  error       String?       @db.Text
-  createdAt   DateTime      @default(now())
+  id             String       @id @default(uuid())
+  webhookId      String
+  event          WebhookEvent
+  payload        String       @db.Text // JSON payload enviado
+  responseStatus Int? // HTTP status code de la respuesta
+  responseBody   String?      @db.Text // Respuesta del servidor
+  success        Boolean      @default(false)
+  attempts       Int          @default(1)
+  error          String?      @db.Text
+  createdAt      DateTime     @default(now())
 
-  webhook     Webhook       @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+  webhook Webhook @relation(fields: [webhookId], references: [id], onDelete: Cascade)
 
   @@index([webhookId, createdAt])
   @@index([event, success])
 }
 
 model StockAlert {
-  id              String   @id @default(uuid())
-  shopId          String
-  shopProductId   String
+  id            String @id @default(uuid())
+  shopId        String
+  shopProductId String
 
   // Stock info
-  currentStock    Int
-  threshold       Int      // Umbral que disparó la alerta
+  currentStock Int
+  threshold    Int // Umbral que disparó la alerta
 
   // Estado
-  isResolved      Boolean  @default(false)
-  resolvedAt      DateTime?
+  isResolved Boolean   @default(false)
+  resolvedAt DateTime?
 
   // Metadata
-  createdAt       DateTime @default(now())
-  notifiedAt      DateTime? // Cuándo se envió la notificación
+  createdAt  DateTime  @default(now())
+  notifiedAt DateTime? // Cuándo se envió la notificación
 
   // Relaciones
-  shop            Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
-  shopProduct     ShopProduct @relation(fields: [shopProductId], references: [id], onDelete: Cascade)
+  shop        Shop        @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  shopProduct ShopProduct @relation(fields: [shopProductId], references: [id], onDelete: Cascade)
 
   @@index([shopId, isResolved])
   @@index([shopProductId, isResolved])
 }
 
 model Subscription {
-  id                   String              @id @default(uuid())
-  projectId            String              @unique
-  ownerId              String
-  plan                 String              @default("FREE")
-  status               SubscriptionStatus  @default(FREE)
-  currentPeriodEnd     DateTime?
-  cancelAt             DateTime?
-  createdAt            DateTime            @default(now())
-  updatedAt            DateTime            @updatedAt
+  id               String             @id @default(uuid())
+  projectId        String             @unique
+  ownerId          String
+  plan             String             @default("FREE")
+  status           SubscriptionStatus @default(FREE)
+  currentPeriodEnd DateTime?
+  cancelAt         DateTime?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
 
   @@index([ownerId])
   @@index([status])
 }
 
 enum WebhookEvent {
-  LOW_STOCK           // Stock bajo detectado
-  STOCK_OUT           // Producto sin stock
-  SALE_CREATED        // Nueva venta creada
-  PURCHASE_CREATED    // Nueva compra creada
-  PRODUCT_CREATED     // Nuevo producto creado
-  PRODUCT_UPDATED     // Producto actualizado
-  CUSTOMER_CREATED    // Nuevo cliente creado
+  LOW_STOCK // Stock bajo detectado
+  STOCK_OUT // Producto sin stock
+  SALE_CREATED // Nueva venta creada
+  PURCHASE_CREATED // Nueva compra creada
+  PRODUCT_CREATED // Nuevo producto creado
+  PRODUCT_UPDATED // Producto actualizado
+  CUSTOMER_CREATED // Nuevo cliente creado
 }

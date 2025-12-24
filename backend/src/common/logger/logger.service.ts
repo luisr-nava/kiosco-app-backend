@@ -21,10 +21,14 @@ export class CustomLoggerService implements NestLoggerService {
         level: 'error',
         format: winston.format.combine(
           winston.format.colorize(),
-          winston.format.printf(({ timestamp, level, message, context, trace, ...meta }) => {
-            const metaStr = Object.keys(meta).length ? JSON.stringify(meta, null, 2) : '';
-            return `${timestamp} [${context || 'App'}] ${level}: ${message} ${metaStr} ${trace || ''}`;
-          }),
+          winston.format.printf(
+            ({ timestamp, level, message, context, trace, ...meta }) => {
+              const metaStr = Object.keys(meta).length
+                ? JSON.stringify(meta, null, 2)
+                : '';
+              return `${timestamp} [${context || 'App'}] ${level}: ${message} ${metaStr} ${trace || ''}`;
+            },
+          ),
         ),
       }),
     ];
@@ -72,7 +76,12 @@ export class CustomLoggerService implements NestLoggerService {
     // Silenciado
   }
 
-  error(message: string, trace?: string, context?: string, meta?: Record<string, unknown>) {
+  error(
+    message: string,
+    trace?: string,
+    context?: string,
+    meta?: Record<string, unknown>,
+  ) {
     const metadata = meta ?? {};
     this.logger.error(message, { context, trace, ...metadata });
   }

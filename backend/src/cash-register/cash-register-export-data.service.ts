@@ -64,13 +64,6 @@ type CashRegisterWithRelations = Prisma.CashRegisterGetPayload<{
   };
 }>;
 
-type EmployeeSummary = {
-  id: string;
-  fullName: string;
-  email: string | null;
-  role: string;
-};
-
 export type MovementTotals = {
   sales: number;
   incomes: number;
@@ -87,11 +80,10 @@ export type MovementTotals = {
 
 export type CashRegisterExportContext = {
   cashRegister: CashRegisterWithRelations;
-  employee: EmployeeSummary | null;
+  responsibleName: string | null;
   totals: MovementTotals;
   differenceStatus: 'EXACTO' | 'SOBRANTE' | 'FALTANTE';
   closingType: 'MANUAL' | 'AUTOMÁTICO';
-  userMap: Map<string, { fullName: string; email?: string | null }>;
 };
 
 @Injectable()
@@ -168,16 +160,6 @@ export class CashRegisterExportDataService {
       throw new ConflictException('La caja debe estar cerrada para exportar');
     }
 
-    const employee = await this.prisma.employee.findUnique({
-      where: { id: cashRegister.employeeId },
-      select: {
-        id: true,
-        fullName: true,
-        email: true,
-        role: true,
-      },
-    });
-
     const totals = this.calculateTotalsFromMovements(
       cashRegister.openingAmount,
       cashRegister.movements,
@@ -189,18 +171,18 @@ export class CashRegisterExportDataService {
 
     const closingNotes = cashRegister.closingNotes?.toLowerCase() ?? '';
     const isAutomatic =
-      closingNotes.includes('automático') || closingNotes.includes('automatico');
+      closingNotes.includes('automático') ||
+      closingNotes.includes('automatico');
     const closingType = isAutomatic ? 'AUTOMÁTICO' : 'MANUAL';
 
-    const userMap = await this.buildUserMap(cashRegister);
+    const responsibleName = cashRegister.openedByName ?? null;
 
     return {
       cashRegister,
-      employee: employee ?? null,
+      responsibleName,
       totals,
       differenceStatus,
       closingType,
-      userMap,
     };
   }
 
@@ -228,7 +210,9 @@ export class CashRegisterExportDataService {
       }
 
       if (cashRegister.employeeId !== user.id) {
-        throw new ForbiddenException('No tienes permiso para acceder a esta caja');
+        throw new ForbiddenException(
+          'No tienes permiso para acceder a esta caja',
+        );
       }
     }
   }
@@ -286,36 +270,5 @@ export class CashRegisterExportDataService {
     const expectedAmount = openingAmount + totalMovements;
 
     return { ...totals, expectedAmount };
-  }
-
-  private async buildUserMap(cashRegister: CashRegisterWithRelations) {
-    const userIds = new Set<string>([
-      cashRegister.employeeId,
-      ...(cashRegister.closedBy ? [cashRegister.closedBy] : []),
-    ]);
-
-    cashRegister.movements.forEach((movement) => {
-      userIds.add(movement.userId);
-    });
-
-    const employees = await this.prisma.employee.findMany({
-      where: { id: { in: Array.from(userIds) } },
-      select: {
-        id: true,
-        fullName: true,
-        email: true,
-      },
-    });
-
-    const map = new Map<string, { fullName: string; email?: string | null }>();
-
-    employees.forEach((employee) => {
-      map.set(employee.id, {
-        fullName: employee.fullName,
-        email: employee.email,
-      });
-    });
-
-    return map;
   }
 }

@@ -239,7 +239,11 @@ export class SaleReturnService {
     };
   }
 
-  async update(id: string, updateSaleReturnDto: UpdateSaleReturnDto, user: JwtPayload) {
+  async update(
+    id: string,
+    updateSaleReturnDto: UpdateSaleReturnDto,
+    user: JwtPayload,
+  ) {
     // Verificar que la devolución pertenezca al usuario
     const saleReturn = await this.prisma.saleReturn.findFirst({
       where: {
@@ -257,7 +261,9 @@ export class SaleReturnService {
 
     // No permitir cambiar estado si ya está procesada
     if (saleReturn.status === 'PROCESSED' && updateSaleReturnDto.status) {
-      throw new BadRequestException('No se puede modificar una devolución ya procesada');
+      throw new BadRequestException(
+        'No se puede modificar una devolución ya procesada',
+      );
     }
 
     const updated = await this.prisma.saleReturn.update({
@@ -304,7 +310,9 @@ export class SaleReturnService {
     }
 
     if (saleReturn.status !== 'PENDING') {
-      throw new BadRequestException('Solo se pueden aprobar devoluciones pendientes');
+      throw new BadRequestException(
+        'Solo se pueden aprobar devoluciones pendientes',
+      );
     }
 
     // Aprobar y reintegrar stock
@@ -389,7 +397,9 @@ export class SaleReturnService {
     }
 
     if (saleReturn.status !== 'PENDING') {
-      throw new BadRequestException('Solo se pueden rechazar devoluciones pendientes');
+      throw new BadRequestException(
+        'Solo se pueden rechazar devoluciones pendientes',
+      );
     }
 
     const updated = await this.prisma.saleReturn.update({

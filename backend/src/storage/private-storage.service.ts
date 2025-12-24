@@ -41,7 +41,9 @@ export class PrivateStorageService {
       if ((error as NodeJS.ErrnoException)?.code === 'ENOENT') {
         return;
       }
-      this.logger.warn(`Error deleting file ${key}: ${(error as Error).message}`);
+      this.logger.warn(
+        `Error deleting file ${key}: ${(error as Error).message}`,
+      );
     }
   }
 

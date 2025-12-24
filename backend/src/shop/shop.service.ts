@@ -103,28 +103,31 @@ export class ShopService {
       // Calcular estadísticas para cada tienda
       const shopsWithStats = await Promise.all(
         shops.map(async (shop) => {
-          const [totalSales, totalExpenses, totalIncomes, recentPurchases] = await Promise.all([
-            this.prisma.sale.aggregate({
-              where: { shopId: shop.id },
-              _sum: { totalAmount: true },
-            }),
-            this.prisma.expense.aggregate({
-              where: { shopId: shop.id },
-              _sum: { amount: true },
-            }),
-            this.prisma.income.aggregate({
-              where: { shopId: shop.id },
-              _sum: { amount: true },
-            }),
-            this.prisma.purchase.count({
-              where: {
-                shopId: shop.id,
-                purchaseDate: {
-                  gte: new Date(new Date().setDate(new Date().getDate() - 30)),
+          const [totalSales, totalExpenses, totalIncomes, recentPurchases] =
+            await Promise.all([
+              this.prisma.sale.aggregate({
+                where: { shopId: shop.id },
+                _sum: { totalAmount: true },
+              }),
+              this.prisma.expense.aggregate({
+                where: { shopId: shop.id },
+                _sum: { amount: true },
+              }),
+              this.prisma.income.aggregate({
+                where: { shopId: shop.id },
+                _sum: { amount: true },
+              }),
+              this.prisma.purchase.count({
+                where: {
+                  shopId: shop.id,
+                  purchaseDate: {
+                    gte: new Date(
+                      new Date().setDate(new Date().getDate() - 30),
+                    ),
+                  },
                 },
-              },
-            }),
-          ]);
+              }),
+            ]);
 
           return {
             id: shop.id,
@@ -147,7 +150,9 @@ export class ShopService {
             totalSales: totalSales._sum?.totalAmount || 0,
             totalExpenses: totalExpenses._sum?.amount || 0,
             totalIncomes: totalIncomes._sum?.amount || 0,
-            balance: (totalIncomes._sum?.amount || 0) - (totalExpenses._sum?.amount || 0),
+            balance:
+              (totalIncomes._sum?.amount || 0) -
+              (totalExpenses._sum?.amount || 0),
           };
         }),
       );
@@ -209,7 +214,9 @@ export class ShopService {
       };
     }
 
-    throw new ForbiddenException('No tenés permisos para acceder a esta información');
+    throw new ForbiddenException(
+      'No tenés permisos para acceder a esta información',
+    );
   }
 
   async getShopById(id: string, user: JwtPayload) {
@@ -345,7 +352,9 @@ export class ShopService {
           salesTransactions: totalSales._count,
           expensesTransactions: totalExpenses._count,
           incomesTransactions: totalIncomes._count,
-          balance: (totalIncomes._sum?.amount || 0) - (totalExpenses._sum?.amount || 0),
+          balance:
+            (totalIncomes._sum?.amount || 0) -
+            (totalExpenses._sum?.amount || 0),
           // Compras recientes
           recentPurchases: recentPurchases.map((p) => ({
             id: p.id,
@@ -438,7 +447,10 @@ export class ShopService {
         }),
       ]);
       const [openCashRegisters] =
-        await this.cashRegisterService.findOpenCashRegistersForShops([id], user);
+        await this.cashRegisterService.findOpenCashRegistersForShops(
+          [id],
+          user,
+        );
       const myOpenCashRegister =
         openCashRegisters?.cashRegisters?.find(
           (cashRegister) => cashRegister.employeeId === user.id,
@@ -489,7 +501,9 @@ export class ShopService {
       };
     }
 
-    throw new ForbiddenException('No tenés permisos para acceder a esta información');
+    throw new ForbiddenException(
+      'No tenés permisos para acceder a esta información',
+    );
   }
 
   async updateShop(id: string, updateShopDto: UpdateShopDto, user: JwtPayload) {

@@ -58,14 +58,16 @@ export class CashRegisterService {
       );
     }
 
-    // Crear caja en transacción
+    const openedByName = dto.openedByName.trim();
+
     return this.prisma.$transaction(async (tx) => {
       const cashRegister = await tx.cashRegister.create({
         data: {
           shopId: dto.shopId,
           employeeId: user.id,
           openingAmount: dto.openingAmount,
-          openedBy: user.id,
+          openedByUserId: user.id,
+          openedByName,
         },
       });
 
@@ -121,10 +123,10 @@ export class CashRegisterService {
       const registers = registersByShop.get(shopId) ?? [];
       const primaryRegister =
         user?.role === 'EMPLOYEE'
-          ? registers.find((reg) => reg.employeeId === user.id) ?? null
-          : registers.find((reg) => reg.employeeId === user?.id) ??
+          ? (registers.find((reg) => reg.employeeId === user.id) ?? null)
+          : (registers.find((reg) => reg.employeeId === user?.id) ??
             registers[0] ??
-            null;
+            null);
 
       return {
         shopId,
@@ -134,10 +136,18 @@ export class CashRegisterService {
     });
   }
 
-  async close(cashRegisterId: string, dto: CloseCashRegisterDto, user: JwtPayload) {
-    const cashRegister = await this.getCashRegisterWithAccess(cashRegisterId, user, {
-      movements: true,
-    });
+  async close(
+    cashRegisterId: string,
+    dto: CloseCashRegisterDto,
+    user: JwtPayload,
+  ) {
+    const cashRegister = await this.getCashRegisterWithAccess(
+      cashRegisterId,
+      user,
+      {
+        movements: true,
+      },
+    );
 
     if (cashRegister.status !== 'OPEN') {
       throw new BadRequestException('La caja ya está cerrada');
@@ -176,12 +186,16 @@ export class CashRegisterService {
   }
 
   async getCurrentCashRegister(cashRegisterId: string, user: JwtPayload) {
-    const cashRegister = await this.getCashRegisterWithAccess(cashRegisterId, user, {
-      movements: {
-        orderBy: { createdAt: 'desc' },
-        take: 50,
+    const cashRegister = await this.getCashRegisterWithAccess(
+      cashRegisterId,
+      user,
+      {
+        movements: {
+          orderBy: { createdAt: 'desc' },
+          take: 50,
+        },
       },
-    });
+    );
 
     if (cashRegister.status !== 'OPEN') {
       return {
@@ -249,35 +263,39 @@ export class CashRegisterService {
   }
 
   async getCashRegisterById(cashRegisterId: string, user: JwtPayload) {
-    const cashRegister = await this.getCashRegisterWithAccess(cashRegisterId, user, {
-      shop: true,
-      movements: {
-        orderBy: { createdAt: 'asc' },
-        include: {
-          sale: {
-            select: {
-              id: true,
-              totalAmount: true,
-              customer: { select: { fullName: true } },
+    const cashRegister = await this.getCashRegisterWithAccess(
+      cashRegisterId,
+      user,
+      {
+        shop: true,
+        movements: {
+          orderBy: { createdAt: 'asc' },
+          include: {
+            sale: {
+              select: {
+                id: true,
+                totalAmount: true,
+                customer: { select: { fullName: true } },
+              },
             },
-          },
-          purchase: {
-            select: {
-              id: true,
-              totalAmount: true,
-              supplier: { select: { name: true } },
+            purchase: {
+              select: {
+                id: true,
+                totalAmount: true,
+                supplier: { select: { name: true } },
+              },
             },
-          },
-          saleReturn: {
-            select: {
-              id: true,
-              refundAmount: true,
-              reason: true,
+            saleReturn: {
+              select: {
+                id: true,
+                refundAmount: true,
+                reason: true,
+              },
             },
           },
         },
       },
-    });
+    );
 
     return {
       message: 'Detalle de caja',
@@ -309,7 +327,10 @@ export class CashRegisterService {
     filters: CashRegisterReportFiltersDto,
     user: JwtPayload,
   ) {
-    const cashRegister = await this.getCashRegisterWithAccess(cashRegisterId, user);
+    const cashRegister = await this.getCashRegisterWithAccess(
+      cashRegisterId,
+      user,
+    );
 
     const { startDate, endDate } = this.calculateDateRange(filters);
 
@@ -405,7 +426,9 @@ export class CashRegisterService {
     totals.balance = totals.totalIncome - totals.totalExpense;
 
     // Obtener producto más vendido del mes en curso
-    const topProduct = await this.getTopProductOfCurrentMonth(cashRegister.shopId);
+    const topProduct = await this.getTopProductOfCurrentMonth(
+      cashRegister.shopId,
+    );
 
     return {
       message: 'Reporte de caja registradora',
@@ -535,7 +558,9 @@ export class CashRegisterService {
     await this.validateShopAccess(cashRegister.shopId, user);
 
     if (user.role === 'EMPLOYEE' && cashRegister.employeeId !== user.id) {
-      throw new ForbiddenException('No tienes permiso para acceder a esta caja');
+      throw new ForbiddenException(
+        'No tienes permiso para acceder a esta caja',
+      );
     }
 
     return cashRegister as Prisma.CashRegisterGetPayload<
@@ -586,7 +611,15 @@ export class CashRegisterService {
           startDate.setHours(0, 0, 0, 0);
           break;
         case ReportPeriod.MONTH:
-          startDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+          startDate = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            1,
+            0,
+            0,
+            0,
+            0,
+          );
           break;
         case ReportPeriod.YEAR:
           startDate = new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0);
@@ -606,7 +639,15 @@ export class CashRegisterService {
 
   private async getTopProductOfCurrentMonth(shopId: string) {
     const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+    const startOfMonth = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      1,
+      0,
+      0,
+      0,
+      0,
+    );
     const endOfMonth = new Date(
       now.getFullYear(),
       now.getMonth() + 1,
@@ -814,7 +855,10 @@ export class CashRegisterService {
       },
     });
 
-    const movementsByRegister = new Map<string, Pick<CashMovement, 'type' | 'amount'>[]>();
+    const movementsByRegister = new Map<
+      string,
+      Pick<CashMovement, 'type' | 'amount'>[]
+    >();
 
     movements.forEach((movement) => {
       const list = movementsByRegister.get(movement.cashRegisterId) ?? [];
@@ -824,7 +868,10 @@ export class CashRegisterService {
 
     for (const register of openRegisters) {
       const timezone = register.shop?.timezone || 'UTC';
-      const closingDeadline = this.getAutoClosingDeadline(register.openedAt, timezone);
+      const closingDeadline = this.getAutoClosingDeadline(
+        register.openedAt,
+        timezone,
+      );
 
       if (now < closingDeadline) {
         continue;

@@ -489,7 +489,11 @@ export class PurchaseService {
     };
   }
 
-  async update(id: string, updatePurchaseDto: UpdatePurchaseDto, user: JwtPayload) {
+  async update(
+    id: string,
+    updatePurchaseDto: UpdatePurchaseDto,
+    user: JwtPayload,
+  ) {
     const purchase = await this.prisma.purchase.findUnique({
       where: { id },
       include: {
@@ -508,12 +512,16 @@ export class PurchaseService {
 
     // Verificar que no esté cancelada
     if (purchase.status === 'CANCELLED') {
-      throw new BadRequestException('No se puede actualizar una compra cancelada');
+      throw new BadRequestException(
+        'No se puede actualizar una compra cancelada',
+      );
     }
 
     // Verificar permisos
     if (user.role === 'OWNER' && purchase.shop.ownerId !== user.id) {
-      throw new ForbiddenException('No tenés permiso para actualizar esta compra');
+      throw new ForbiddenException(
+        'No tenés permiso para actualizar esta compra',
+      );
     } else if (user.role === 'EMPLOYEE') {
       const employee = await this.prisma.employee.findFirst({
         where: {
@@ -522,7 +530,9 @@ export class PurchaseService {
         },
       });
       if (!employee) {
-        throw new ForbiddenException('No tenés permiso para actualizar esta compra');
+        throw new ForbiddenException(
+          'No tenés permiso para actualizar esta compra',
+        );
       }
     }
 
@@ -699,7 +709,10 @@ export class PurchaseService {
       }
 
       // 3. Actualizar totalAmount de la compra
-      const newTotalAmount = newItems.reduce((acc, item) => acc + item.subtotal, 0);
+      const newTotalAmount = newItems.reduce(
+        (acc, item) => acc + item.subtotal,
+        0,
+      );
 
       const updated = await tx.purchase.update({
         where: { id: purchaseId },
@@ -817,7 +830,11 @@ export class PurchaseService {
     };
   }
 
-  async remove(id: string, deletePurchaseDto: DeletePurchaseDto, user: JwtPayload) {
+  async remove(
+    id: string,
+    deletePurchaseDto: DeletePurchaseDto,
+    user: JwtPayload,
+  ) {
     const purchase = await this.prisma.purchase.findUnique({
       where: { id },
       include: {
@@ -842,7 +859,9 @@ export class PurchaseService {
 
     // Solo los OWNER pueden cancelar
     if (user.role !== 'OWNER' || purchase.shop.ownerId !== user.id) {
-      throw new ForbiddenException('No tenés permiso para cancelar esta compra');
+      throw new ForbiddenException(
+        'No tenés permiso para cancelar esta compra',
+      );
     }
 
     const modifiedProductIds: string[] = [];

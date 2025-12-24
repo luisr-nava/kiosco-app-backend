@@ -1,4 +1,12 @@
-import { Controller, Get, Param, Query, UseGuards, ParseIntPipe, DefaultValuePipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Query,
+  UseGuards,
+  ParseIntPipe,
+  DefaultValuePipe,
+} from '@nestjs/common';
 
 import { ReportsService } from './reports.service';
 import { JwtAuthGuard } from '../auth-client/guards/jwt-auth.guard';
@@ -31,14 +39,18 @@ export class ReportsController {
   @Get('products/low-stock/:shopId')
   getLowStock(
     @Param('shopId') shopId: string,
-    @Query('threshold', new DefaultValuePipe(5), ParseIntPipe) threshold: number,
+    @Query('threshold', new DefaultValuePipe(5), ParseIntPipe)
+    threshold: number,
     @GetUser() user: JwtPayload,
   ) {
     return this.reportsService.getLowStock(shopId, threshold, user);
   }
 
   @Get('customers/debt/:shopId')
-  getCustomersWithDebt(@Param('shopId') shopId: string, @GetUser() user: JwtPayload) {
+  getCustomersWithDebt(
+    @Param('shopId') shopId: string,
+    @GetUser() user: JwtPayload,
+  ) {
     return this.reportsService.getCustomersWithDebt(shopId, user);
   }
 }

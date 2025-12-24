@@ -34,9 +34,7 @@ export class SubscriptionInterceptor implements NestInterceptor {
       return next.handle();
     }
 
-    const request = context
-      .switchToHttp()
-      .getRequest<{ user?: JwtPayload }>();
+    const request = context.switchToHttp().getRequest<{ user?: JwtPayload }>();
     const user = request.user;
 
     if (!user) {

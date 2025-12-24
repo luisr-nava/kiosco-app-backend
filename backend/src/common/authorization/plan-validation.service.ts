@@ -4,9 +4,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import type {
-    JwtPayload,
-    PlanName,
-    SubscriptionStatus,
+  JwtPayload,
+  PlanName,
+  SubscriptionStatus,
 } from '../../auth-client/interfaces/jwt-payload.interface';
 import { PrismaService } from '../../prisma/prisma.service';
 import {

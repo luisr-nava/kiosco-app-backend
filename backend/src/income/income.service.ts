@@ -17,9 +17,7 @@ export class IncomeService {
   async create(createIncomeDto: CreateIncomeDto, user: JwtPayload) {
     // Solo OWNER puede crear ingresos
     if (user.role !== 'OWNER') {
-      throw new ForbiddenException(
-        'Solo un Dueño puede registrar ingresos',
-      );
+      throw new ForbiddenException('Solo un Dueño puede registrar ingresos');
     }
 
     // Verificar que la tienda pertenezca al usuario
@@ -38,7 +36,10 @@ export class IncomeService {
     }
 
     // Validar método de pago
-    await this.validatePaymentMethod(createIncomeDto.paymentMethodId, createIncomeDto.shopId);
+    await this.validatePaymentMethod(
+      createIncomeDto.paymentMethodId,
+      createIncomeDto.shopId,
+    );
 
     // Validar que la caja esté abierta y sea de la tienda
     await this.validateOpenCashRegister(
@@ -53,7 +54,9 @@ export class IncomeService {
           amount: createIncomeDto.amount,
           shopId: createIncomeDto.shopId,
           paymentMethodId: createIncomeDto.paymentMethodId,
-          date: createIncomeDto.date ? new Date(createIncomeDto.date) : new Date(),
+          date: createIncomeDto.date
+            ? new Date(createIncomeDto.date)
+            : new Date(),
           createdBy: user.id,
         },
         include: {
@@ -106,9 +109,7 @@ export class IncomeService {
   ) {
     // Solo OWNER puede ver ingresos
     if (user.role !== 'OWNER') {
-      throw new ForbiddenException(
-        'Solo un Dueño puede ver los ingresos',
-      );
+      throw new ForbiddenException('Solo un Dueño puede ver los ingresos');
     }
 
     const page = filters.page || 1;
@@ -187,9 +188,7 @@ export class IncomeService {
   async findOne(id: string, user: JwtPayload) {
     // Solo OWNER puede ver ingresos
     if (user.role !== 'OWNER') {
-      throw new ForbiddenException(
-        'Solo un Dueño puede ver los ingresos',
-      );
+      throw new ForbiddenException('Solo un Dueño puede ver los ingresos');
     }
 
     const income = await this.prisma.income.findFirst({
@@ -231,9 +230,7 @@ export class IncomeService {
   async update(id: string, updateIncomeDto: UpdateIncomeDto, user: JwtPayload) {
     // Solo OWNER puede actualizar ingresos
     if (user.role !== 'OWNER') {
-      throw new ForbiddenException(
-        'Solo un Dueño puede actualizar ingresos',
-      );
+      throw new ForbiddenException('Solo un Dueño puede actualizar ingresos');
     }
 
     // Verificar que el ingreso pertenezca al usuario
@@ -288,7 +285,9 @@ export class IncomeService {
           description: updateIncomeDto.description ?? income.description,
           amount: updateIncomeDto.amount ?? income.amount,
           shopId: income.shopId,
-          date: updateIncomeDto.date ? new Date(updateIncomeDto.date) : income.date,
+          date: updateIncomeDto.date
+            ? new Date(updateIncomeDto.date)
+            : income.date,
         },
         include: {
           shop: {
@@ -336,9 +335,7 @@ export class IncomeService {
   async remove(id: string, user: JwtPayload) {
     // Solo OWNER puede eliminar ingresos
     if (user.role !== 'OWNER') {
-      throw new ForbiddenException(
-        'Solo un Dueño puede eliminar ingresos',
-      );
+      throw new ForbiddenException('Solo un Dueño puede eliminar ingresos');
     }
 
     // Verificar que el ingreso pertenezca al usuario
@@ -366,7 +363,10 @@ export class IncomeService {
     };
   }
 
-  private async validateOpenCashRegister(cashRegisterId: string, shopId: string) {
+  private async validateOpenCashRegister(
+    cashRegisterId: string,
+    shopId: string,
+  ) {
     const cashRegister = await this.prisma.cashRegister.findFirst({
       where: {
         id: cashRegisterId,

@@ -24,16 +24,16 @@ export class ExpenseController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  create(@Body() createExpenseDto: CreateExpenseDto, @GetUser() user: JwtPayload) {
+  create(
+    @Body() createExpenseDto: CreateExpenseDto,
+    @GetUser() user: JwtPayload,
+  ) {
     return this.expenseService.create(createExpenseDto, user);
   }
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  findAll(
-    @GetUser() user: JwtPayload,
-    @Query() query: ExpenseQueryDto,
-  ) {
+  findAll(@GetUser() user: JwtPayload, @Query() query: ExpenseQueryDto) {
     return this.expenseService.findAll(user, query);
   }
 

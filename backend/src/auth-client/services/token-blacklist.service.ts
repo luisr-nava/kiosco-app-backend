@@ -17,7 +17,12 @@ export class TokenBlacklistService {
     setInterval(() => this.cleanupExpiredTokens(), 60 * 60 * 1000);
   }
 
-  blacklistToken(token: string, expiresAt: Date, userId: string, reason: string = 'User logout') {
+  blacklistToken(
+    token: string,
+    expiresAt: Date,
+    userId: string,
+    reason: string = 'User logout',
+  ) {
     this.blacklistedTokens.set(token, {
       token,
       expiresAt,
@@ -75,17 +80,19 @@ export class TokenBlacklistService {
       }
     });
 
-    keysToDelete.forEach(key => this.blacklistedTokens.delete(key));
+    keysToDelete.forEach((key) => this.blacklistedTokens.delete(key));
 
     if (keysToDelete.length > 0) {
-      this.logger.debug(`Cleaned up ${keysToDelete.length} expired blacklisted tokens`);
+      this.logger.debug(
+        `Cleaned up ${keysToDelete.length} expired blacklisted tokens`,
+      );
     }
   }
 
   getBlacklistStats() {
     return {
       totalBlacklisted: this.blacklistedTokens.size,
-      tokens: Array.from(this.blacklistedTokens.values()).map(t => ({
+      tokens: Array.from(this.blacklistedTokens.values()).map((t) => ({
         userId: t.userId,
         reason: t.reason,
         expiresAt: t.expiresAt,

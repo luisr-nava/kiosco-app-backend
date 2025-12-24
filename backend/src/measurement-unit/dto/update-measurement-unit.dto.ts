@@ -7,10 +7,7 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
-import {
-  MeasurementBaseUnit,
-  MeasurementUnitCategory,
-} from '@prisma/client';
+import { MeasurementBaseUnit, MeasurementUnitCategory } from '@prisma/client';
 
 export class UpdateMeasurementUnitDto {
   @IsOptional()

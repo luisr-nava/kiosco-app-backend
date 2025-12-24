@@ -49,7 +49,8 @@ export class SupplierService {
     });
 
     const primaryRelation = employee?.employeeShops[0];
-    if (!primaryRelation) throw new ForbiddenException('Empleado no encontrado.');
+    if (!primaryRelation)
+      throw new ForbiddenException('Empleado no encontrado.');
 
     return {
       ownerId: primaryRelation.shop.ownerId,
@@ -239,9 +240,7 @@ export class SupplierService {
 
     for (const sId of (
       supplier as SupplierWithRelationsAndPurchases
-    ).purchases.map(
-      (p) => p.shopId,
-    )) {
+    ).purchases.map((p) => p.shopId)) {
       if (!newShopIds.includes(sId))
         throw new ForbiddenException(
           `No puede quitar la tienda ${sId} porque tiene compras asociadas.`,

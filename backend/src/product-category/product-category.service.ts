@@ -44,7 +44,9 @@ export class ProductCategoryService {
       });
 
       if (ownerShops.length !== uniqueIds.length) {
-        throw new ForbiddenException('Alguna tienda no pertenece al propietario');
+        throw new ForbiddenException(
+          'Alguna tienda no pertenece al propietario',
+        );
       }
 
       ownerShopNames = new Map(ownerShops.map((s) => [s.id, s.name]));
@@ -111,7 +113,13 @@ export class ProductCategoryService {
   }
 
   async findAll(user: JwtPayload, query: ProductCategoryQuery) {
-    const { search, page = 1, limit = 20, shopId, includeInactive = false } = query;
+    const {
+      search,
+      page = 1,
+      limit = 20,
+      shopId,
+      includeInactive = false,
+    } = query;
 
     let accessibleShopIds: string[] = [];
     if (user.role === 'OWNER') {
@@ -173,9 +181,10 @@ export class ProductCategoryService {
     ]);
 
     return {
-      message: user.role === 'OWNER'
-        ? 'Categorías de todas tus tiendas'
-        : 'Categorías de tu tienda asignada',
+      message:
+        user.role === 'OWNER'
+          ? 'Categorías de todas tus tiendas'
+          : 'Categorías de tu tienda asignada',
       data: categories.map((cat) => ({
         id: cat.id,
         name: cat.name,
@@ -227,7 +236,9 @@ export class ProductCategoryService {
         },
       });
       if (!employee) {
-        throw new ForbiddenException('No tenés permiso para ver esta categoría');
+        throw new ForbiddenException(
+          'No tenés permiso para ver esta categoría',
+        );
       }
     }
 
@@ -267,7 +278,9 @@ export class ProductCategoryService {
 
     // Verificar permisos
     if (user.role === 'OWNER' && category.shop.ownerId !== userId) {
-      throw new ForbiddenException('No tenés permiso para actualizar esta categoría');
+      throw new ForbiddenException(
+        'No tenés permiso para actualizar esta categoría',
+      );
     } else if (user.role === 'EMPLOYEE') {
       const employee = await this.prisma.employee.findFirst({
         where: {
@@ -276,7 +289,9 @@ export class ProductCategoryService {
         },
       });
       if (!employee) {
-        throw new ForbiddenException('No tenés permiso para actualizar esta categoría');
+        throw new ForbiddenException(
+          'No tenés permiso para actualizar esta categoría',
+        );
       }
     }
 
@@ -379,7 +394,9 @@ export class ProductCategoryService {
 
     // Solo los owners pueden eliminar
     if (user.role !== 'OWNER' || category.shop.ownerId !== user.id) {
-      throw new ForbiddenException('No tenés permiso para eliminar esta categoría');
+      throw new ForbiddenException(
+        'No tenés permiso para eliminar esta categoría',
+      );
     }
 
     // No permitir eliminar si tiene productos asociados

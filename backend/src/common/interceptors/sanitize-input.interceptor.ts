@@ -10,7 +10,10 @@ import type { Request } from 'express';
 
 @Injectable()
 export class SanitizeInputInterceptor implements NestInterceptor {
-  intercept<T = unknown>(context: ExecutionContext, next: CallHandler<T>): Observable<T> {
+  intercept<T = unknown>(
+    context: ExecutionContext,
+    next: CallHandler<T>,
+  ): Observable<T> {
     const request = context.switchToHttp().getRequest<Request>();
 
     // Sanitizar body (sí se puede reasignar)

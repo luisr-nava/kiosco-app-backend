@@ -12,9 +12,7 @@ import type { CashRegisterExportContext } from './cash-register-export-data.serv
 export class CashRegisterExportExcelService {
   private logoBuffer: NodeBuffer | null = null;
 
-  constructor(
-    private readonly dataService: CashRegisterExportDataService,
-  ) {}
+  constructor(private readonly dataService: CashRegisterExportDataService) {}
 
   async generate(cashRegisterId: string, user: JwtPayload) {
     const context = await this.dataService.getClosedCashRegisterContext(
@@ -47,14 +45,17 @@ export class CashRegisterExportExcelService {
     const headerRow = sheet.addRow(['Campo', 'Valor']);
     headerRow.font = { bold: true };
 
-    const { cashRegister, employee, totals } = context;
+    const { cashRegister, totals, responsibleName } = context;
     const expectedBalance = cashRegister.closingAmount ?? totals.expectedAmount;
 
     const rows: Array<[string, string | number]> = [
       ['Tienda', cashRegister.shop.name],
-      ['Empleado', employee?.fullName ?? 'N/D'],
+      ['Responsable', responsibleName ?? 'N/D'],
       ['Fecha apertura', this.formatDateTime(cashRegister.openedAt)],
-      ['Fecha cierre', this.formatDateTime(cashRegister.closedAt ?? new Date())],
+      [
+        'Fecha cierre',
+        this.formatDateTime(cashRegister.closedAt ?? new Date()),
+      ],
       ['Monto de apertura', cashRegister.openingAmount],
       ['Total ingresos', totals.totalIncome],
       ['Total egresos', totals.totalExpense],
@@ -83,7 +84,9 @@ export class CashRegisterExportExcelService {
     this.insertLogo(sheet);
 
     sheet.addRow([]);
-    sheet.addRow([{ value: 'Detalle de movimientos', font: { bold: true, size: 15 } }]);
+    sheet.addRow([
+      { value: 'Detalle de movimientos', font: { bold: true, size: 15 } },
+    ]);
     sheet.addRow([]);
 
     const header = sheet.addRow([
@@ -119,7 +122,7 @@ export class CashRegisterExportExcelService {
         incomeAmount,
         expenseAmount,
         runningBalance,
-        this.getUserDisplayName(movement.userId, context),
+        movement.userId,
       ]);
 
       row.getCell(4).numFmt = currencyFormat;
@@ -146,11 +149,17 @@ export class CashRegisterExportExcelService {
     }
 
     if (movement.income) {
-      return movement.income.description || `Ingreso #${movement.income.id.substring(0, 8)}`;
+      return (
+        movement.income.description ||
+        `Ingreso #${movement.income.id.substring(0, 8)}`
+      );
     }
 
     if (movement.expense) {
-      return movement.expense.description || `Gasto #${movement.expense.id.substring(0, 8)}`;
+      return (
+        movement.expense.description ||
+        `Gasto #${movement.expense.id.substring(0, 8)}`
+      );
     }
 
     return movement.description ?? '-';
@@ -198,14 +207,6 @@ export class CashRegisterExportExcelService {
       default:
         return amount;
     }
-  }
-
-  private getUserDisplayName(userId: string, context: CashRegisterExportContext) {
-    const user = context.userMap.get(userId);
-    if (user) {
-      return user.fullName;
-    }
-    return userId;
   }
 
   private formatDateTime(date: Date | string) {

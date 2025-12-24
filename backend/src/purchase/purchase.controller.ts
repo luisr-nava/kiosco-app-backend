@@ -34,10 +34,7 @@ export class PurchaseController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  findAll(
-    @GetUser() user: JwtPayload,
-    @Query() query: PurchaseQueryDto,
-  ) {
+  findAll(@GetUser() user: JwtPayload, @Query() query: PurchaseQueryDto) {
     return this.purchaseService.findAll(user, query);
   }
 

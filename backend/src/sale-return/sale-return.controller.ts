@@ -24,7 +24,10 @@ export class SaleReturnController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  create(@Body() createSaleReturnDto: CreateSaleReturnDto, @GetUser() user: JwtPayload) {
+  create(
+    @Body() createSaleReturnDto: CreateSaleReturnDto,
+    @GetUser() user: JwtPayload,
+  ) {
     return this.saleReturnService.create(createSaleReturnDto, user);
   }
 
@@ -36,9 +39,11 @@ export class SaleReturnController {
     @Query('shopId') shopId?: string,
     @Query('status') status?: string,
   ) {
-    const parsedStatus = status && Object.values(SaleReturnStatus).includes(status as SaleReturnStatus)
-      ? (status as SaleReturnStatus)
-      : undefined;
+    const parsedStatus =
+      status &&
+      Object.values(SaleReturnStatus).includes(status as SaleReturnStatus)
+        ? (status as SaleReturnStatus)
+        : undefined;
 
     return this.saleReturnService.findAll(user, {
       ...query,

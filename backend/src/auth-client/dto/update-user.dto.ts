@@ -40,7 +40,9 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsString()
-  @Length(5, 200, { message: 'La dirección debe tener entre 5 y 200 caracteres' })
+  @Length(5, 200, {
+    message: 'La dirección debe tener entre 5 y 200 caracteres',
+  })
   address?: string;
 
   @IsDateString()
@@ -57,12 +59,16 @@ export class UpdateUserDto {
   notes?: string;
 
   @IsString()
-  @MaxLength(500, { message: 'La URL de imagen no puede exceder 500 caracteres' })
+  @MaxLength(500, {
+    message: 'La URL de imagen no puede exceder 500 caracteres',
+  })
   @IsOptional()
   profileImage?: string;
 
   @IsString()
-  @MaxLength(200, { message: 'El contacto de emergencia no puede exceder 200 caracteres' })
+  @MaxLength(200, {
+    message: 'El contacto de emergencia no puede exceder 200 caracteres',
+  })
   @IsOptional()
   emergencyContact?: string;
 

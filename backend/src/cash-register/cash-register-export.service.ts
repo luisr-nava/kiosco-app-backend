@@ -16,7 +16,10 @@ export class CashRegisterExportService {
     private readonly dataService: CashRegisterExportDataService,
   ) {}
 
-  async exportPdf(cashRegisterId: string, user: JwtPayload): Promise<CachedExport> {
+  async exportPdf(
+    cashRegisterId: string,
+    user: JwtPayload,
+  ): Promise<CachedExport> {
     const cached = await this.cacheService.findValidExport(
       cashRegisterId,
       CashRegisterExportFormat.PDF,
@@ -35,7 +38,10 @@ export class CashRegisterExportService {
     );
   }
 
-  async exportExcel(cashRegisterId: string, user: JwtPayload): Promise<CachedExport> {
+  async exportExcel(
+    cashRegisterId: string,
+    user: JwtPayload,
+  ): Promise<CachedExport> {
     const cached = await this.cacheService.findValidExport(
       cashRegisterId,
       CashRegisterExportFormat.EXCEL,

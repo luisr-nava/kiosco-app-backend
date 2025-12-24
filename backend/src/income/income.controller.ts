@@ -24,16 +24,16 @@ export class IncomeController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  create(@Body() createIncomeDto: CreateIncomeDto, @GetUser() user: JwtPayload) {
+  create(
+    @Body() createIncomeDto: CreateIncomeDto,
+    @GetUser() user: JwtPayload,
+  ) {
     return this.incomeService.create(createIncomeDto, user);
   }
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  findAll(
-    @GetUser() user: JwtPayload,
-    @Query() query: IncomeQueryDto,
-  ) {
+  findAll(@GetUser() user: JwtPayload, @Query() query: IncomeQueryDto) {
     return this.incomeService.findAll(user, query);
   }
 

@@ -41,9 +41,10 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   // CORS dinámico: '*' en desarrollo, lista específica en producción
-  const corsOrigin = envs.nodeEnv === 'development'
-    ? '*'
-    : envs.allowedOrigins.split(',').map(origin => origin.trim());
+  const corsOrigin =
+    envs.nodeEnv === 'development'
+      ? '*'
+      : envs.allowedOrigins.split(',').map((origin) => origin.trim());
 
   app.enableCors({
     origin: corsOrigin,
@@ -63,7 +64,7 @@ async function bootstrap() {
 
   await app.listen(envs.port);
   // Único log informativo: app arriba
-  // eslint-disable-next-line no-console
+
   console.log(`🚀 Servidor ejecutándose en http://localhost:${envs.port}`);
 }
 bootstrap();

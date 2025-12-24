@@ -56,22 +56,25 @@ export class ReportsService {
       totalRevenue: number;
     };
 
-    const productStats = saleItems.reduce<Record<string, ProductStat>>((acc, item) => {
-      const key = item.shopProductId;
-      const existing = acc[key];
-      if (!existing) {
-        acc[key] = {
-          shopProduct: item.shopProduct,
-          totalQuantity: item.quantity,
-          totalRevenue: item.total,
-        };
-        return acc;
-      }
+    const productStats = saleItems.reduce<Record<string, ProductStat>>(
+      (acc, item) => {
+        const key = item.shopProductId;
+        const existing = acc[key];
+        if (!existing) {
+          acc[key] = {
+            shopProduct: item.shopProduct,
+            totalQuantity: item.quantity,
+            totalRevenue: item.total,
+          };
+          return acc;
+        }
 
-      existing.totalQuantity += item.quantity;
-      existing.totalRevenue += item.total;
-      return acc;
-    }, {});
+        existing.totalQuantity += item.quantity;
+        existing.totalRevenue += item.total;
+        return acc;
+      },
+      {},
+    );
 
     return Object.values(productStats)
       .sort((a, b) => b.totalQuantity - a.totalQuantity)

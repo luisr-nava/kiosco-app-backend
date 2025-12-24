@@ -30,15 +30,18 @@ export class NotificationController {
     @Query('read') read?: string,
   ) {
     const readFilter =
-      read === undefined ? undefined : read === 'true' ? true : read === 'false' ? false : undefined;
+      read === undefined
+        ? undefined
+        : read === 'true'
+          ? true
+          : read === 'false'
+            ? false
+            : undefined;
     return this.notificationService.getNotifications(user.id, readFilter);
   }
 
   @Patch('notifications/:id/read')
-  async markAsRead(
-    @GetUser() user: JwtPayload,
-    @Param('id') id: string,
-  ) {
+  async markAsRead(@GetUser() user: JwtPayload, @Param('id') id: string) {
     return this.notificationService.markAsRead(user.id, id);
   }
 

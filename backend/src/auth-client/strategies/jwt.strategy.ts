@@ -25,7 +25,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
     // Verificar si está en la blacklist
     if (token && this.tokenBlacklistService.isBlacklisted(token)) {
-      throw new UnauthorizedException('Token has been revoked. Please login again.');
+      throw new UnauthorizedException(
+        'Token has been revoked. Please login again.',
+      );
     }
 
     const id = payload.id ?? (payload as JwtPayloadWithSub).sub;
@@ -45,9 +47,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       id,
       projectId,
       appKey: payload.appKey?.toLowerCase() ?? 'kiosco',
-      ownerId:
-        payload.ownerId ??
-        (payload.role === 'OWNER' ? id : undefined),
+      ownerId: payload.ownerId ?? (payload.role === 'OWNER' ? id : undefined),
     };
 
     return normalizedPayload;

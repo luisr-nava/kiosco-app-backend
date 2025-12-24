@@ -20,7 +20,8 @@ export class NotificationService {
   ) {}
 
   async handleLowStock(context: LowStockContext) {
-    const { shopId, productId, productName, stockBefore, stockAfter, ownerId } = context;
+    const { shopId, productId, productName, stockBefore, stockAfter, ownerId } =
+      context;
 
     if (!shopId) return;
 

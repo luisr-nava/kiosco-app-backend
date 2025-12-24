@@ -1,11 +1,16 @@
 export type UserRole = 'EMPLOYEE' | 'OWNER' | 'MANAGER';
-export type SubscriptionStatus = 'active' | 'past_due' | 'canceled' | 'trialing';
+export type SubscriptionStatus =
+  | 'active'
+  | 'past_due'
+  | 'canceled'
+  | 'trialing';
 export type PlanName = 'FREE' | 'PRO' | 'BUSINESS';
 
 export interface JwtPayload {
   id: string;
   role: UserRole;
   projectId: string;
+  fullName?: string;
   appKey?: string;
   ownerId?: string;
   plan?: PlanName;

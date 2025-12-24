@@ -57,7 +57,10 @@ export class CashRegisterController {
     @Param('cashRegisterId') cashRegisterId: string,
     @GetUser() user: JwtPayload,
   ) {
-    return this.cashRegisterService.getCurrentCashRegister(cashRegisterId, user);
+    return this.cashRegisterService.getCurrentCashRegister(
+      cashRegisterId,
+      user,
+    );
   }
 
   @Get(':cashRegisterId/history')
