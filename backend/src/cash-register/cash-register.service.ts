@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
   ForbiddenException,
+  Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { OpenCashRegisterDto } from './dto/open-cash-register.dto';
@@ -17,12 +18,17 @@ import { CashMovementType } from '@prisma/client';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 import type { CashMovement } from '@prisma/client';
+import { ReportDistributionService } from './report-distribution.service';
 
 @Injectable()
 export class CashRegisterService {
+  private readonly logger = new Logger(CashRegisterService.name);
   private isAutoClosing = false;
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly reportDistributionService: ReportDistributionService,
+  ) {}
 
   @Cron(CronExpression.EVERY_MINUTE)
   async handleAutoCloseCashRegisters() {
@@ -173,6 +179,12 @@ export class CashRegisterService {
         closingNotes: dto.closingNotes,
       },
     });
+
+    void this.reportDistributionService
+      .distributeOnClose(cashRegisterId, user)
+      .catch((error) =>
+        this.logger.warn('No se pudo distribuir el reporte tras cerrar la caja', error as Error),
+      );
 
     return {
       message: 'Caja cerrada correctamente',
@@ -827,7 +839,11 @@ export class CashRegisterService {
         where: { status: 'OPEN' },
         include: {
           shop: {
-            select: { timezone: true },
+            select: {
+              timezone: true,
+              projectId: true,
+              ownerId: true,
+            },
           },
         },
       })
@@ -883,6 +899,7 @@ export class CashRegisterService {
         registerMovements,
       );
 
+      let wasClosed = false;
       await this.prisma.$transaction(async (tx) => {
         const current = await tx.cashRegister.findUnique({
           where: { id: register.id },
@@ -905,7 +922,35 @@ export class CashRegisterService {
             closingNotes: 'Cierre automático por cambio de día',
           },
         });
+        wasClosed = true;
       });
+
+      if (!wasClosed) {
+        continue;
+      }
+
+      const projectId = register.shop?.projectId;
+      if (!projectId) {
+        this.logger.warn(
+          `No se pudo obtener projectId para la caja ${register.id}, se omite el envío`,
+        );
+        continue;
+      }
+
+      const systemUser: JwtPayload = {
+        id: register.employeeId ?? register.shop?.ownerId ?? 'system',
+        role: register.employeeId ? 'EMPLOYEE' : 'OWNER',
+        projectId,
+      };
+
+      void this.reportDistributionService
+        .distributeOnClose(register.id, systemUser)
+        .catch((error) =>
+          this.logger.warn(
+            `No se pudo distribuir el reporte de la caja ${register.id}`,
+            error as Error,
+          ),
+        );
     }
   }
 
@@ -936,5 +981,20 @@ export class CashRegisterService {
         throw new ForbiddenException('No tienes permiso para esta tienda');
       }
     }
+
+      const systemUser: JwtPayload = {
+        id: register.employeeId ?? register.shop?.ownerId ?? 'system',
+        role: register.employeeId ? 'EMPLOYEE' : 'OWNER',
+        projectId: register.shop?.projectId ?? '',
+      };
+
+      void this.reportDistributionService
+        .distributeOnClose(register.id, systemUser)
+        .catch((error) =>
+          this.logger.warn(
+            `No se pudo distribuir el reporte de la caja ${register.id}`,
+            error as Error,
+          ),
+        );
   }
 }
