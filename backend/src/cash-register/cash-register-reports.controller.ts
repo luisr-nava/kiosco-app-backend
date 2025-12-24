@@ -46,7 +46,10 @@ export class CashRegisterReportsController {
     @Res({ passthrough: true }) res: Response,
     @GetUser() user: JwtPayload,
   ) {
-    const exportData = await this.exportService.exportExcel(cashRegisterId, user);
+    const exportData = await this.exportService.exportExcel(
+      cashRegisterId,
+      user,
+    );
     res.setHeader('Content-Type', exportData.contentType);
     res.setHeader(
       'Content-Disposition',
@@ -68,6 +71,10 @@ export class CashRegisterReportsController {
     if (!period) {
       throw new BadRequestException('El periodo es obligatorio');
     }
-    return this.reportService.listReports(period, { date, year, month, week }, user);
+    return this.reportService.listReports(
+      period,
+      { date, year, month, week },
+      user,
+    );
   }
 }

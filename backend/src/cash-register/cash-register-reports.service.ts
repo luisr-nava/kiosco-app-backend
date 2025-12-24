@@ -84,7 +84,10 @@ export class CashRegisterReportsService {
     });
   }
 
-  private resolveRange(period: ReportPeriod, params: Record<string, string | undefined>) {
+  private resolveRange(
+    period: ReportPeriod,
+    params: Record<string, string | undefined>,
+  ) {
     switch (period) {
       case 'day':
         return this.rangeForDay(params.date);

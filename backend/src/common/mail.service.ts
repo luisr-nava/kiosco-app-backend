@@ -15,7 +15,9 @@ export class MailService {
 
   constructor() {
     if (!envs.mailHost || !envs.mailPort) {
-      this.logger.warn('Mail host/port not configured, skipping email initialization');
+      this.logger.warn(
+        'Mail host/port not configured, skipping email initialization',
+      );
       return;
     }
 
@@ -50,7 +52,8 @@ export class MailService {
 
     try {
       await this.transporter.sendMail({
-        from: envs.reportsFromEmail || envs.reportsNotificationEmail || undefined,
+        from:
+          envs.reportsFromEmail || envs.reportsNotificationEmail || undefined,
         to: options.to,
         subject: options.subject,
         text: options.text,

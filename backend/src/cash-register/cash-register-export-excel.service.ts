@@ -94,15 +94,15 @@ export class CashRegisterExportExcelService {
     // TABLA
     // =========================
     sheet.addRow([]);
-    sheet.getColumn('B').width = 24; 
-    sheet.getColumn('C').width = 24; 
-    sheet.getColumn('D').width = 24; 
-    sheet.getColumn('E').width = 24; 
-    sheet.getColumn('F').width = 24; 
-    sheet.getColumn('G').width = 24; 
-    sheet.getColumn('H').width = 24; 
-    sheet.getColumn('I').width = 24; 
-    sheet.getColumn('J').width = 24; 
+    sheet.getColumn('B').width = 24;
+    sheet.getColumn('C').width = 24;
+    sheet.getColumn('D').width = 24;
+    sheet.getColumn('E').width = 24;
+    sheet.getColumn('F').width = 24;
+    sheet.getColumn('G').width = 24;
+    sheet.getColumn('H').width = 24;
+    sheet.getColumn('I').width = 24;
+    sheet.getColumn('J').width = 24;
 
     const tableHeader = sheet.addRow([
       'Fecha',

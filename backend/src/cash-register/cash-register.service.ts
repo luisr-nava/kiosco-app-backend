@@ -183,7 +183,10 @@ export class CashRegisterService {
     void this.reportDistributionService
       .distributeOnClose(cashRegisterId, user)
       .catch((error) =>
-        this.logger.warn('No se pudo distribuir el reporte tras cerrar la caja', error as Error),
+        this.logger.warn(
+          'No se pudo distribuir el reporte tras cerrar la caja',
+          error as Error,
+        ),
       );
 
     return {
@@ -981,20 +984,5 @@ export class CashRegisterService {
         throw new ForbiddenException('No tienes permiso para esta tienda');
       }
     }
-
-      const systemUser: JwtPayload = {
-        id: register.employeeId ?? register.shop?.ownerId ?? 'system',
-        role: register.employeeId ? 'EMPLOYEE' : 'OWNER',
-        projectId: register.shop?.projectId ?? '',
-      };
-
-      void this.reportDistributionService
-        .distributeOnClose(register.id, systemUser)
-        .catch((error) =>
-          this.logger.warn(
-            `No se pudo distribuir el reporte de la caja ${register.id}`,
-            error as Error,
-          ),
-        );
   }
 }

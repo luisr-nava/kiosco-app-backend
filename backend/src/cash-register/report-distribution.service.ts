@@ -31,7 +31,9 @@ export class ReportDistributionService {
     });
 
     if (!cashRegister) {
-      this.logger.warn(`No se encontró la caja ${cashRegisterId} para distribuir el reporte`);
+      this.logger.warn(
+        `No se encontró la caja ${cashRegisterId} para distribuir el reporte`,
+      );
       return;
     }
 
@@ -41,7 +43,9 @@ export class ReportDistributionService {
 
     const recipient = envs.reportsNotificationEmail;
     if (!recipient) {
-      this.logger.warn('No está configurado REPORTS_NOTIFICATION_EMAIL, se omite el envío de correos');
+      this.logger.warn(
+        'No está configurado REPORTS_NOTIFICATION_EMAIL, se omite el envío de correos',
+      );
       return;
     }
 
