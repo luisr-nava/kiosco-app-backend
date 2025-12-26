@@ -1,6 +1,5 @@
 import {
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -8,6 +7,7 @@ import type { Prisma } from '@prisma/client';
 import { CashMovementType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import type { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface';
+import { CashRegisterAccessService } from './cash-register-access.service';
 
 type CashRegisterWithRelations = Prisma.CashRegisterGetPayload<{
   include: {
@@ -88,7 +88,10 @@ export type CashRegisterExportContext = {
 
 @Injectable()
 export class CashRegisterExportDataService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly accessService: CashRegisterAccessService,
+  ) {}
 
   async getClosedCashRegisterContext(
     cashRegisterId: string,
@@ -154,7 +157,7 @@ export class CashRegisterExportDataService {
       throw new NotFoundException('Caja no encontrada');
     }
 
-    await this.validateAccess(cashRegister, user);
+    await this.accessService.ensureUserCanAccessShop(cashRegister.shop, user);
 
     if (cashRegister.status !== 'CLOSED') {
       throw new ConflictException('La caja debe estar cerrada para exportar');
@@ -184,37 +187,6 @@ export class CashRegisterExportDataService {
       differenceStatus,
       closingType,
     };
-  }
-
-  private async validateAccess(
-    cashRegister: CashRegisterWithRelations,
-    user: JwtPayload,
-  ) {
-    const shop = cashRegister.shop;
-
-    if (shop.projectId !== user.projectId) {
-      throw new ForbiddenException('No tienes acceso a esta tienda');
-    }
-
-    if (user.role === 'OWNER' && shop.ownerId !== user.id) {
-      throw new ForbiddenException('No tienes acceso a esta tienda');
-    }
-
-    if (user.role === 'EMPLOYEE') {
-      const employee = await this.prisma.employee.findFirst({
-        where: { id: user.id, employeeShops: { some: { shopId: shop.id } } },
-      });
-
-      if (!employee) {
-        throw new ForbiddenException('No tienes permiso para esta tienda');
-      }
-
-      if (cashRegister.employeeId !== user.id) {
-        throw new ForbiddenException(
-          'No tienes permiso para acceder a esta caja',
-        );
-      }
-    }
   }
 
   private calculateTotalsFromMovements(

@@ -8,6 +8,7 @@ import { CashRegisterExportDataService } from './cash-register-export-data.servi
 import { CashRegisterExportController } from './cash-register-export.controller';
 import { CashRegisterExportCacheService } from './cash-register-export-cache.service';
 import { CashRegisterExportService } from './cash-register-export.service';
+import { CashRegisterAccessService } from './cash-register-access.service';
 import { PrivateStorageService } from '../storage/private-storage.service';
 import { MailService } from '../common/mail.service';
 import { ReportDistributionService } from './report-distribution.service';
@@ -17,15 +18,16 @@ import { CashRegisterReportsService } from './cash-register-reports.service';
 @Module({
   imports: [PrismaModule],
   controllers: [
-    CashRegisterController,
-    CashRegisterExportController,
     CashRegisterReportsController,
+    CashRegisterExportController,
+    CashRegisterController,
   ],
   providers: [
     CashRegisterService,
     CashRegisterExportPdfService,
     CashRegisterExportExcelService,
     CashRegisterExportDataService,
+    CashRegisterAccessService,
     CashRegisterExportCacheService,
     CashRegisterExportService,
     PrivateStorageService,

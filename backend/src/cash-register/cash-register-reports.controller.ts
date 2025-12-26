@@ -66,6 +66,8 @@ export class CashRegisterReportsController {
     @Query('year') year: string | undefined,
     @Query('month') month: string | undefined,
     @Query('week') week: string | undefined,
+    @Query('dateFrom') dateFrom: string | undefined,
+    @Query('dateTo') dateTo: string | undefined,
     @GetUser() user: JwtPayload,
   ) {
     if (!period) {
@@ -73,7 +75,7 @@ export class CashRegisterReportsController {
     }
     return this.reportService.listReports(
       period,
-      { date, year, month, week },
+      { date, year, month, week, dateFrom, dateTo },
       user,
     );
   }
