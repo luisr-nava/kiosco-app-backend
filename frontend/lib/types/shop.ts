@@ -11,6 +11,8 @@ export interface Shop {
   updatedAt: string;
 }
 
+import type { ShopAnalytics } from "@/lib/types/analytics";
+
 export interface ShopDetail extends Shop {
   hasOpenCashRegister: boolean;
   openCashRegisters?: ShopCashRegister[];
@@ -34,6 +36,7 @@ export interface ShopDetail extends Shop {
   recentPurchases: unknown[];
   lowStockProducts: unknown[];
   topProductsByStock: unknown[];
+  analytics?: ShopAnalytics;
 }
 
 export interface ShopCashRegister {

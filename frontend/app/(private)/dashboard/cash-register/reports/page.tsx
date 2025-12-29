@@ -72,62 +72,78 @@ export default function CashRegisterReportsPage() {
     useCashRegisterReports(queryParams);
 
   return (
-    <div className="space-y-6">
-      <ReportsHeader />
+    <div className="flex flex-1 flex-col gap-6 px-4 py-10 sm:px-6 lg:px-8">
+      <section className="rounded-3xl border border-border bg-card/80 p-6 shadow-sm">
+        <ReportsHeader />
+      </section>
 
-      <ReportsFilters
-        period={period}
-        onPeriodChange={setPeriod}
-        dayValue={selectedDay}
-        onDayChange={setSelectedDay}
-        weekRangeValue={normalizedRange}
-        onWeekRangeChange={setWeekRange}
-        monthValue={monthSelection.month}
-        onMonthChange={(month) =>
-          setMonthSelection((prev) => ({
-            ...prev,
-            month,
-          }))
-        }
-        monthYearValue={monthSelection.year}
-        onMonthYearChange={(year) =>
-          setMonthSelection((prev) => ({
-            month:
-              year === currentYear
-                ? Math.min(prev.month, currentMonth)
-                : prev.month,
-            year,
-          }))
-        }
-        yearValue={selectedYear}
-        onYearChange={setSelectedYear}
-        currentYear={currentYear}
-        currentMonth={currentMonth}
-        minYear={MIN_REPORT_YEAR}
-        isLoading={isLoading}
-      />
+      <section className="rounded-3xl border border-border bg-card/80 p-6 shadow-sm">
+        <div className="flex flex-col gap-2">
+          <h2 className="text-lg font-semibold text-foreground">Filtros</h2>
+          <p className="text-sm text-muted-foreground">
+            Ajusta el rango y período para refinar el reporte de caja.
+          </p>
+        </div>
+        <div className="mt-6">
+          <ReportsFilters
+            period={period}
+            onPeriodChange={setPeriod}
+            dayValue={selectedDay}
+            onDayChange={setSelectedDay}
+            weekRangeValue={normalizedRange}
+            onWeekRangeChange={setWeekRange}
+            monthValue={monthSelection.month}
+            onMonthChange={(month) =>
+              setMonthSelection((prev) => ({
+                ...prev,
+                month,
+              }))
+            }
+            monthYearValue={monthSelection.year}
+            onMonthYearChange={(year) =>
+              setMonthSelection((prev) => ({
+                month:
+                  year === currentYear
+                    ? Math.min(prev.month, currentMonth)
+                    : prev.month,
+                year,
+              }))
+            }
+            yearValue={selectedYear}
+            onYearChange={setSelectedYear}
+            currentYear={currentYear}
+            currentMonth={currentMonth}
+            minYear={MIN_REPORT_YEAR}
+            isLoading={isLoading}
+          />
+        </div>
+      </section>
 
       {isError && (
-        <Alert variant="destructive">
-          <AlertTitle>Error al cargar reportes</AlertTitle>
-          <AlertDescription>
-            {error instanceof Error
-              ? error.message
-              : "No pudimos obtener los reportes de caja."}
-          </AlertDescription>
-        </Alert>
+        <section className="rounded-3xl border border-border bg-card/80 p-6 shadow-sm">
+          <Alert variant="destructive">
+            <AlertTitle>Error al cargar reportes</AlertTitle>
+            <AlertDescription>
+              {error instanceof Error
+                ? error.message
+                : "No pudimos obtener los reportes de caja."}
+            </AlertDescription>
+          </Alert>
+        </section>
       )}
 
-      {isLoading ? (
-        <ReportsTableSkeleton />
-      ) : (
-        <ReportsTable
-          reports={reports}
-          openedByName={openedByName}
-          isFetching={isFetching}
-          emptyMessage={message}
-        />
-      )}
+      <section className="rounded-3xl border border-border bg-card/80 p-6 shadow-sm">
+        {isLoading ? (
+          <ReportsTableSkeleton />
+        ) : (
+          <ReportsTable
+            reports={reports}
+            openedByName={openedByName}
+            isFetching={isFetching}
+            emptyMessage={message}
+          />
+        )}
+      </section>
     </div>
   );
 }

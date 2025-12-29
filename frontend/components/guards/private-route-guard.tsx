@@ -8,9 +8,6 @@ interface PrivateRouteGuardProps {
   children: React.ReactNode;
 }
 
-/**
- * Componente que protege rutas privadas, redirigiendo al login si no está autenticado
- */
 export function PrivateRouteGuard({ children }: PrivateRouteGuardProps) {
   const { isLoading, isAuthenticated } = useAuth();
   const router = useRouter();

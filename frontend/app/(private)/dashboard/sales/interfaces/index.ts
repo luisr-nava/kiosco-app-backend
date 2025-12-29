@@ -26,4 +26,5 @@ export interface CreateSaleDto {
     unitPrice: number;
     subtotal: number;
   }>;
+  paymentMethodId?: string;
 }

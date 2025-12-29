@@ -47,14 +47,16 @@ const buildItem = (): PurchaseItem => ({
 });
 
 export default function ComprasPage() {
-  const { activeShopId, activeShopLoading } = useShopStore();
+  const { activeShopId, activeShopLoading, activeShop } = useShopStore();
   const queryClient = useQueryClient();
 
   const [notes, setNotes] = useState("");
   const [supplierId, setSupplierId] = useState("");
   const [items, setItems] = useState<PurchaseItem[]>([buildItem()]);
   const [productSearch, setProductSearch] = useState<string[]>([""]);
-  const [activeSearchIndex, setActiveSearchIndex] = useState<number | null>(null);
+  const [activeSearchIndex, setActiveSearchIndex] = useState<number | null>(
+    null,
+  );
   const [dropdownRect, setDropdownRect] = useState<{
     top: number;
     left: number;
@@ -69,13 +71,17 @@ export default function ComprasPage() {
       Number(item.unitCost) <= 0,
   );
 
-  const { data: purchasesResponse, isLoading: purchasesLoading } = useQuery<Purchase[]>({
+  const { data: purchasesResponse, isLoading: purchasesLoading } = useQuery<
+    Purchase[]
+  >({
     queryKey: ["purchases", "all"],
     queryFn: () => purchaseApi.listAll(),
     staleTime: 1000 * 30,
   });
 
-  const { data: productsResponse, isLoading: productsLoading } = useQuery<Product[]>({
+  const { data: productsResponse, isLoading: productsLoading } = useQuery<
+    Product[]
+  >({
     queryKey: ["products", activeShopId, "for-purchases"],
     queryFn: () =>
       productApi.listByShop(activeShopId || "", {
@@ -85,7 +91,9 @@ export default function ComprasPage() {
     staleTime: 1000 * 30,
   });
 
-  const { data: suppliersResponse, isLoading: suppliersLoading } = useQuery<Supplier[]>({
+  const { data: suppliersResponse, isLoading: suppliersLoading } = useQuery<
+    Supplier[]
+  >({
     queryKey: ["suppliers", activeShopId, "for-purchases"],
     queryFn: () => supplierApi.listByShop(activeShopId || ""),
     enabled: Boolean(activeShopId),
@@ -214,7 +222,11 @@ export default function ComprasPage() {
             Revisa todas las compras y registra nuevas.
           </p>
         </div>
-        <Button onClick={() => setCreateOpen(true)} disabled={!activeShopId || activeShopLoading}>
+        <Button
+          onClick={() => {
+            setCreateOpen(true);
+          }}
+          disabled={!activeShopId || activeShopLoading}>
           Registrar compra
         </Button>
       </div>
@@ -227,7 +239,12 @@ export default function ComprasPage() {
               Listado de compras registradas en todas tus tiendas.
             </CardDescription>
           </div>
-          <Button variant="outline" size="sm" onClick={() => queryClient.invalidateQueries({ queryKey: ["purchases", "all"] })}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              queryClient.invalidateQueries({ queryKey: ["purchases", "all"] })
+            }>
             Actualizar
           </Button>
         </CardHeader>
@@ -280,7 +297,9 @@ export default function ComprasPage() {
                           {purchase.shopName || "N/D"}
                         </span>
                         <span className="text-sm text-muted-foreground">
-                          {supplier?.name || purchase.supplierId || "Sin proveedor"}
+                          {supplier?.name ||
+                            purchase.supplierId ||
+                            "Sin proveedor"}
                         </span>
                         <span className="text-sm text-muted-foreground">
                           {itemsCount} ítems
@@ -449,12 +468,16 @@ export default function ComprasPage() {
                             left: rect.left,
                             width: rect.width,
                           });
-                          setSearchValue(index, getProductName(item.shopProductId));
+                          setSearchValue(
+                            index,
+                            getProductName(item.shopProductId),
+                          );
                           setActiveSearchIndex(index);
                         }}
                         disabled={productsLoading || !activeShopId}>
                         <span className="truncate">
-                          {getProductName(item.shopProductId) || "Seleccionar producto"}
+                          {getProductName(item.shopProductId) ||
+                            "Seleccionar producto"}
                         </span>
                         <ChevronDown className="h-4 w-4 text-muted-foreground" />
                       </button>
@@ -492,7 +515,11 @@ export default function ComprasPage() {
                                 .filter((product) =>
                                   product.name
                                     .toLowerCase()
-                                    .includes((productSearch[index] ?? "").toLowerCase()),
+                                    .includes(
+                                      (
+                                        productSearch[index] ?? ""
+                                      ).toLowerCase(),
+                                    ),
                                 )
                                 .slice(0, 20)
                                 .map((product) => (
@@ -504,7 +531,9 @@ export default function ComprasPage() {
                                     onClick={() => {
                                       handleSelectProduct(index, product);
                                     }}>
-                                    <span className="truncate">{product.name}</span>
+                                    <span className="truncate">
+                                      {product.name}
+                                    </span>
                                   </button>
                                 ))}
                               {products.length === 0 && (
@@ -605,3 +634,4 @@ export default function ComprasPage() {
     </div>
   );
 }
+

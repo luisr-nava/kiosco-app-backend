@@ -26,8 +26,6 @@ export const useProductQuery = ({
         limit,
       }),
     enabled: enabled && Boolean(activeShopId),
-    staleTime: 1000 * 30,
-    placeholderData: (prev) => prev,
   });
 
   const products = query.data?.products || [];

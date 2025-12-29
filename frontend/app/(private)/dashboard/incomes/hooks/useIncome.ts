@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { usePaginationParams, useQueryParams } from "@/app/(private)/hooks/useQueryParams";
+import {
+  usePaginationParams,
+  useQueryParams,
+} from "@/app/(private)/hooks/useQueryParams";
 import { useIncomes } from "./useIncomes";
 import { useIncomeMutations } from "./useIncomeMutations";
 import type { CreateIncomeDto, Income } from "../interfaces";
@@ -51,9 +54,9 @@ export const useIncome = ({ isOwner, activeShopId }: UseIncomeParams) => {
     const list = activeShop?.openCashRegisters;
     if (Array.isArray(list)) {
       return (
-        list.find(
-          (item) => item.status === "OPEN" || item.isOpen === true,
-        ) ?? list[0] ?? null
+        list.find((item) => item.status === "OPEN" || item.isOpen === true) ??
+        list[0] ??
+        null
       );
     }
     return null;
@@ -236,3 +239,4 @@ export const useIncome = ({ isOwner, activeShopId }: UseIncomeParams) => {
     openCashFetching,
   };
 };
+

@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { usePaginationParams, useQueryParams } from "@/app/(private)/hooks/useQueryParams";
+import {
+  usePaginationParams,
+  useQueryParams,
+} from "@/app/(private)/hooks/useQueryParams";
 import { useExpenses } from "./useExpenses";
 import { useExpenseMutations } from "./useExpenseMutations";
 import type { CreateExpenseDto, Expense } from "../interfaces";
@@ -51,9 +54,9 @@ export const useExpense = ({ isOwner, activeShopId }: UseExpenseParams) => {
     const list = activeShop?.openCashRegisters;
     if (Array.isArray(list)) {
       return (
-        list.find(
-          (item) => item.status === "OPEN" || item.isOpen === true,
-        ) ?? list[0] ?? null
+        list.find((item) => item.status === "OPEN" || item.isOpen === true) ??
+        list[0] ??
+        null
       );
     }
     return null;
@@ -242,3 +245,4 @@ export const useExpense = ({ isOwner, activeShopId }: UseExpenseParams) => {
     openCashFetching,
   };
 };
+

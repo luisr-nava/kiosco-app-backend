@@ -3,16 +3,39 @@ import type { NotificationEvent } from "@/lib/types/notification";
 
 const sortByDateDesc = (notifications: NotificationEvent[]) =>
   [...notifications].sort(
-    (a, b) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 
 const isNotificationRead = (notification: NotificationEvent) =>
   Boolean(notification.readAt || notification.isRead);
 
 const getUnreadCount = (notifications: NotificationEvent[]) =>
-  notifications.filter((notification) => !isNotificationRead(notification))
-    .length;
+  notifications.reduce(
+    (count, notification) =>
+      isNotificationRead(notification) ? count : count + 1,
+    0,
+  );
+
+const dedupeNotifications = (notifications: NotificationEvent[]) => {
+  const unique: NotificationEvent[] = [];
+
+  notifications.forEach((notification) => {
+    if (!unique.some((item) => item.id === notification.id)) {
+      unique.push(notification);
+    }
+  });
+
+  return unique;
+};
+
+const buildNotificationsState = (notifications: NotificationEvent[]) => {
+  const sorted = sortByDateDesc(dedupeNotifications(notifications));
+
+  return {
+    notifications: sorted,
+    unreadCount: getUnreadCount(sorted),
+  };
+};
 
 interface NotificationsState {
   notifications: NotificationEvent[];
@@ -20,8 +43,7 @@ interface NotificationsState {
   setNotifications: (notifications: NotificationEvent[]) => void;
   addNotification: (notification: NotificationEvent) => void;
   markAsRead: (id: string) => void;
-  markManyAsRead: (ids: string[]) => void;
-  clearNotifications: () => void;
+  markAllAsRead: () => void;
 }
 
 export const useNotificationsStore = create<NotificationsState>((set) => ({
@@ -29,72 +51,46 @@ export const useNotificationsStore = create<NotificationsState>((set) => ({
   unreadCount: 0,
 
   setNotifications: (notifications) =>
-    set(() => {
-      const sorted = sortByDateDesc(notifications);
-      return {
-        notifications: sorted,
-        unreadCount: getUnreadCount(sorted),
-      };
-    }),
+    set(() => buildNotificationsState(notifications)),
 
   addNotification: (notification) =>
-    set((state) => {
-      const exists = state.notifications.some(
-        (item) => item.id === notification.id,
-      );
-      const nextNotifications = exists
-        ? state.notifications.map((item) =>
-            item.id === notification.id ? { ...item, ...notification } : item,
-          )
-        : [notification, ...state.notifications];
-
-      const sorted = sortByDateDesc(nextNotifications);
-
-      return {
-        notifications: sorted,
-        unreadCount: getUnreadCount(sorted),
-      };
-    }),
+    set((state) =>
+      buildNotificationsState([notification, ...state.notifications]),
+    ),
 
   markAsRead: (id) =>
     set((state) => {
-      const nextNotifications = state.notifications.map((notification) =>
+      const updated = state.notifications.map((notification) =>
         notification.id === id
           ? {
               ...notification,
               isRead: true,
-              readAt: notification.readAt,
+              readAt: notification.readAt ?? new Date().toISOString(),
             }
           : notification,
       );
 
       return {
-        notifications: nextNotifications,
-        unreadCount: getUnreadCount(nextNotifications),
+        notifications: updated,
+        unreadCount: getUnreadCount(updated),
       };
     }),
 
-  markManyAsRead: (ids) =>
+  markAllAsRead: () =>
     set((state) => {
-      const nextNotifications = state.notifications.map((notification) =>
-        ids.includes(notification.id)
-          ? {
+      const updated = state.notifications.map((notification) =>
+        isNotificationRead(notification)
+          ? notification
+          : {
               ...notification,
               isRead: true,
-              readAt: notification.readAt,
-            }
-          : notification,
+              readAt: notification.readAt ?? new Date().toISOString(),
+            },
       );
 
       return {
-        notifications: nextNotifications,
-        unreadCount: getUnreadCount(nextNotifications),
+        notifications: updated,
+        unreadCount: getUnreadCount(updated),
       };
-    }),
-
-  clearNotifications: () =>
-    set({
-      notifications: [],
-      unreadCount: 0,
     }),
 }));

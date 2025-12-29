@@ -7,7 +7,7 @@ import { Product } from "../../products/interfaces";
 import { CreateSaleDto, SaleItem } from "../interfaces";
 
 export const useSale = () => {
-  const { activeShopId, activeShopLoading } = useShopStore();
+  const { activeShopId, activeShop } = useShopStore();
   const queryClient = useQueryClient();
 
   const [notes, setNotes] = useState("");
@@ -58,10 +58,7 @@ export const useSale = () => {
       return;
     }
     const baseUnitPrice =
-      product.finalSalePrice ||
-      product.salePrice ||
-      product.price ||
-      0;
+      product.finalSalePrice || product.salePrice || product.price || 0;
     setItems((prev) => {
       const idx = prev.findIndex(
         (item) => item.shopProductId === shopProductId,
@@ -125,6 +122,10 @@ export const useSale = () => {
 
   const handleSubmit = () => {
     if (!activeShopId) return;
+    if (!activeShop?.hasOpenCashRegister) {
+      requestOpenCashRegisterModal();
+      return;
+    }
     if (items.length === 0) {
       toast.error("Agrega al menos un producto al carrito");
       return;
@@ -181,3 +182,4 @@ export const useSale = () => {
     productsLoading,
   };
 };
+

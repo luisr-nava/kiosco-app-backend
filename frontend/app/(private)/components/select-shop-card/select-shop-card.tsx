@@ -12,9 +12,6 @@ interface Props {
   helperText?: string;
 }
 
-/**
- * Card para indicar que se debe seleccionar una tienda activa antes de continuar.
- */
 export const SelectShopCard = ({
   title = "Selecciona una tienda",
   description = "Debes elegir una tienda activa para continuar.",
@@ -30,3 +27,4 @@ export const SelectShopCard = ({
     </CardContent>
   </Card>
 );
+

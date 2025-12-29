@@ -54,7 +54,7 @@ export const menuItems = [
   },
   {
     label: "Reportes de caja",
-    href: "/cash-register/reports",
+    href: "/dashboard/cash-register/reports",
     icon: FilePieChart,
     description: "Consulta arqueos cerrados y descarga los archivos oficiales.",
   },
@@ -131,6 +131,24 @@ export function Sidebar() {
     pathname.startsWith(item.href),
   );
   const showSettingsExpanded = settingsOpen || (!collapsed && isInSettingsGroup);
+  const baseNavClasses =
+    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-1";
+  const collapsedJustify = collapsed
+    ? "justify-center group-hover:justify-start"
+    : "justify-start";
+  const getNavItemClasses = (isActive: boolean) =>
+    cn(
+      baseNavClasses,
+      collapsedJustify,
+      isActive
+        ? "bg-primary text-primary-foreground shadow-sm"
+        : "text-muted-foreground hover:bg-primary/15 hover:text-foreground focus-visible:text-foreground focus-visible:bg-primary/15",
+    );
+  const getNavIconClasses = () =>
+    cn(
+      "shrink-0 transition-colors duration-150",
+      collapsed ? "text-current" : "text-current",
+    );
 
   return (
     <aside
@@ -168,19 +186,8 @@ export function Sidebar() {
             const isActive = pathname === item.href;
 
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                  collapsed
-                    ? "justify-center group-hover:justify-start"
-                    : "justify-start",
-                  isActive
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                )}>
-                <Icon className="h-5 w-5 shrink-0" />
+              <Link key={item.href} href={item.href} className={getNavItemClasses(isActive)}>
+                <Icon className={getNavIconClasses()} />
                 <span
                   className={cn(
                     "block overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200",
@@ -198,16 +205,8 @@ export function Sidebar() {
             <button
               type="button"
               onClick={() => setMovementsOpen((prev) => !prev)}
-              className={cn(
-                "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                collapsed
-                  ? "justify-center group-hover:justify-start"
-                  : "justify-start",
-                isInMovements
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-              )}>
-              <ArrowLeftRight className="h-5 w-5 shrink-0" />
+              className={getNavItemClasses(isInMovements)}>
+              <ArrowLeftRight className={getNavIconClasses()} />
               <span
                 className={cn(
                   "block overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200",
@@ -235,19 +234,8 @@ export function Sidebar() {
                   const Icon = item.icon;
                   const isActive = pathname.startsWith(item.href);
                   return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                        collapsed
-                          ? "justify-center group-hover:justify-start"
-                          : "justify-start",
-                        isActive
-                          ? "bg-primary text-primary-foreground"
-                          : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                      )}>
-                      <Icon className="h-4 w-4 shrink-0" />
+                    <Link key={item.href} href={item.href} className={getNavItemClasses(isActive)}>
+                      <Icon className={getNavIconClasses()} />
                       <span
                         className={cn(
                           "block overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200",
@@ -268,16 +256,8 @@ export function Sidebar() {
             <button
               type="button"
               onClick={() => setContactsOpen((prev) => !prev)}
-              className={cn(
-                "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                collapsed
-                  ? "justify-center group-hover:justify-start"
-                  : "justify-start",
-                isInContacts
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-              )}>
-              <Users className="h-5 w-5 shrink-0" />
+              className={getNavItemClasses(isInContacts)}>
+              <Users className={getNavIconClasses()} />
               <span
                 className={cn(
                   "block overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200",
@@ -305,19 +285,8 @@ export function Sidebar() {
                   const Icon = item.icon;
                   const isActive = pathname.startsWith(item.href);
                   return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                        collapsed
-                          ? "justify-center group-hover:justify-start"
-                          : "justify-start",
-                        isActive
-                          ? "bg-primary text-primary-foreground"
-                          : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                      )}>
-                      <Icon className="h-4 w-4 shrink-0" />
+                    <Link key={item.href} href={item.href} className={getNavItemClasses(isActive)}>
+                      <Icon className={getNavIconClasses()} />
                       <span
                         className={cn(
                           "block overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200",
@@ -338,16 +307,8 @@ export function Sidebar() {
             <button
               type="button"
               onClick={() => setSettingsOpen((prev) => !prev)}
-              className={cn(
-                "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                collapsed
-                  ? "justify-center group-hover:justify-start"
-                  : "justify-start",
-                isInSettingsGroup
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-              )}>
-              <Settings className="h-5 w-5 shrink-0" />
+              className={getNavItemClasses(isInSettingsGroup)}>
+              <Settings className={getNavIconClasses()} />
               <span
                 className={cn(
                   "block overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200",
@@ -375,19 +336,8 @@ export function Sidebar() {
                   const Icon = item.icon;
                   const isActive = pathname.startsWith(item.href);
                   return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                        collapsed
-                          ? "justify-center group-hover:justify-start"
-                          : "justify-start",
-                        isActive
-                          ? "bg-primary text-primary-foreground"
-                          : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                      )}>
-                      <Icon className="h-4 w-4 shrink-0" />
+                    <Link key={item.href} href={item.href} className={getNavItemClasses(isActive)}>
+                      <Icon className={getNavIconClasses()} />
                       <span
                         className={cn(
                           "block overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200",
@@ -408,3 +358,4 @@ export function Sidebar() {
     </aside>
   );
 }
+

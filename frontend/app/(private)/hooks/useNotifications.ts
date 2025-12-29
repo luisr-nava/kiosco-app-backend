@@ -16,7 +16,7 @@ export const useNotifications = () => {
     addNotification,
     setNotifications,
     markAsRead,
-    markManyAsRead,
+    markAllAsRead: markAllAsReadStore,
   } = useNotificationsStore();
 
   const [isUpdating, setIsUpdating] = useState(false);
@@ -65,7 +65,7 @@ export const useNotifications = () => {
 
     if (unreadIds.length === 0) return;
 
-    markManyAsRead(unreadIds);
+    markAllAsReadStore();
 
     try {
       await Promise.all(unreadIds.map((id) => notificationApi.markAsRead(id)));
@@ -78,7 +78,7 @@ export const useNotifications = () => {
       toast.error(title, { description: message });
       refreshNotifications();
     }
-  }, [notifications, markManyAsRead, refreshNotifications]);
+  }, [notifications, markAllAsReadStore, refreshNotifications]);
 
   return {
     notifications,

@@ -3,14 +3,14 @@
 import { PrivateRouteGuard } from "@/components/guards/private-route-guard";
 import { StoreSetupGuard } from "@/components/guards/store-setup-guard";
 import { SessionDataLoader } from "@/components/shops/session-data-loader";
-import { useNotificationsSocket } from "@/app/(private)/hooks/useNotificationsSocket";
+import { useNotificationsQuery } from "@/app/(private)/hooks/useNotificationsQuery";
 
 export default function PrivateLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  useNotificationsSocket();
+  useNotificationsQuery();
 
   return (
     <PrivateRouteGuard>
@@ -21,4 +21,3 @@ export default function PrivateLayout({
     </PrivateRouteGuard>
   );
 }
-

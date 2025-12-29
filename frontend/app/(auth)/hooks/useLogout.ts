@@ -10,8 +10,8 @@ import { myShopsQueryKey } from "@/app/(private)/hooks/useMyShops";
 export const useLogout = () => {
   const clearAuth = useAuthStore((state) => state.clearAuth);
   const clearShops = useShopStore((state) => state.clearShops);
-  const clearNotifications = useNotificationsStore(
-    (state) => state.clearNotifications,
+  const setNotifications = useNotificationsStore(
+    (state) => state.setNotifications,
   );
   const queryClient = useQueryClient();
 
@@ -28,7 +28,7 @@ export const useLogout = () => {
     onSuccess: () => {
       clearAuth();
       clearShops();
-      clearNotifications();
+      setNotifications([]);
       queryClient.removeQueries({ queryKey: myShopsQueryKey, exact: true });
 
       toast.success("Sesión cerrada", {
@@ -47,7 +47,7 @@ export const useLogout = () => {
 
       clearAuth();
       clearShops();
-      clearNotifications();
+      setNotifications([]);
       queryClient.removeQueries({ queryKey: myShopsQueryKey, exact: true });
     },
   });

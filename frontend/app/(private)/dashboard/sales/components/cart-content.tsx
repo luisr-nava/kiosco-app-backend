@@ -1,11 +1,24 @@
-import { SaleItem } from "@/lib/types";
 import { Product } from "../../products/interfaces";
+import { PaymentMethod } from "@/app/(private)/settings/payment-method/interfaces";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import { Separator } from "@radix-ui/react-dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SaleItem } from "../interfaces";
+
+const matchesShopProductId = (product: Product, identifier: string) =>
+  product.shopProductId === identifier ||
+  product.id === identifier ||
+  product.productId === identifier;
 
 type CartContentProps = {
   items: SaleItem[];
@@ -20,9 +33,13 @@ type CartContentProps = {
   listClassName?: string;
   totalItems: number;
   totalAmount: number;
+  paymentMethodId?: string;
+  paymentMethods: PaymentMethod[];
+  paymentMethodsLoading: boolean;
+  onPaymentMethodChange: (methodId: string) => void;
 };
 export const CartContent = ({
-  items,
+  items = [],
   products,
   notes,
   onNotesChange,
@@ -34,28 +51,36 @@ export const CartContent = ({
   listClassName,
   totalItems,
   totalAmount,
+  paymentMethodId,
+  paymentMethods = [],
+  paymentMethodsLoading,
+  onPaymentMethodChange,
 }: CartContentProps) => {
+  const safeItems = items ?? [];
   return (
     <div className="hidden lg:block md:w-2/5 lg:w-1/5 mt-6 lg:mt-0">
       <Card className="rounded-md border shadow-lg bg-background sticky top-20">
         <CardHeader>
-          <CardTitle >Carrito</CardTitle>
+          <CardTitle>Carrito</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 ">
           <div className={`space-y-1 overflow-y-auto max-h-[55vh] pr-1 `}>
-            {items.length === 0 ? (
+            {safeItems.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 Aún no has agregado productos.
               </p>
             ) : (
-              items.map((item, idx) => {
-                const product = products.find(
-                  (p) => p.id === item.shopProductId,
+              safeItems.map((item, idx) => {
+                const product = products.find((p) =>
+                  matchesShopProductId(p, item.shopProductId),
                 );
                 const productName = product?.name || "Producto";
                 const unitPrice = Number(
                   item.unitPrice || product?.salePrice || 0,
                 );
+                const quantity = Number(item.quantity || 0);
+                const stock = product?.stock ?? 0;
+                const isIncrementDisabled = stock <= 0 || quantity >= stock;
                 return (
                   <motion.div
                     key={`${item.shopProductId}-${idx}`}
@@ -83,6 +108,7 @@ export const CartContent = ({
                         <Button
                           size="sm"
                           variant="outline"
+                          disabled={isIncrementDisabled}
                           onClick={() =>
                             incrementProduct(item.shopProductId || "")
                           }>
@@ -111,6 +137,36 @@ export const CartContent = ({
 
           <div className="space-y-3">
             <div className="grid gap-1">
+              <Label>Método de pago</Label>
+              <Select
+                value={paymentMethodId ?? ""}
+                onValueChange={onPaymentMethodChange}
+                aria-label="Seleccionar método de pago"
+                disabled={paymentMethodsLoading || paymentMethods.length === 0}>
+                <SelectTrigger>
+                  <SelectValue
+                    placeholder={
+                      paymentMethodsLoading
+                        ? "Cargando métodos..."
+                        : "Seleccioná un método"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {paymentMethods.map((method) => (
+                    <SelectItem key={method.id} value={method.id}>
+                      {method.name}
+                    </SelectItem>
+                  ))}
+                  {!paymentMethodsLoading && paymentMethods.length === 0 && (
+                    <SelectItem value="__no-methods" disabled>
+                      Sin métodos disponibles
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-1">
               <Label>Notas</Label>
               <Input
                 value={notes}
@@ -123,7 +179,7 @@ export const CartContent = ({
                 className="flex-1"
                 variant="outline"
                 onClick={clearCart}
-                disabled={items.length === 0 || isSubmitting}>
+                disabled={safeItems.length === 0 || isSubmitting}>
                 Vaciar
               </Button>
               <Button
@@ -139,3 +195,4 @@ export const CartContent = ({
     </div>
   );
 };
+

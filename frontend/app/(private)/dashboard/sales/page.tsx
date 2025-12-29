@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useMemo } from "react";
 import { useShopStore } from "@/app/(private)/store/shops.slice";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -39,7 +40,21 @@ export default function VentasPage() {
     notes,
     setNotes,
     productsLoading,
+    paymentMethods,
+    paymentMethodsLoading,
+    paymentMethodId,
+    handlePaymentMethodChange,
+    resolveShopProductId,
   } = useSale();
+
+  const quantityByShopProductId = useMemo(() => {
+    const map = new Map<string, number>();
+    items.forEach((item) => {
+      if (!item.shopProductId) return;
+      map.set(item.shopProductId, Number(item.quantity || 0));
+    });
+    return map;
+  }, [items]);
 
   if (!activeShopId) return <ShopEmpty />;
 
@@ -68,13 +83,23 @@ export default function VentasPage() {
                 </p>
               ) : (
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 lg:pr-1">
-                  {products.map((product) => (
-                    <CardProduct
-                      key={product.id}
-                      product={product}
-                      incrementProduct={incrementProduct}
-                    />
-                  ))}
+                  {products.map((product) => {
+                    const resolvedShopProductId = resolveShopProductId(product);
+                    const stock = Math.max(0, Number(product.stock ?? 0));
+                    const quantityInCart =
+                      quantityByShopProductId.get(resolvedShopProductId) ?? 0;
+                    const isAddDisabled =
+                      stock <= 0 || quantityInCart >= stock;
+
+                    return (
+                      <CardProduct
+                        key={product.id}
+                        product={product}
+                        incrementProduct={incrementProduct}
+                        isAddDisabled={isAddDisabled}
+                      />
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
@@ -94,6 +119,10 @@ export default function VentasPage() {
           listClassName="max-h-[60vh]"
           totalItems={totalItems}
           totalAmount={total}
+          paymentMethods={paymentMethods}
+          paymentMethodsLoading={paymentMethodsLoading}
+          paymentMethodId={paymentMethodId}
+          onPaymentMethodChange={handlePaymentMethodChange}
         />
       </div>
 
@@ -153,6 +182,10 @@ export default function VentasPage() {
                 listClassName="max-h-[45vh]"
                 totalItems={totalItems}
                 totalAmount={total}
+                paymentMethods={paymentMethods}
+                paymentMethodsLoading={paymentMethodsLoading}
+                paymentMethodId={paymentMethodId}
+                onPaymentMethodChange={handlePaymentMethodChange}
               />
             </div>
           </DrawerContent>
