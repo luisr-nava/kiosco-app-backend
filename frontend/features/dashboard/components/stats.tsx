@@ -1,11 +1,10 @@
-import { ShopDetail } from "@/lib/types/shop";
 import { Card, CardContent } from "@/components/ui/card";
 
 interface StatsProps {
-  activeShop: ShopDetail;
+  activeShop: string;
 }
 
-export const Stats = ({ activeShop }: StatsProps) => {
+export default function Stats({ activeShop }: StatsProps) {
   const stats = [
     { label: "Empleados", value: activeShop?.employeesCount ?? 0 },
     { label: "Productos", value: activeShop?.productsCount ?? 0 },
@@ -27,5 +26,5 @@ export const Stats = ({ activeShop }: StatsProps) => {
       ))}
     </div>
   );
-};
+}
 

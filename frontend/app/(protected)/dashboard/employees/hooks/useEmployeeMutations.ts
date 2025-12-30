@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
 import {
   deleteEmployeeAction,
   createEmployeeAction,
   updateEmployeeAction,
 } from "../actions";
 import { CreateEmployeeDto } from "../interfaces";
+import { useShopStore } from "@/features/shop/shop.store";
 
 export const useEmployeeMutations = () => {
   const queryClient = useQueryClient();

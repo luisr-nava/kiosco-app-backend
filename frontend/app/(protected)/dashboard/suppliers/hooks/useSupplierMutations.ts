@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
 import { createSupplierAction } from "../actions/create.supplier.action";
 import { updateSupplierAction } from "../actions/update.supplier.action";
 import { deleteSupplierAction } from "../actions/delete.supplier.action";
 import type { CreateSupplierDto } from "@/lib/types/supplier";
 import { getErrorMessage } from "@/lib/error-handler";
+import { useShopStore } from "@/features/shop/shop.store";
 
 export const useSupplierMutations = () => {
   const queryClient = useQueryClient();

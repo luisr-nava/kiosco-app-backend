@@ -9,13 +9,12 @@ import {
 } from "@/components/ui/card";
 import { ShopEmpty } from "@/components/shop-emty";
 import { ShopLoading } from "@/components/shop-loading";
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
+import { useShopStore } from "@/features/shop/shop.store";
 
 export default function SalesHistoryPage() {
-  const { activeShopId, activeShopLoading } = useShopStore();
+  const { activeShopId } = useShopStore();
 
   if (!activeShopId) return <ShopEmpty />;
-  if (activeShopLoading) return <ShopLoading />;
 
   return (
     <div className="space-y-4">

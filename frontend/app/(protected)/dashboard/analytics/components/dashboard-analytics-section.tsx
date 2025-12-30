@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Separator } from "@/components/ui/separator";
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
 import { AnalyticsPeriod, TopProduct } from "@/lib/types/analytics";
 import { useAnalytics } from "../hooks/useAnalytics";
 import { CombinedMetricChart } from "./combined-metric-chart";
+import { useShopStore } from "@/features/shop/shop.store";
 
 const PERIOD_OPTIONS: { label: string; value: AnalyticsPeriod }[] = [
   { label: "Semana", value: "week" },
@@ -163,7 +163,7 @@ function PeriodSelector({
 }
 
 export function DashboardAnalyticsSection() {
-  const { activeShop, activeShopId } = useShopStore();
+  const { activeShopId } = useShopStore();
   const [uiPeriod, setUiPeriod] = useState<AnalyticsPeriod>("week");
   const [lastResolvedPeriod, setLastResolvedPeriod] =
     useState<AnalyticsPeriod>("week");
@@ -317,11 +317,11 @@ export function DashboardAnalyticsSection() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <TopProductsCard products={activeShop?.analytics?.topProducts} />
-        <BestSaleCard
+        {/* <TopProductsCard products={activeShop?.analytics?.topProducts} /> */}
+        {/* <BestSaleCard
           bestSale={activeShop?.analytics?.bestSale}
           period={effectivePeriod}
-        />
+        /> */}
       </div>
     </section>
   );

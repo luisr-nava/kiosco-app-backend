@@ -1,7 +1,6 @@
 "use client";
 
 import { useAuth } from "@/features/auth/hooks";
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
 import { ShopLoading } from "@/components/shop-loading";
 import { Modal } from "@/components/ui/modal";
 import {
@@ -13,11 +12,12 @@ import { usePaymentMethods } from "@/app/(protected)/settings/payment-method/hoo
 import { ExpenseHeader, ExpenseForm, ExpenseTable } from "./components";
 import { useExpense } from "./hooks/useExpense";
 import { Button } from "@/components/ui/button";
+import { useShopStore } from "@/features/shop/shop.store";
 
 export default function ExpensesPage() {
   const { user } = useAuth();
   const isOwner = user?.role === "OWNER";
-  const { activeShopId, activeShop, activeShopLoading } = useShopStore();
+  const { activeShopId } = useShopStore();
 
   const {
     search,
@@ -61,10 +61,6 @@ export default function ExpensesPage() {
 
   if (!isOwner) {
     return <AccessRestrictedCard />;
-  }
-
-  if (activeShopLoading) {
-    return <ShopLoading />;
   }
 
   if (!activeShopId) {
@@ -117,7 +113,8 @@ export default function ExpensesPage() {
         isOpen={isModalOpen}
         onClose={handleCancelEdit}
         title={editingExpense ? "Editar gasto" : "Nuevo gasto"}
-        description={`Tienda: ${activeShop?.name || activeShopId}`}>
+        // description={`Tienda: ${activeShop?.name || activeShopId}`}
+        >
         <ExpenseForm
           onSubmit={handleSubmit}
           isSubmitting={

@@ -1,4 +1,3 @@
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
 import { useShallow } from "zustand/react/shallow";
 import {
   useCustomerCreateMutation,
@@ -10,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { useModal } from "@/app/(protected)/hooks/useModal";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/error-handler";
+import { useShopStore } from "@/features/shop/shop.store";
 
 const initialForm: CreateCustomerDto = {
   fullName: "",
@@ -23,10 +23,9 @@ const initialForm: CreateCustomerDto = {
 };
 
 export const useCustomerForm = () => {
-  const { activeShopId, activeShopLoading } = useShopStore(
+  const { activeShopId } = useShopStore(
     useShallow((state) => ({
       activeShopId: state.activeShopId,
-      activeShopLoading: state.activeShopLoading,
     })),
   );
   const customerModal = useModal("createCustomer");
@@ -161,7 +160,6 @@ export const useCustomerForm = () => {
 
   return {
     activeShopId,
-    activeShopLoading,
     createMutation,
     updateMutation,
     deleteMutation,

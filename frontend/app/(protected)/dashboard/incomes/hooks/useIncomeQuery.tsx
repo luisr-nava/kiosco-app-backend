@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getIncomesAction } from "../actions";
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
+import { useShopStore } from "@/features/shop/shop.store";
 
 export const useIncomeQuery = (
   search: string,

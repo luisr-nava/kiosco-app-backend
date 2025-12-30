@@ -14,8 +14,8 @@ export function formatCurrency(
   },
 ) {
   const localeCandidates = [
-    `es-${countryCode}`, // LATAM / ES
-    `en-${countryCode}`, // fallback común
+    `es-${countryCode}`,
+    `en-${countryCode}`,
     FALLBACK_LOCALE,
   ];
 
@@ -36,4 +36,41 @@ export function formatCurrency(
 
   return formatter!.format(value);
 }
+
+
+
+// utils/currency.ts
+export const getCurrencySymbol = (
+  currencyCode: string,
+  locale: string = "es",
+): string => {
+  try {
+    const formatter = new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: currencyCode,
+      currencyDisplay: "symbol",
+    });
+
+    const parts = formatter.formatToParts(1);
+    const currencyPart = parts.find((part) => part.type === "currency");
+
+    return currencyPart?.value ?? currencyCode;
+  } catch {
+    return currencyCode;
+  }
+};
+
+// utils/currency.ts
+interface CurrencyOption {
+  code: string;
+}
+
+export const mapCurrencyWithSymbol = (
+  currencies: CurrencyOption[],
+  locale?: string,
+) =>
+  currencies.map((currency) => ({
+    code: currency.code,
+    symbol: getCurrencySymbol(currency.code, locale),
+  }));
 

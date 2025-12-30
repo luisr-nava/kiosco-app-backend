@@ -7,9 +7,9 @@ import {
 import { useExpenses } from "./useExpenses";
 import { useExpenseMutations } from "./useExpenseMutations";
 import type { CreateExpenseDto, Expense } from "../interfaces";
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
 import type { ShopCashRegister } from "@/lib/types/shop";
 import type { ExpenseFormValues } from "../components/expense-form/expense-form";
+import { useShopStore } from "@/features/shop/shop.store";
 
 interface UseExpenseParams {
   isOwner: boolean;
@@ -36,13 +36,12 @@ export const useExpense = ({ isOwner, activeShopId }: UseExpenseParams) => {
   const [startDate, setStartDateState] = useState<string>(startDateParam);
   const [endDate, setEndDateState] = useState<string>(endDateParam);
   const [dateError, setDateError] = useState<string>("");
-  const { activeShop } = useShopStore();
-
+  
   const { expenses, pagination, expensesLoading, isFetching } = useExpenses(
     debouncedSearch,
     page,
     limit,
-    isOwner && Boolean(activeShopId),
+    isOwner,
     startDate || undefined,
     endDate || undefined,
   );
@@ -50,17 +49,26 @@ export const useExpense = ({ isOwner, activeShopId }: UseExpenseParams) => {
   const { createMutation, updateMutation, deleteMutation } =
     useExpenseMutations();
 
-  const openCashRegister = useMemo<ShopCashRegister | null>(() => {
-    const list = activeShop?.openCashRegisters;
-    if (Array.isArray(list)) {
-      return (
-        list.find((item) => item.status === "OPEN" || item.isOpen === true) ??
-        list[0] ??
-        null
-      );
-    }
-    return null;
-  }, [activeShop]);
+  // const openCashRegister = useMemo<ShopCashRegister | null>(() => {
+    // const list = activeShop?.openCashRegisters;
+    // if (Array.isArray(list)) {
+    //   return (
+    //     list.find((item) => item.status === "OPEN" || item.isOpen === true) ??
+    //     list[0] ??
+    //     null
+    //   );
+    // }
+    // return null;
+  // }, [
+    // activeShop
+    //     null
+    //   );
+    // }
+    // return null;
+  // }, [
+    // activeShop
+
+  // ]);
 
   const openCashLoading = false;
   const openCashFetching = false;
@@ -94,10 +102,10 @@ export const useExpense = ({ isOwner, activeShopId }: UseExpenseParams) => {
       return;
     }
 
-    if (!openCashRegister?.id) {
-      toast.error("Necesitas una caja abierta para registrar gastos.");
-      return;
-    }
+    // if (!openCashRegister?.id) {
+    //   toast.error("Necesitas una caja abierta para registrar gastos.");
+    //   return;
+    // }
 
     const today = new Date().toISOString().split("T")[0];
     const payload: CreateExpenseDto = {
@@ -106,7 +114,7 @@ export const useExpense = ({ isOwner, activeShopId }: UseExpenseParams) => {
       date: values.date?.trim() || today,
       paymentMethodId: values.paymentMethodId.trim(),
       shopId: activeShopId,
-      cashRegisterId: openCashRegister.id,
+      // cashRegisterId: openCashRegister.id,
     };
 
     if (editingExpense) {

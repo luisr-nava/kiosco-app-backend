@@ -1,7 +1,6 @@
 "use client";
 
 import { useAuth } from "@/features/auth/hooks";
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
 import { ShopLoading } from "@/components/shop-loading";
 import { Modal } from "@/components/ui/modal";
 import {
@@ -12,11 +11,12 @@ import {
 import { EmployeeHeader, EmployeeForm, EmployeeTable } from "./components";
 import { useEmployee } from "./hooks";
 import { Button } from "@/components/ui/button";
+import { useShopStore } from "@/features/shop/shop.store";
 
 export default function EmployeesPage() {
   const { user } = useAuth();
   const isOwner = user?.role === "OWNER";
-  const { activeShopId, activeShop, activeShopLoading } = useShopStore();
+  const { activeShopId} = useShopStore();
 
   const {
     search,
@@ -49,9 +49,6 @@ export default function EmployeesPage() {
     return <AccessRestrictedCard />;
   }
 
-  if (activeShopLoading) {
-    return <ShopLoading />;
-  }
 
   if (!activeShopId) {
     return (
@@ -97,7 +94,8 @@ export default function EmployeesPage() {
         isOpen={isModalOpen}
         onClose={handleCancelEdit}
         title={editingEmployee ? "Editar empleado" : "Nuevo empleado"}
-        description={`Tienda: ${activeShop?.name || activeShopId}`}>
+        // description={`Tienda: ${activeShop?.name || activeShopId}`}
+        >
         <EmployeeForm
           onSubmit={handleSubmit}
           isSubmitting={createMutation.isPending || updateMutation.isPending}

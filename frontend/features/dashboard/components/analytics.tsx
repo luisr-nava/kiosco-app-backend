@@ -2,10 +2,15 @@
 
 import { useState } from "react";
 
-import { Select, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AnalyticsResponse } from "../../interfaces";
+import {
+  Select,
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SelectItem } from "@radix-ui/react-select";
+import { AnalyticsResponse } from "../types";
 
 interface AnalyticsProps {
   analytics: AnalyticsResponse;
@@ -18,18 +23,17 @@ const PERIOD_OPTIONS = [
   { value: "week", label: "Semana" },
 ];
 
-export const Analytics = ({ analytics, analyticsLoading }: AnalyticsProps) => {
+export default function Analytics() {
   const [selectedPeriod, setSelectedPeriod] = useState(PERIOD_OPTIONS[0].value);
-
-  if (analyticsLoading) return <div>Loading analytics...</div>;
-  if (!analytics) return <div>No analytics data available.</div>;
 
   return (
     <Card className="h-full">
       <CardHeader>
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
-            <CardTitle className="text-base font-semibold">Seleccionar período de análisis</CardTitle>
+            <CardTitle className="text-base font-semibold">
+              Seleccionar período de análisis
+            </CardTitle>
             <div className="flex flex-wrap gap-3 text-[11px] uppercase tracking-[0.35em] text-muted-foreground">
               <span className="font-semibold text-foreground">
                 {/* {primaryLabel}: {formatCurrency(primaryTotal ?? 0)} */}
@@ -46,8 +50,12 @@ export const Analytics = ({ analytics, analyticsLoading }: AnalyticsProps) => {
               </span>
             </div>
             <div className="w-full max-w-[200px]">
-              <p className="text-[10px] uppercase tracking-[0.5em] text-muted-foreground">Período</p>
-              <Select value={selectedPeriod} onValueChange={(value) => setSelectedPeriod(value)} >
+              <p className="text-[10px] uppercase tracking-[0.5em] text-muted-foreground">
+                Período
+              </p>
+              <Select
+                value={selectedPeriod}
+                onValueChange={(value) => setSelectedPeriod(value)}>
                 <SelectTrigger className="h-9">
                   <SelectValue placeholder="Selecciona" />
                 </SelectTrigger>
@@ -75,4 +83,5 @@ export const Analytics = ({ analytics, analyticsLoading }: AnalyticsProps) => {
       </CardContent>
     </Card>
   );
-};
+}
+

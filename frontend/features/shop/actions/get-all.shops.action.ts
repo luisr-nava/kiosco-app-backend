@@ -1,10 +1,9 @@
 import { kioscoApi } from "@/lib/kioscoApi";
-import { Shop } from "../types";
+import { Shop, ShopResponse } from "../types";
 
 export const getAllShops = async (): Promise<Shop[]> => {
-  const { data } = await kioscoApi.get<Shop[] | { data: Shop[] }>(
-    `/shop/my-shops`,
-  );
-  return Array.isArray(data) ? data : data.data;
+  const { data } = await kioscoApi.get<ShopResponse>(`/shop/my-shops`);
+
+  return data.data;
 };
 

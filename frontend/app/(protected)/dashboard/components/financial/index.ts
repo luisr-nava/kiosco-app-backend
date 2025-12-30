@@ -1,2 +1,0 @@
-export { Financial } from "./financial";
-

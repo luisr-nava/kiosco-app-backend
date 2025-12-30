@@ -7,9 +7,9 @@ import {
 import { useIncomes } from "./useIncomes";
 import { useIncomeMutations } from "./useIncomeMutations";
 import type { CreateIncomeDto, Income } from "../interfaces";
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
 import type { ShopCashRegister } from "@/lib/types/shop";
 import type { IncomeFormValues } from "../components/income-form/income-form";
+import { useShopStore } from "@/features/shop/shop.store";
 
 interface UseIncomeParams {
   isOwner: boolean;
@@ -36,7 +36,7 @@ export const useIncome = ({ isOwner, activeShopId }: UseIncomeParams) => {
   const [startDate, setStartDateState] = useState<string>(startDateParam);
   const [endDate, setEndDateState] = useState<string>(endDateParam);
   const [dateError, setDateError] = useState<string>("");
-  const { activeShop } = useShopStore();
+  
 
   const { incomes, pagination, incomesLoading, isFetching } = useIncomes(
     debouncedSearch,
@@ -50,17 +50,17 @@ export const useIncome = ({ isOwner, activeShopId }: UseIncomeParams) => {
   const { createMutation, updateMutation, deleteMutation } =
     useIncomeMutations();
 
-  const openCashRegister = useMemo<ShopCashRegister | null>(() => {
-    const list = activeShop?.openCashRegisters;
-    if (Array.isArray(list)) {
-      return (
-        list.find((item) => item.status === "OPEN" || item.isOpen === true) ??
-        list[0] ??
-        null
-      );
-    }
-    return null;
-  }, [activeShop]);
+  // const openCashRegister = useMemo<ShopCashRegister | null>(() => {
+  //   const list = activeShop?.openCashRegisters;
+  //   if (Array.isArray(list)) {
+  //     return (
+  //       list.find((item) => item.status === "OPEN" || item.isOpen === true) ??
+  //       list[0] ??
+  //       null
+  //     );
+  //   }
+  //   return null;
+  // }, [activeShop]);
 
   const openCashLoading = false;
   const openCashFetching = false;
@@ -94,10 +94,10 @@ export const useIncome = ({ isOwner, activeShopId }: UseIncomeParams) => {
       return;
     }
 
-    if (!openCashRegister?.id) {
-      toast.error("Necesitas una caja abierta para registrar ingresos.");
-      return;
-    }
+    // if (!openCashRegister?.id) {
+    //   toast.error("Necesitas una caja abierta para registrar ingresos.");
+    //   return;
+    // }
 
     const today = new Date().toISOString().split("T")[0];
     const payload: CreateIncomeDto = {
@@ -106,7 +106,7 @@ export const useIncome = ({ isOwner, activeShopId }: UseIncomeParams) => {
       date: values.date?.trim() || today,
       paymentMethodId: values.paymentMethodId.trim(),
       shopId: activeShopId,
-      cashRegisterId: openCashRegister.id,
+      // cashRegisterId: openCashRegister.id,
     };
 
     if (editingIncome) {

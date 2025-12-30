@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
 import {
   createExpenseAction,
   updateExpenseAction,
@@ -8,6 +7,7 @@ import {
 } from "../actions";
 import type { CreateExpenseDto } from "../interfaces";
 import { getErrorMessage } from "@/lib/error-handler";
+import { useShopStore } from "@/features/shop/shop.store";
 
 export const useExpenseMutations = () => {
   const queryClient = useQueryClient();

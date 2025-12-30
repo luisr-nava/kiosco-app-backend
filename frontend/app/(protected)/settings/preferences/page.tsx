@@ -14,13 +14,13 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
 import { notificationApi } from "@/lib/api/notification.api";
 import type { NotificationPreferences } from "@/lib/types/notification";
 import { getErrorMessage } from "@/lib/error-handler";
+import { useShopStore } from "@/features/shop/shop.store";
 
 export default function PreferencesPage() {
-  const { activeShopId, activeShop } = useShopStore();
+  const { activeShopId } = useShopStore();
 
   const form = useForm<NotificationPreferences>({
     defaultValues: {

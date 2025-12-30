@@ -1,7 +1,7 @@
 import { toast } from "sonner";
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
 import { useAuthStore } from "../auth.slice";
 import { useLogoutMutation } from "./useAuthMutations";
+import { useShopStore } from "@/features/shop/shop.store";
 
 export const useLogout = () => {
   const clearAuth = useAuthStore((state) => state.clearAuth);

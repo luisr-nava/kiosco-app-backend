@@ -1,6 +1,6 @@
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
 import { useQuery } from "@tanstack/react-query";
 import { getAllCustomerAction } from "../actions/get-all.customer.action";
+import { useShopStore } from "@/features/shop/shop.store";
 
 interface UseCustomerQueryParams {
   search: string;

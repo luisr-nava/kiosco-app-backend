@@ -1,26 +1,20 @@
 "use client";
 
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
-import { Loading, SelectShopCard } from "../components";
-import { Analytics, Financial, Stats } from "./components";
-import { useAnalitycs } from "./hooks/useAnalitycs";
+import { useShopStore } from "@/features/shop/shop.store";
+import { SelectShopCard } from "../components";
+import { useDashboardPage } from "@/features/dashboard/hooks/useDashboardPage";
+import { Analytics, Financial, Stats } from "@/features/dashboard/components";
 
 export default function Dashboard() {
-  const { activeShop, activeShopId, activeShopLoading } = useShopStore();
-  const { analytics, analyticsLoading, refetch } = useAnalitycs();
-
-  const isLoadingShop = Boolean(activeShopId) && activeShopLoading;
+  const { activeShopId } = useDashboardPage();
 
   if (!activeShopId) return <SelectShopCard />;
 
-  if (isLoadingShop) return <Loading />;
-
   return (
     <>
-      <Financial activeShop={activeShop!} />
-      <Stats activeShop={activeShop!} />
-      <Analytics analytics={analytics!} analyticsLoading={analyticsLoading} />
-      {/* <DashboardAnalyticsSection /> */}
+      <Financial activeShop={activeShopId!} />
+      <Stats activeShop={activeShopId!} />
+      <Analytics />
     </>
   );
 }

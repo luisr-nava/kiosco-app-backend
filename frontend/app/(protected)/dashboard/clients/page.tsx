@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
 import { usePaginationParams } from "../../hooks/useQueryParams";
 import { useCustomers } from "./hooks/useCustomers";
 import { useCustomerForm } from "./hooks/useCustomerForm";
@@ -12,9 +11,10 @@ import { Empty, Loading } from "../../components";
 import { Pagination } from "@/app/(protected)/components";
 import { Button } from "@/components/ui/button";
 import type { Customer } from "./interfaces";
+import { useShopStore } from "@/features/shop/shop.store";
 
 export default function ClientesPage() {
-  const { activeShopId, activeShopLoading } = useShopStore();
+  const { activeShopId } = useShopStore();
 
   const { search, setSearch, debouncedSearch, page, limit, setPage, setLimit } =
     usePaginationParams(300);
@@ -49,8 +49,6 @@ export default function ClientesPage() {
   }, [page, pagination, setPage]);
 
   if (!activeShopId) return <ShopEmpty />;
-
-  if (activeShopLoading) return <ShopLoading />;
 
   return (
     <div className="space-y-4">

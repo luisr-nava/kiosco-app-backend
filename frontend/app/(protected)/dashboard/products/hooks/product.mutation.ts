@@ -1,10 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
 import { CreateProductDto } from "../interfaces";
 import { createProductAction } from "../actions/create.product.action";
 import { updateProductAction } from "../actions/update.product.action";
 import { getErrorMessage } from "@/lib/error-handler";
+import { useShopStore } from "@/features/shop/shop.store";
 
 export const usePoductCreateMutation = () => {
   const queryClient = useQueryClient();

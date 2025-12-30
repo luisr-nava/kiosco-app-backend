@@ -1,9 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useMemo } from "react";
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import {
@@ -20,6 +18,7 @@ import { ShopEmpty } from "@/components/shop-emty";
 import { useSale } from "./hooks/useSale";
 import { CartContent } from "./components/cart-content";
 import { CardProduct } from "./components/card-product";
+import { useShopStore } from "@/features/shop/shop.store";
 
 export default function VentasPage() {
   const { activeShopId, activeShopLoading } = useShopStore();
@@ -40,10 +39,10 @@ export default function VentasPage() {
     notes,
     setNotes,
     productsLoading,
-    paymentMethods,
-    paymentMethodsLoading,
-    paymentMethodId,
-    handlePaymentMethodChange,
+    // paymentMethods,
+    // paymentMethodsLoading,
+    // paymentMethodId,
+    // handlePaymentMethodChange,
     resolveShopProductId,
   } = useSale();
 
@@ -118,10 +117,10 @@ export default function VentasPage() {
           listClassName="max-h-[60vh]"
           totalItems={totalItems}
           totalAmount={total}
-          paymentMethods={paymentMethods}
-          paymentMethodsLoading={paymentMethodsLoading}
-          paymentMethodId={paymentMethodId}
-          onPaymentMethodChange={handlePaymentMethodChange}
+          // paymentMethods={paymentMethods}
+          // paymentMethodsLoading={paymentMethodsLoading}
+          // paymentMethodId={paymentMethodId}
+          // onPaymentMethodChange={handlePaymentMethodChange}
         />
       </div>
 
@@ -181,10 +180,10 @@ export default function VentasPage() {
                 listClassName="max-h-[45vh]"
                 totalItems={totalItems}
                 totalAmount={total}
-                paymentMethods={paymentMethods}
-                paymentMethodsLoading={paymentMethodsLoading}
-                paymentMethodId={paymentMethodId}
-                onPaymentMethodChange={handlePaymentMethodChange}
+                // paymentMethods={paymentMethods}
+                // paymentMethodsLoading={paymentMethodsLoading}
+                // paymentMethodId={paymentMethodId}
+                // onPaymentMethodChange={handlePaymentMethodChange}
               />
             </div>
           </DrawerContent>

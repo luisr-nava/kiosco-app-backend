@@ -1,9 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { ShopDetail } from "@/lib/types/shop";
 interface FinancialProps {
-  activeShop: ShopDetail;
+  activeShop: string;
 }
-export const Financial = ({ activeShop }: FinancialProps) => {
+export default function Financial({ activeShop }: FinancialProps) {
   const financial = [
     { label: "Total ventas", value: activeShop?.totalSales ?? 0 },
     { label: "Total gastos", value: activeShop?.totalExpenses ?? 0 },
@@ -29,4 +29,5 @@ export const Financial = ({ activeShop }: FinancialProps) => {
     </div>
   );
 };
+
 

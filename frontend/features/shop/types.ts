@@ -1,14 +1,17 @@
+export interface ShopResponse {
+  data: Shop[];
+  message: string;
+  role: string;
+}
 export interface Shop {
   id: string;
   name: string;
   address?: string;
   phone?: string;
-  hasOpenCashRegister?: boolean;
+  isActive: boolean;
   countryCode: string;
   currencyCode: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  timezone: string;
 }
 
 import type { ShopAnalytics } from "@/lib/types/analytics";
@@ -55,7 +58,7 @@ export interface ShopCashRegister {
   closingNotes?: string | null;
 }
 
-export interface CreateShopDto {
+export interface ShopFormValues {
   name: string;
   address?: string;
   phone?: string;
@@ -76,13 +79,11 @@ export interface UpdateShopDto {
 export interface ShopState {
   shops: Shop[];
   activeShopId: string | null;
-  activeShop: ShopDetail | null;
-  activeShopLoading: boolean;
   shouldForceStoreSelection: boolean;
   setShops: (shops: Shop[]) => void;
   setActiveShopId: (shopId: string) => void;
-  setActiveShop: (shop: ShopDetail | null) => void;
-  setActiveShopLoading: (loading: boolean) => void;
   setShouldForceStoreSelection: (force: boolean) => void;
   clearShops: () => void;
 }
+
+

@@ -1,6 +1,5 @@
 "use client";
 
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
 import { useState } from "react";
 import {
   Card,
@@ -36,6 +35,7 @@ import type {
   MeasurementUnit,
   MeasurementUnitCategory,
 } from "../measurement-unit/interfaces";
+import { useShopStore } from "@/features/shop/shop.store";
 
 const BASE_UNIT_BY_CATEGORY: Record<
   MeasurementUnitCategory,

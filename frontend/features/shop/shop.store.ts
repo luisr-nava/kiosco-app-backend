@@ -7,34 +7,16 @@ export const useShopStore = create<ShopState>()(
     (set) => ({
       shops: [],
       activeShopId: null,
-      activeShop: null,
-      activeShopLoading: false,
       shouldForceStoreSelection: true,
+      // Actions
       setShops: (shops) => set({ shops }),
-      setActiveShopId: (shopId) =>
-        set((state) => {
-          const isNewShop = state.activeShopId !== shopId;
-          const fallbackShop =
-            state.shops.find((shop) => shop.id === shopId) || null;
-          return {
-            activeShopId: shopId,
-            activeShop: isNewShop
-              ? (fallbackShop as ShopDetail | null)
-              : state.activeShop,
-            activeShopLoading: isNewShop && Boolean(shopId) && !fallbackShop,
-          };
-        }),
-      setActiveShop: (shop) =>
-        set({ activeShop: shop, activeShopLoading: false }),
-      setActiveShopLoading: (loading) => set({ activeShopLoading: loading }),
+      setActiveShopId: (shopId) => set({ activeShopId: shopId }),
       setShouldForceStoreSelection: (force) =>
         set({ shouldForceStoreSelection: force }),
       clearShops: () =>
         set({
           shops: [],
           activeShopId: null,
-          activeShop: null,
-          activeShopLoading: false,
           shouldForceStoreSelection: true,
         }),
     }),
@@ -44,7 +26,6 @@ export const useShopStore = create<ShopState>()(
       partialize: (state) => ({
         shops: state.shops,
         activeShopId: state.activeShopId,
-        activeShop: state.activeShop,
       }),
     },
   ),

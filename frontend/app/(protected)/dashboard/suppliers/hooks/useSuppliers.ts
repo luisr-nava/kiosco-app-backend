@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
 import { getSuppliersAction } from "../actions/get-all.supplier.action";
 import type { Supplier } from "@/lib/types/supplier";
+import { useShopStore } from "@/features/shop/shop.store";
 
 export const useSuppliers = () => {
   const { activeShopId } = useShopStore();

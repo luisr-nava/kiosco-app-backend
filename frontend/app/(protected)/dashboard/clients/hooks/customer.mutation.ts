@@ -1,9 +1,9 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { CreateCustomerDto } from "../interfaces";
 import { createCustomerAction } from "../actions/create.customer.action";
 import { updateCustomerAction } from "../actions/update.customer.action";
 import { deleteCustomerAction } from "../actions";
+import { useShopStore } from "@/features/shop/shop.store";
 
 export const useCustomerCreateMutation = () => {
   const queryClient = useQueryClient();

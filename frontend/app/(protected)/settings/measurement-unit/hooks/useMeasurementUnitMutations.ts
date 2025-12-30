@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
 import {
   createMeasurementUnitAction,
   deleteMeasurementUnitAction,
@@ -11,6 +10,7 @@ import type {
   UpdateMeasurementUnitDto,
 } from "../interfaces";
 import { getErrorMessage } from "@/lib/error-handler";
+import { useShopStore } from "@/features/shop/shop.store";
 
 export const useMeasurementUnitMutations = () => {
   const queryClient = useQueryClient();

@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
 import { useShallow } from "zustand/react/shallow";
 import {
   usePoductCreateMutation,
@@ -8,6 +7,7 @@ import {
 import { CreateProductDto, Product } from "../interfaces";
 import { useForm } from "react-hook-form";
 import { useModal } from "@/app/(protected)/hooks/useModal";
+import { useShopStore } from "@/features/shop/shop.store";
 const initialForm: CreateProductDto = {
   name: "",
   description: "",
@@ -22,10 +22,9 @@ const initialForm: CreateProductDto = {
 };
 
 export const useProductForm = () => {
-  const { activeShopId, activeShopLoading } = useShopStore(
+  const { activeShopId } = useShopStore(
     useShallow((state) => ({
       activeShopId: state.activeShopId,
-      activeShopLoading: state.activeShopLoading,
     })),
   );
   const createMutation = usePoductCreateMutation();
@@ -67,10 +66,10 @@ export const useProductForm = () => {
     };
 
     if (editProductModal.isOpen && editProductModal.data) {
-      updateMutation.mutate({
-        id: editProductModal.data,
-        payload: { ...basePayload, isActive },
-      });
+      // updateMutation.mutate({
+      //   id: editProductModal.data,
+      //   payload: { ...basePayload, isActive },
+      // });
     } else {
       // En creación no enviamos isActive
       createMutation.mutate(basePayload);
@@ -139,7 +138,7 @@ export const useProductForm = () => {
 
   return {
     activeShopId,
-    activeShopLoading,
+    // activeShopLoading,
     createMutation,
     updateMutation,
     register,

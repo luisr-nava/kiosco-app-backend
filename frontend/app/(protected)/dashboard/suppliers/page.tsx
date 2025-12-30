@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { useAuth } from "@/features/auth/hooks";
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
 import {
   Card,
   CardContent,
@@ -23,11 +22,12 @@ import { toast } from "sonner";
 import { Modal } from "@/components/ui/modal";
 import { ShopLoading } from "@/components/shop-loading";
 import { useCategorySuppliersQuery } from "@/app/(protected)/settings/category/hooks";
+import { useShopStore } from "@/features/shop/shop.store";
 
 export default function ProveedoresPage() {
   const { user } = useAuth();
   const isOwner = user?.role === "OWNER";
-  const { activeShopId, activeShop, activeShopLoading, shops } = useShopStore();
+  const { activeShopId, shops } = useShopStore();
 
   const { suppliers, isLoading, isFetching } = useSuppliers();
   const { createMutation, updateMutation, deleteMutation } =
@@ -144,10 +144,6 @@ export default function ProveedoresPage() {
     );
   }
 
-  if (activeShopLoading) {
-    return <ShopLoading />;
-  }
-
   if (!activeShopId) {
     return (
       <Card>
@@ -193,7 +189,7 @@ export default function ProveedoresPage() {
         <div className="rounded-lg border bg-muted/50 px-3 py-2 text-sm text-muted-foreground flex items-center gap-2">
           <Truck className="h-4 w-4" />
           <div className="text-right leading-tight">
-            <p className="font-medium">{activeShop?.name || "Tienda activa"}</p>
+            <p className="font-medium">{"Tienda activa"}</p>
             <p>Proveedores: {suppliers.length}</p>
           </div>
         </div>
@@ -236,7 +232,7 @@ export default function ProveedoresPage() {
         isOpen={isModalOpen}
         onClose={handleCancelEdit}
         title={editingSupplier ? "Editar proveedor" : "Nuevo proveedor"}
-        description={`Tienda: ${activeShop?.name || activeShopId}`}>
+        description={`Tienda: `}>
         <SupplierForm
           onSubmit={handleSubmit}
           isSubmitting={createMutation.isPending || updateMutation.isPending}

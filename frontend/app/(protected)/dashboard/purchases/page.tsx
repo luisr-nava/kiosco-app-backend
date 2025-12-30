@@ -5,7 +5,6 @@ import { createPortal } from "react-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
 import { purchaseApi } from "@/lib/api/purchase.api";
 import { productApi } from "@/lib/api/product.api";
 import { supplierApi } from "@/lib/api/supplier.api";
@@ -31,6 +30,7 @@ import { ChevronDown } from "lucide-react";
 import { expandableRowVariants } from "@/lib/animations";
 import { getErrorMessage } from "@/lib/error-handler";
 import { Modal } from "@/components/ui/modal";
+import { useShopStore } from "@/features/shop/shop.store";
 
 const normalize = <T,>(value: T[] | { data: T[] } | undefined): T[] => {
   if (!value) return [];
@@ -47,7 +47,7 @@ const buildItem = (): PurchaseItem => ({
 });
 
 export default function ComprasPage() {
-  const { activeShopId, activeShopLoading, activeShop } = useShopStore();
+  const { activeShopId } = useShopStore();
   const queryClient = useQueryClient();
 
   const [notes, setNotes] = useState("");
@@ -226,7 +226,7 @@ export default function ComprasPage() {
           onClick={() => {
             setCreateOpen(true);
           }}
-          disabled={!activeShopId || activeShopLoading}>
+          disabled={!activeShopId}>
           Registrar compra
         </Button>
       </div>

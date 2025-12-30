@@ -2,7 +2,6 @@ import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useShallow } from "zustand/react/shallow";
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
 import type { CategoryProduct, CategorySupplier } from "../interfaces";
 import {
   useCategoryProductCreateMutation,
@@ -13,6 +12,7 @@ import {
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/error-handler";
 import { AxiosError } from "axios";
+import { useShopStore } from "@/features/shop/shop.store";
 
 type CategoryFormValues = {
   name: string;

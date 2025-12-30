@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
 import { getExpensesAction } from "../actions";
+import { useShopStore } from "@/features/shop/shop.store";
 
 interface UseExpenseQueryParams {
   search: string;

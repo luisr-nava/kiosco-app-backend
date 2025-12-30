@@ -12,10 +12,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LogOut, User, Settings, Store, Check, PlusCircle } from "lucide-react";
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
 import { SubscriptionPlanType } from "@/lib/types/subscription";
 import { useTheme } from "next-themes";
 import { redirect } from "next/navigation";
+import { useShopStore } from "@/features/shop/shop.store";
 
 export default function UserMenu() {
   const { user, plan } = useAuth();

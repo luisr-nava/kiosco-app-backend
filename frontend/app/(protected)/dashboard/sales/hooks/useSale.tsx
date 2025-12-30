@@ -1,13 +1,13 @@
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useProductQuery } from "../../products/hooks/product.query";
 import { Product } from "../../products/interfaces";
 import { CreateSaleDto, SaleItem } from "../interfaces";
+import { useShopStore } from "@/features/shop/shop.store";
 
 export const useSale = () => {
-  const { activeShopId, activeShop } = useShopStore();
+  const { activeShopId } = useShopStore();
   const queryClient = useQueryClient();
 
   const [notes, setNotes] = useState("");
@@ -122,10 +122,10 @@ export const useSale = () => {
 
   const handleSubmit = () => {
     if (!activeShopId) return;
-    if (!activeShop?.hasOpenCashRegister) {
-      requestOpenCashRegisterModal();
-      return;
-    }
+    // if (!activeShop?.hasOpenCashRegister) {
+    //   requestOpenCashRegisterModal();
+    //   return;
+    // }
     if (items.length === 0) {
       toast.error("Agrega al menos un producto al carrito");
       return;

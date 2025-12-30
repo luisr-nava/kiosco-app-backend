@@ -2,8 +2,6 @@
 
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
-import type { Supplier } from "@/lib/types/supplier";
 import { Modal } from "@/components/ui/modal";
 import { useProducts } from "./hooks/useProducts";
 import { Loading } from "../../components/loading";
@@ -18,9 +16,10 @@ import { ShopEmpty } from "@/components/shop-emty";
 import { supplierApi } from "@/lib/api/supplier.api";
 import { Pagination } from "../../components";
 import { useMeasurementUnits } from "@/app/(protected)/settings/measurement-unit/hooks";
+import { useShopStore } from "@/features/shop/shop.store";
 
 export default function ProductosPage() {
-  const { activeShopId, activeShopLoading } = useShopStore();
+  const { activeShopId } = useShopStore();
 
   const { search, setSearch, debouncedSearch, page, limit, setPage, setLimit } =
     usePaginationParams(300);
@@ -72,8 +71,6 @@ export default function ProductosPage() {
   ]);
 
   if (!activeShopId) return <ShopEmpty />;
-
-  if (activeShopLoading) return <ShopLoading />;
 
   return (
     <div className="space-y-4">

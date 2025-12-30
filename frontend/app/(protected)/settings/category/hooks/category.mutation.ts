@@ -1,5 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useShopStore } from "@/app/(protected)/store/shops.slice";
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 import {
   CreateCategoryProductDto,
@@ -11,6 +10,7 @@ import {
   createCategoryProductAction,
   createCategorySuppliertAction,
 } from "../actions";
+import { useShopStore } from "@/features/shop/shop.store";
 
 export const useCategoryProductCreateMutation = () => {
   const queryClient = useQueryClient();
