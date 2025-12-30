@@ -35,6 +35,12 @@ export class ShopController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get(':id/summary')
+  getShopSummary(@Param('id') id: string, @GetUser() user: JwtPayload) {
+    return this.shopsService.getShopSummary(id, user);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   getShopById(@Param('id') id: string, @GetUser() user: JwtPayload) {
     return this.shopsService.getShopById(id, user);

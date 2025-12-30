@@ -26,6 +26,22 @@ export class CashRegisterController {
     return this.cashRegisterService.open(dto, user);
   }
 
+  @Get('state')
+  getUserOpenCashRegisterState(
+    @Query('shopId') shopId: string,
+    @GetUser() user: JwtPayload,
+  ) {
+    return this.cashRegisterService.getUserOpenCashRegisterState(shopId, user);
+  }
+
+  @Get('open')
+  getOpenCashRegistersForShop(
+    @Query('shopId') shopId: string,
+    @GetUser() user: JwtPayload,
+  ) {
+    return this.cashRegisterService.getOpenCashRegistersForShop(shopId, user);
+  }
+
   @Patch(':cashRegisterId/close')
   close(
     @Param('cashRegisterId') cashRegisterId: string,

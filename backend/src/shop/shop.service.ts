@@ -7,20 +7,35 @@ import {
 import { CreateShopDto } from './dto/create-shop.dto';
 import { UpdateShopDto } from './dto/update-shop.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { CashRegisterService } from '../cash-register/cash-register.service';
-import { Shop } from './entities/shop.entity';
 import { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface';
 import { DEFAULT_CURRENCY_CODE } from '../common/constants/currencies';
 import { getTimezoneForCountry } from '../common/utils/timezone.util';
 import { NotificationService } from '../notification/notification.service';
-import { AnalyticsService } from '../analytics/analytics.service';
+import {
+  GetShopByIdResponseDto,
+  GetShopsResponseDto,
+  ShopMinimalDto,
+} from './dto/get-shop-by-id.dto';
+import {
+  GetShopSummaryResponseDto,
+  ShopSummaryDto,
+} from './dto/shop-summary.dto';
+
+const SHOP_MINIMAL_SELECT: Record<keyof ShopMinimalDto, true> = {
+  id: true,
+  name: true,
+  address: true,
+  phone: true,
+  isActive: true,
+  countryCode: true,
+  currencyCode: true,
+  timezone: true,
+};
 
 @Injectable()
 export class ShopService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly cashRegisterService: CashRegisterService,
-    private readonly analyticsService: AnalyticsService,
     private readonly notificationService: NotificationService,
   ) {}
 
@@ -81,138 +96,44 @@ export class ShopService {
     };
   }
 
-  async getMyShops(user: JwtPayload) {
+  async getMyShops(user: JwtPayload): Promise<GetShopsResponseDto> {
     if (user.role === 'OWNER') {
       const shops = await this.prisma.shop.findMany({
         where: {
           ownerId: user.id,
           projectId: user.projectId,
         },
-        include: {
-          _count: {
-            select: {
-              employeeShops: true,
-              shopProducts: true,
-              purchases: true,
-              sales: true,
-              categories: true,
-            },
-          },
-        },
+        select: SHOP_MINIMAL_SELECT,
         orderBy: { createdAt: 'desc' },
       });
-
-      // Calcular estadísticas para cada tienda
-      const shopsWithStats = await Promise.all(
-        shops.map(async (shop) => {
-          const [totalSales, totalExpenses, totalIncomes, recentPurchases] =
-            await Promise.all([
-              this.prisma.sale.aggregate({
-                where: { shopId: shop.id },
-                _sum: { totalAmount: true },
-              }),
-              this.prisma.expense.aggregate({
-                where: { shopId: shop.id },
-                _sum: { amount: true },
-              }),
-              this.prisma.income.aggregate({
-                where: { shopId: shop.id },
-                _sum: { amount: true },
-              }),
-              this.prisma.purchase.count({
-                where: {
-                  shopId: shop.id,
-                  purchaseDate: {
-                    gte: new Date(
-                      new Date().setDate(new Date().getDate() - 30),
-                    ),
-                  },
-                },
-              }),
-            ]);
-
-          return {
-            id: shop.id,
-            name: shop.name,
-            address: shop.address,
-            phone: shop.phone,
-            isActive: shop.isActive,
-            countryCode: shop.countryCode,
-            currencyCode: shop.currencyCode,
-            timezone: shop.timezone,
-            createdAt: shop.createdAt,
-            // Estadísticas
-            employeesCount: shop._count.employeeShops,
-            productsCount: shop._count.shopProducts,
-            categoriesCount: shop._count.categories,
-            purchasesCount: shop._count.purchases,
-            salesCount: shop._count.sales,
-            recentPurchasesLast30Days: recentPurchases,
-            // Totales financieros
-            totalSales: totalSales._sum?.totalAmount || 0,
-            totalExpenses: totalExpenses._sum?.amount || 0,
-            totalIncomes: totalIncomes._sum?.amount || 0,
-            balance:
-              (totalIncomes._sum?.amount || 0) -
-              (totalExpenses._sum?.amount || 0),
-          };
-        }),
-      );
 
       return {
         message: 'Tiendas del propietario',
         role: 'OWNER',
-        data: shopsWithStats,
+        data: shops,
       };
     }
 
     if (user.role === 'EMPLOYEE') {
-      const employee = await this.prisma.employee.findUnique({
-        where: { id: user.id },
-        include: {
+      const shops = await this.prisma.shop.findMany({
+        where: {
           employeeShops: {
-            include: {
-              shop: {
-                include: {
-                  _count: {
-                    select: {
-                      shopProducts: true,
-                      categories: true,
-                    },
-                  },
-                },
-              },
+            some: {
+              employeeId: user.id,
             },
           },
         },
+        select: SHOP_MINIMAL_SELECT,
       });
 
-      const assignedShops =
-        employee?.employeeShops.map((relation) => relation.shop) ?? [];
-
-      if (!employee || assignedShops.length === 0) {
+      if (!shops.length) {
         throw new ForbiddenException('No estás asignado a ninguna tienda');
       }
-
-      const data = assignedShops.map((shop) => ({
-        id: shop.id,
-        name: shop.name,
-        address: shop.address,
-        phone: shop.phone,
-        isActive: shop.isActive,
-        countryCode: shop.countryCode,
-        currencyCode: shop.currencyCode,
-        timezone: shop.timezone,
-        myRole: employee.role,
-        myHireDate: employee.hireDate,
-        productsCount: shop._count.shopProducts,
-        categoriesCount: shop._count.categories,
-      }));
 
       return {
         message: 'Tiendas asignadas',
         role: 'EMPLOYEE',
-        data,
+        data: shops,
       };
     }
 
@@ -221,7 +142,10 @@ export class ShopService {
     );
   }
 
-  async getShopById(id: string, user: JwtPayload) {
+  async getShopById(
+    id: string,
+    user: JwtPayload,
+  ): Promise<GetShopByIdResponseDto> {
     if (user.role === 'OWNER') {
       const shop = await this.prisma.shop.findFirst({
         where: {
@@ -229,183 +153,26 @@ export class ShopService {
           ownerId: user.id,
           projectId: user.projectId,
         },
-        include: {
-          employeeShops: {
-            include: {
-              employee: {
-                select: {
-                  id: true,
-                  fullName: true,
-                  email: true,
-                  role: true,
-                  phone: true,
-                  hireDate: true,
-                  salary: true,
-                  isActive: true,
-                },
-              },
-            },
-          },
-          _count: {
-            select: {
-              employeeShops: true,
-              shopProducts: true,
-              purchases: true,
-              sales: true,
-              categories: true,
-              supplierShop: true,
-            },
-          },
-        },
+        select: SHOP_MINIMAL_SELECT,
       });
 
       if (!shop) {
         throw new ForbiddenException('No tenés permiso para ver esta tienda');
       }
 
-      // Obtener estadísticas financieras detalladas
-      const [
-        totalSales,
-        totalExpenses,
-        totalIncomes,
-        recentPurchases,
-        lowStockProducts,
-        topProducts,
-        openCashRegisters,
-        analytics,
-      ] = await Promise.all([
-        this.prisma.sale.aggregate({
-          where: { shopId: id },
-          _sum: { totalAmount: true },
-          _count: true,
-        }),
-        this.prisma.expense.aggregate({
-          where: { shopId: id },
-          _sum: { amount: true },
-          _count: true,
-        }),
-        this.prisma.income.aggregate({
-          where: { shopId: id },
-          _sum: { amount: true },
-          _count: true,
-        }),
-        this.prisma.purchase.findMany({
-          where: {
-            shopId: id,
-            purchaseDate: {
-              gte: new Date(new Date().setDate(new Date().getDate() - 30)),
-            },
-          },
-          include: {
-            supplier: { select: { name: true } },
-          },
-          orderBy: { purchaseDate: 'desc' },
-          take: 5,
-        }),
-        this.prisma.shopProduct.findMany({
-          where: {
-            shopId: id,
-            stock: { lte: 10 },
-            isActive: true,
-          },
-          include: {
-            product: { select: { name: true, barcode: true } },
-          },
-          take: 10,
-        }),
-        this.prisma.shopProduct.findMany({
-          where: { shopId: id, isActive: true },
-          include: {
-            product: { select: { name: true } },
-          },
-          orderBy: { stock: 'desc' },
-          take: 5,
-        }),
-        this.cashRegisterService.findOpenCashRegistersForShops([id], user),
-        this.analyticsService.getShopDashboardAnalytics(
-          id,
-          shop.timezone,
-          shop.ownerId,
-          user.fullName ?? null,
-        ),
-      ]);
-      const shopOpenCashRegisters = openCashRegisters[0]?.cashRegisters ?? [];
-
       return {
-        message: 'Detalle completo de la tienda',
+        message: 'Detalle de la tienda',
         role: 'OWNER',
-        data: {
-          // Información básica
-          id: shop.id,
-          name: shop.name,
-          address: shop.address,
-          phone: shop.phone,
-          isActive: shop.isActive,
-          countryCode: shop.countryCode,
-          currencyCode: shop.currencyCode,
-          timezone: shop.timezone,
-          createdAt: shop.createdAt,
-          // Empleados completos con salarios
-          employees: shop.employeeShops.map((relation) => relation.employee),
-          employeesCount: shop._count.employeeShops,
-          // Contadores
-          productsCount: shop._count.shopProducts,
-          categoriesCount: shop._count.categories,
-          purchasesCount: shop._count.purchases,
-          salesCount: shop._count.sales,
-          suppliersCount: shop._count.supplierShop,
-          // Estadísticas financieras
-          totalSales: totalSales._sum?.totalAmount || 0,
-          totalExpenses: totalExpenses._sum?.amount || 0,
-          totalIncomes: totalIncomes._sum?.amount || 0,
-          salesTransactions: totalSales._count,
-          expensesTransactions: totalExpenses._count,
-          incomesTransactions: totalIncomes._count,
-          balance:
-            (totalIncomes._sum?.amount || 0) -
-            (totalExpenses._sum?.amount || 0),
-          // Compras recientes
-          recentPurchases: recentPurchases.map((p) => ({
-            id: p.id,
-            supplierName: p.supplier?.name,
-            totalAmount: p.totalAmount,
-            purchaseDate: p.purchaseDate,
-            notes: p.notes,
-          })),
-          // Productos con bajo stock
-          lowStockProducts: lowStockProducts.map((sp) => ({
-            id: sp.id,
-            productName: sp.product.name,
-            barcode: sp.product.barcode,
-            stock: sp.stock,
-            costPrice: sp.costPrice,
-            salePrice: sp.salePrice,
-          })),
-          // Top productos por stock
-          topProductsByStock: topProducts.map((sp) => ({
-            productName: sp.product.name,
-            stock: sp.stock,
-          })),
-          analytics,
-          openCashRegisters: shopOpenCashRegisters,
-          hasOpenCashRegister: shopOpenCashRegisters.length > 0,
-        },
+        data: shop,
       };
     }
 
     if (user.role === 'EMPLOYEE') {
       const employeeShop = await this.prisma.employeeShop.findFirst({
         where: { employeeId: user.id, shopId: id },
-        include: {
+        select: {
           shop: {
-            include: {
-              _count: {
-                select: {
-                  shopProducts: true,
-                  categories: true,
-                },
-              },
-            },
+            select: SHOP_MINIMAL_SELECT,
           },
         },
       });
@@ -414,106 +181,119 @@ export class ShopService {
         throw new ForbiddenException('No podés acceder a esta tienda');
       }
 
-      const shop = employeeShop.shop;
-      const employee = await this.prisma.employee.findUnique({
-        where: { id: user.id },
-        select: {
-          id: true,
-          fullName: true,
-          role: true,
-          hireDate: true,
-          phone: true,
-        },
-      });
-
-      if (!employee) {
-        throw new ForbiddenException('Empleado no encontrado');
-      }
-
-      if (!shop) {
-        throw new NotFoundException('Tienda no encontrada');
-      }
-
-      // Información limitada para empleados
-      const [lowStockProducts, recentSalesCount] = await Promise.all([
-        this.prisma.shopProduct.findMany({
-          where: {
-            shopId: id,
-            stock: { lte: 10 },
-            isActive: true,
-          },
-          include: {
-            product: { select: { name: true, barcode: true } },
-          },
-          take: 10,
-        }),
-        this.prisma.sale.count({
-          where: {
-            shopId: id,
-            saleDate: {
-              gte: new Date(new Date().setHours(0, 0, 0, 0)),
-            },
-          },
-        }),
-      ]);
-      const [openCashRegisters] =
-        await this.cashRegisterService.findOpenCashRegistersForShops(
-          [id],
-          user,
-        );
-      const myOpenCashRegister =
-        openCashRegisters?.cashRegisters?.find(
-          (cashRegister) => cashRegister.employeeId === user.id,
-        ) ?? null;
-
       return {
         message: 'Información de tu tienda',
         role: 'EMPLOYEE',
-        data: {
-          // Información básica
-          id: shop.id,
-          name: shop.name,
-          address: shop.address,
-          phone: shop.phone,
-          isActive: shop.isActive,
-          countryCode: shop.countryCode,
-          currencyCode: shop.currencyCode,
-          timezone: shop.timezone,
-          // Mi información como empleado
-          myInfo: {
-            id: employee.id,
-            fullName: employee.fullName,
-            role: employee.role,
-            hireDate: employee.hireDate,
-            phone: employee.phone,
-          },
-          // Información operativa limitada
-          productsCount: shop._count.shopProducts,
-          categoriesCount: shop._count.categories,
-          salesToday: recentSalesCount,
-          // Productos con bajo stock (operativo)
-          lowStockProducts: lowStockProducts.map((sp) => ({
-            id: sp.id,
-            productName: sp.product.name,
-            barcode: sp.product.barcode,
-            stock: sp.stock,
-            // Sin precios de costo
-          })),
-          myOpenCashRegister,
-          hasOpenCashRegister: Boolean(myOpenCashRegister),
-          // Sin acceso a:
-          // - Datos fiscales
-          // - Información de otros empleados
-          // - Salarios
-          // - Estadísticas financieras
-          // - Balance
-        },
+        data: employeeShop.shop,
       };
     }
 
     throw new ForbiddenException(
       'No tenés permisos para acceder a esta información',
     );
+  }
+
+  async getShopSummary(
+    id: string,
+    user: JwtPayload,
+  ): Promise<GetShopSummaryResponseDto> {
+    if (user.role === 'OWNER') {
+      const shop = await this.prisma.shop.findFirst({
+        where: {
+          id,
+          ownerId: user.id,
+          projectId: user.projectId,
+        },
+        select: { id: true },
+      });
+
+      if (!shop) {
+        throw new ForbiddenException('No tenés permiso para ver esta tienda');
+      }
+
+      return {
+        message: 'Resumen de tienda',
+        data: await this.calculateShopSummary(id),
+      };
+    }
+
+    if (user.role === 'EMPLOYEE') {
+      const relation = await this.prisma.employeeShop.findFirst({
+        where: { employeeId: user.id, shopId: id },
+        select: { id: true },
+      });
+
+      if (!relation) {
+        throw new ForbiddenException('No podés acceder a esta tienda');
+      }
+
+      return {
+        message: 'Resumen de tienda',
+        data: await this.calculateShopSummary(id),
+      };
+    }
+
+    throw new ForbiddenException(
+      'No tenés permisos para acceder a esta información',
+    );
+  }
+
+  private async calculateShopSummary(shopId: string): Promise<ShopSummaryDto> {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const [
+      employeesCount,
+      productsCount,
+      categoriesCount,
+      purchasesCount,
+      salesCount,
+      recentPurchasesLast30Days,
+      totalSales,
+      totalExpenses,
+      totalIncomes,
+    ] = await Promise.all([
+      this.prisma.employeeShop.count({ where: { shopId } }),
+      this.prisma.shopProduct.count({ where: { shopId } }),
+      this.prisma.category.count({ where: { shopId } }),
+      this.prisma.purchase.count({ where: { shopId } }),
+      this.prisma.sale.count({ where: { shopId } }),
+      this.prisma.purchase.count({
+        where: {
+          shopId,
+          purchaseDate: { gte: thirtyDaysAgo },
+        },
+      }),
+      this.prisma.sale.aggregate({
+        where: { shopId },
+        _sum: { totalAmount: true },
+      }),
+      this.prisma.expense.aggregate({
+        where: { shopId },
+        _sum: { amount: true },
+      }),
+      this.prisma.income.aggregate({
+        where: { shopId },
+        _sum: { amount: true },
+      }),
+    ]);
+
+    const totalSalesAmount = totalSales._sum?.totalAmount ?? 0;
+    const totalExpensesAmount = totalExpenses._sum?.amount ?? 0;
+    const totalIncomesAmount = totalIncomes._sum?.amount ?? 0;
+
+    return {
+      employeesCount,
+      productsCount,
+      categoriesCount,
+      purchasesCount,
+      salesCount,
+      recentPurchasesLast30Days,
+      totalSales: totalSalesAmount,
+      totalExpenses: totalExpensesAmount,
+      totalIncomes: totalIncomesAmount,
+      balance: totalIncomesAmount - totalExpensesAmount,
+    };
   }
 
   async updateShop(id: string, updateShopDto: UpdateShopDto, user: JwtPayload) {

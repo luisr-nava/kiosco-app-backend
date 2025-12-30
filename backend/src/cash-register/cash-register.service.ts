@@ -19,6 +19,10 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 import type { CashMovement } from '@prisma/client';
 import { ReportDistributionService } from './report-distribution.service';
+import {
+  GetCashRegisterStateResponseDto,
+  GetOpenCashRegistersResponseDto,
+} from './dto/cash-register-state.dto';
 
 @Injectable()
 export class CashRegisterService {
@@ -140,6 +144,153 @@ export class CashRegisterService {
         cashRegisters: registers,
       };
     });
+  }
+
+  async getUserOpenCashRegisterState(
+    shopId: string,
+    user: JwtPayload,
+  ): Promise<GetCashRegisterStateResponseDto> {
+    await this.validateShopAccess(shopId, user);
+
+    const openRegister = await this.prisma.cashRegister.findFirst({
+      where: {
+        shopId,
+        openedByUserId: user.id,
+        status: 'OPEN',
+      },
+      select: { id: true },
+      orderBy: { openedAt: 'desc' },
+    });
+
+    return {
+      message: 'Estado actual de la caja',
+      data: {
+        hasOpenCashRegister: Boolean(openRegister),
+        cashRegisterId: openRegister?.id,
+      },
+    };
+  }
+
+  async getOpenCashRegistersForShop(
+    shopId: string,
+    user: JwtPayload,
+  ): Promise<GetOpenCashRegistersResponseDto> {
+    if (user.role !== 'OWNER' && user.role !== 'MANAGER') {
+      throw new ForbiddenException(
+        'Solo un OWNER o MANAGER puede ver las cajas abiertas',
+      );
+    }
+
+    const shop = await this.prisma.shop.findUnique({
+      where: { id: shopId },
+      select: { ownerId: true, projectId: true },
+    });
+
+    if (!shop) {
+      throw new NotFoundException('Tienda no encontrada');
+    }
+
+    if (shop.projectId !== user.projectId) {
+      throw new ForbiddenException('No tenés acceso a esta tienda');
+    }
+
+    if (user.role === 'OWNER' && shop.ownerId !== user.id) {
+      throw new ForbiddenException('No tenés permiso para acceder a esta tienda');
+    }
+
+    if (user.role === 'MANAGER') {
+      const managerAssignment = await this.prisma.employeeShop.findFirst({
+        where: { employeeId: user.id, shopId },
+      });
+
+      if (!managerAssignment) {
+        throw new ForbiddenException('No tenés permiso para acceder a esta tienda');
+      }
+    }
+
+    const openRegisters = await this.prisma.cashRegister.findMany({
+      where: {
+        shopId,
+        status: 'OPEN',
+      },
+      select: {
+        id: true,
+        openedAt: true,
+        openingAmount: true,
+        openedByUserId: true,
+        openedByName: true,
+        employeeId: true,
+      },
+      orderBy: { openedAt: 'desc' },
+    });
+
+    const registerIds = openRegisters.map((register) => register.id);
+    const movements =
+      registerIds.length === 0
+        ? []
+        : await this.prisma.cashMovement.findMany({
+            where: { cashRegisterId: { in: registerIds } },
+            select: { cashRegisterId: true, type: true, amount: true },
+          });
+
+    const movementsByRegister = new Map<string, Pick<CashMovement, 'type' | 'amount'>[]>();
+    movements.forEach((movement) => {
+      const list = movementsByRegister.get(movement.cashRegisterId) ?? [];
+      list.push({ type: movement.type, amount: movement.amount });
+      movementsByRegister.set(movement.cashRegisterId, list);
+    });
+
+    const actorIds = Array.from(
+      new Set(
+        openRegisters
+          .map((register) => register.openedByUserId)
+          .filter((id): id is string => Boolean(id)),
+      ),
+    );
+
+    const actors =
+      actorIds.length === 0
+        ? []
+        : await this.prisma.employee.findMany({
+            where: { id: { in: actorIds } },
+            select: { id: true, fullName: true, role: true },
+          });
+
+    const actorById = new Map(actors.map((actor) => [actor.id, actor]));
+
+    const cashRegisters = openRegisters.map((register) => {
+      const { expectedAmount } = this.calculateExpectedFromMovements(
+        register.openingAmount,
+        movementsByRegister.get(register.id) ?? [],
+      );
+
+      const actorId = register.openedByUserId ?? register.employeeId ?? 'unknown';
+      const actorRecord = actorById.get(actorId);
+      const fullName =
+        actorRecord?.fullName ?? register.openedByName ?? 'Usuario desconocido';
+      const role =
+        actorRecord?.role ??
+        (actorId === shop.ownerId ? 'OWNER' : 'EMPLOYEE');
+
+      return {
+        id: register.id,
+        openedByUser: {
+          id: actorId,
+          fullName,
+          role,
+        },
+        openedAt: register.openedAt.toISOString(),
+        expectedAmount,
+        status: 'OPEN' as const,
+      };
+    });
+
+    return {
+      message: 'Cajas abiertas de la tienda',
+      data: {
+        cashRegisters,
+      },
+    };
   }
 
   async close(
