@@ -1,32 +1,12 @@
 "use client";
-
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-
 import { cashRegisterApi } from "@/lib/api/cash-register.api";
-import type {
-  CashRegisterReport,
-  PeriodFilter,
-} from "@/lib/types/cash-register-report";
-
-export interface CashRegisterReportsQueryParams {
-  period: PeriodFilter;
-  date?: string;
-  dateFrom?: string;
-  dateTo?: string;
-  month?: string;
-  year?: string;
-  enabled?: boolean;
-}
-
-interface UseCashRegisterReportsResult {
-  reports: CashRegisterReport[];
-  message?: string;
-  isFetching: boolean;
-  isLoading: boolean;
-  isError: boolean;
-  error: unknown;
-}
+import {
+  CashRegisterReportsQueryParams,
+  UseCashRegisterReportsResult,
+} from "../type";
+import { getReportsAction } from "../actions/get-reports";
 
 export function useCashRegisterReports({
   period,
@@ -39,7 +19,7 @@ export function useCashRegisterReports({
 }: CashRegisterReportsQueryParams): UseCashRegisterReportsResult {
   const queryKey = useMemo(
     () => [
-      "cash-register-reports",
+      "reports",
       period,
       date ?? null,
       dateFrom ?? null,
@@ -56,7 +36,7 @@ export function useCashRegisterReports({
   const query = useQuery({
     queryKey,
     queryFn: () =>
-      cashRegisterApi.getReports({
+      getReportsAction({
         period,
         date,
         dateFrom,

@@ -57,10 +57,12 @@ const buildFileName = ({
     .replace(/^-+|-+$/g, "")
     .toLowerCase();
 
-  return `arqueo-${slugifiedShop || "tienda"}-${datePart}.${extensionMap[type]}`;
+  return `arqueo-${slugifiedShop || "tienda"}-${datePart}.${
+    extensionMap[type]
+  }`;
 };
 
-export function DownloadReportButton({
+export default function DownloadReportButton({
   cashRegisterId,
   shopName,
   closedAt,
@@ -74,9 +76,6 @@ export function DownloadReportButton({
     id: string,
   ): Promise<void> => {
     if (!id) {
-      console.error(
-        "No hay cashRegisterId disponible para descargar el reporte.",
-      );
       return;
     }
 
@@ -112,8 +111,7 @@ export function DownloadReportButton({
     }
     setIsDownloading(true);
     try {
-      const startDownload =
-        type === "pdf" ? downloadPdf : downloadExcel;
+      const startDownload = type === "pdf" ? downloadPdf : downloadExcel;
       await startDownload(cashRegisterId);
     } catch (error) {
       const message =
@@ -130,11 +128,12 @@ export function DownloadReportButton({
     <Button
       variant="outline"
       size="sm"
+      className="text-primary border-primary"
       onClick={handleDownload}
       disabled={isDownloading}>
       <Download className="mr-2 h-4 w-4" />
-      <Icon className="mr-1 h-4 w-4" />
       {labelMap[type]}
     </Button>
   );
 }
+

@@ -54,7 +54,7 @@ export const menuItems = [
   },
   {
     label: "Reportes de caja",
-    href: "/dashboard/cash-register/reports",
+    href: "/dashboard/reports",
     icon: FilePieChart,
     description: "Consulta arqueos cerrados y descarga los archivos oficiales.",
   },
@@ -130,7 +130,8 @@ export function Sidebar() {
   const isInSettingsGroup = settingsItems.some((item) =>
     pathname.startsWith(item.href),
   );
-  const showSettingsExpanded = settingsOpen || (!collapsed && isInSettingsGroup);
+  const showSettingsExpanded =
+    settingsOpen || (!collapsed && isInSettingsGroup);
   const baseNavClasses =
     "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-1";
   const collapsedJustify = collapsed
@@ -186,7 +187,10 @@ export function Sidebar() {
             const isActive = pathname === item.href;
 
             return (
-              <Link key={item.href} href={item.href} className={getNavItemClasses(isActive)}>
+              <Link
+                key={item.href}
+                href={item.href}
+                className={getNavItemClasses(isActive)}>
                 <Icon className={getNavIconClasses()} />
                 <span
                   className={cn(
@@ -234,7 +238,10 @@ export function Sidebar() {
                   const Icon = item.icon;
                   const isActive = pathname.startsWith(item.href);
                   return (
-                    <Link key={item.href} href={item.href} className={getNavItemClasses(isActive)}>
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={getNavItemClasses(isActive)}>
                       <Icon className={getNavIconClasses()} />
                       <span
                         className={cn(
@@ -285,7 +292,10 @@ export function Sidebar() {
                   const Icon = item.icon;
                   const isActive = pathname.startsWith(item.href);
                   return (
-                    <Link key={item.href} href={item.href} className={getNavItemClasses(isActive)}>
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={getNavItemClasses(isActive)}>
                       <Icon className={getNavIconClasses()} />
                       <span
                         className={cn(
@@ -336,7 +346,10 @@ export function Sidebar() {
                   const Icon = item.icon;
                   const isActive = pathname.startsWith(item.href);
                   return (
-                    <Link key={item.href} href={item.href} className={getNavItemClasses(isActive)}>
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={getNavItemClasses(isActive)}>
                       <Icon className={getNavIconClasses()} />
                       <span
                         className={cn(

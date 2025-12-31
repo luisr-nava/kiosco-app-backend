@@ -1,11 +1,20 @@
 "use client";
 
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DatePicker } from "@/components/ui/date-picker";
-import { DateRangePicker, type DateRangeValue } from "@/components/ui/date-range-picker";
-import type { PeriodFilter } from "../types/cash-register-report";
+import {
+  DateRangePicker,
+  type DateRangeValue,
+} from "@/components/ui/date-range-picker";
+import { PeriodFilter } from "../type";
 
 const periodOptions: Array<{ value: PeriodFilter; label: string }> = [
   { value: "day", label: "Día" },
@@ -56,7 +65,7 @@ const buildYears = (minYear: number, maxYear: number) => {
   return years;
 };
 
-function ReportsFilters({
+export default function ReportsFilters({
   period,
   onPeriodChange,
   dayValue,
@@ -75,26 +84,36 @@ function ReportsFilters({
   isLoading = false,
 }: ReportsFiltersProps) {
   const monthOptions = MONTHS.filter(
-    (month) => period !== "month" || month.value <= (monthYearValue === currentYear ? currentMonth : 12),
+    (month) =>
+      period !== "month" ||
+      month.value <= (monthYearValue === currentYear ? currentMonth : 12),
   );
 
   const yearOptions = buildYears(minYear, currentYear);
-
+  const hasWeekRange =
+    Boolean(weekRangeValue?.from) && Boolean(weekRangeValue?.to);
   return (
-    <Card className="rounded-3xl border border-border shadow-sm">
-      <CardHeader className="border-b">
-        <CardTitle className="text-lg font-semibold">Filtrar período</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-4 sm:grid-cols-[240px_1fr]">
-          <div className="space-y-2">
+    <div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        {/* Label izquierda */}
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+            <Label className="text-xl text-muted-foreground whitespace-nowrap">
+              Filtrar período
+            </Label>
+          </div>
+        </div>
+
+        {/* Controles */}
+        <div className="grid gap-4 sm:grid-cols-[250px_minmax(350px,1fr)] w-full sm:w-auto">
+          {/* Período */}
+          <div className="space-y-2 min-h-[72px]">
             <Label>Período</Label>
             <Select
               value={period}
               onValueChange={(value) => onPeriodChange(value as PeriodFilter)}
               aria-label="Seleccionar período"
-              disabled={isLoading}
-            >
+              disabled={isLoading}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecciona un período" />
               </SelectTrigger>
@@ -107,8 +126,10 @@ function ReportsFilters({
               </SelectContent>
             </Select>
           </div>
+
+          {/* Día */}
           {period === "day" && (
-            <div className="space-y-2">
+            <div className="space-y-2 min-h-[72px]">
               <Label>
                 Día <span className="text-destructive">*</span>
               </Label>
@@ -121,27 +142,31 @@ function ReportsFilters({
               />
             </div>
           )}
+
+          {/* Semana */}
           {period === "week" && (
-            <div className="space-y-2">
+            <div className="space-y-2 min-h-[72px]">
               <Label>Semana</Label>
               <DateRangePicker
                 value={weekRangeValue}
                 onChange={onWeekRangeChange}
                 disabled={isLoading}
                 maxDate={new Date()}
+                hasRange
               />
             </div>
           )}
+
+          {/* Mes */}
           {period === "month" && (
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2 min-h-[72px]">
               <div className="space-y-2">
                 <Label>Mes</Label>
                 <Select
                   value={String(monthValue)}
                   onValueChange={(value) => onMonthChange(Number(value))}
                   aria-label="Seleccionar mes"
-                  disabled={isLoading}
-                >
+                  disabled={isLoading}>
                   <SelectTrigger>
                     <SelectValue placeholder="Mes" />
                   </SelectTrigger>
@@ -154,14 +179,14 @@ function ReportsFilters({
                   </SelectContent>
                 </Select>
               </div>
+
               <div className="space-y-2">
                 <Label>Año</Label>
                 <Select
                   value={String(monthYearValue)}
                   onValueChange={(value) => onMonthYearChange(Number(value))}
                   aria-label="Seleccionar año"
-                  disabled={isLoading}
-                >
+                  disabled={isLoading}>
                   <SelectTrigger>
                     <SelectValue placeholder="Año" />
                   </SelectTrigger>
@@ -176,15 +201,16 @@ function ReportsFilters({
               </div>
             </div>
           )}
+
+          {/* Año */}
           {period === "year" && (
-            <div className="space-y-2">
+            <div className="space-y-2 min-h-[72px]">
               <Label>Año</Label>
               <Select
                 value={String(yearValue)}
                 onValueChange={(value) => onYearChange(Number(value))}
                 aria-label="Seleccionar año"
-                disabled={isLoading}
-              >
+                disabled={isLoading}>
                 <SelectTrigger>
                   <SelectValue placeholder="Año" />
                 </SelectTrigger>
@@ -199,9 +225,8 @@ function ReportsFilters({
             </div>
           )}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
-export { ReportsFilters };
