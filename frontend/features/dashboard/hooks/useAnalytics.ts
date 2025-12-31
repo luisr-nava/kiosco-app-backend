@@ -7,7 +7,6 @@ export const useAnalytics = () => {
   const { analytics, analyticsLoading } = useAnalyticsQuery({
     period,
   });
-  console.log(analytics);
 
   const PERIOD_OPTIONS: { value: Period; label: string }[] = [
     { value: "week", label: "Semana" },
