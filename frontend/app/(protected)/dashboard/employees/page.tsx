@@ -1,20 +1,29 @@
 "use client";
 
+import { Loading } from "@/components/loading";
+import { EmployeeHeader, ModalEmployee } from "@/features/employees/components";
+import { useEmployeeModals, useEmployees } from "@/features/employees/hooks/";
+import { usePaginationParams } from "@/src/hooks/usePaginationParams";
+
 export default function EmployeesPage() {
-  // const { user } = useAuth();
-  // const isOwner = user?.role === "OWNER";
-  // const { activeShopId } = useShopStore();
-
-
+  const { openCreate } = useEmployeeModals();
+  const { search, setSearch, debouncedSearch, page, limit, setPage, setLimit } =
+    usePaginationParams(300);
+  const { employees, employeesLoading, pagination, isFetching } = useEmployees(
+    debouncedSearch,
+    page,
+    limit,
+  );
 
   return (
     <div className="space-y-6">
-      {/* <EmployeeHeader
+      <EmployeeHeader
+        handleOpenCreate={openCreate}
         search={search}
         setSearch={setSearch}
-        handleOpenCreate={handleOpenCreate}
       />
-
+      {employeesLoading ? <Loading /> : <div className="p-5 space-y-4"></div>}
+      {/*
       <EmployeeTable
         employees={employees}
         isLoading={employeesLoading}
@@ -41,6 +50,7 @@ export default function EmployeesPage() {
         />
       )} */}
 
+      <ModalEmployee />
       {/* <Modal
         isOpen={isModalOpen}
         onClose={handleCancelEdit}

@@ -36,7 +36,7 @@ export interface CreateEmployeeDto {
   profileImage?: string | null;
   emergencyContact?: string | null;
   role: Exclude<EmployeeRole, "OWNER"> | "OWNER";
-  shopId: string;
+  shopIds: string[];
   isActive?: boolean;
 }
 

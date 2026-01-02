@@ -3,7 +3,7 @@ import { useCustomerForm, useCustomerModals } from "../hooks";
 import CustomerForm from "./customer-form";
 import { Button } from "@/components/ui/button";
 
-export default function ModalCreateClient() {
+export default function ModalClient() {
   const {
     createCustomerModal,
     editCustomer,

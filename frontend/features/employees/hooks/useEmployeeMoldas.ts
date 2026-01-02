@@ -1,9 +1,9 @@
 import { useModal } from "@/features/modal/hooks/useModal";
 import { Employee } from "../types";
 
-export const useEmployeeModal = () => {
+export const useEmployeeModals = () => {
   const createEmployeeModal = useModal("createEmployee");
-  const editEmployeeModal = useModal("editEmployee");
+  const editEmployeeModal = useModal<Employee>("editEmployee");
   const editEmpoyee = editEmployeeModal.data ?? null;
   const isEdit = Boolean(editEmpoyee);
 
@@ -19,7 +19,7 @@ export const useEmployeeModal = () => {
     createEmployeeModal.close();
     editEmployeeModal.close();
   };
-  
+
   return {
     createEmployeeModal,
     editEmployeeModal,

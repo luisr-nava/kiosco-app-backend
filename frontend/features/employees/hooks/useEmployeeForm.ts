@@ -7,6 +7,7 @@ import {
 import { useForm } from "react-hook-form";
 
 const initialForm: CreateEmployeeDto = {
+  id: "",
   fullName: "",
   email: "",
   password: "",
@@ -14,21 +15,21 @@ const initialForm: CreateEmployeeDto = {
   phone: "",
   address: "",
   hireDate: "",
+  role: "EMPLOYEE",
   salary: 0,
   notes: "",
   profileImage: "",
   emergencyContact: "",
-  shopIds: [""],
+  shopIds: [],
 };
 
 export const useEmployeeForm = (
   editEmployee?: Employee,
   onClose?: () => void,
 ) => {
-  
   const { activeShopId } = useShopStore();
   const createMutation = useEmployeeCreateMutation();
-  const updateMutaion = useEmployeeUpdateMutation();
+  const updateMutation = useEmployeeUpdateMutation();
   const {
     register,
     handleSubmit,
@@ -41,6 +42,19 @@ export const useEmployeeForm = (
     defaultValues: initialForm,
   });
 
-  return {};
+  const onSubmit = () => {};
+
+  return {
+    register,
+    reset,
+    onSubmit,
+    initialForm,
+    setValue,
+    control,
+    getValues,
+    errors,
+    isLoadingCreate: createMutation.isPending,
+    isLoadingUpdate: updateMutation.isPending,
+  };
 };
 

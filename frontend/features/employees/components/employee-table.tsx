@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Employee } from "../../interfaces";
 import { expandableRowVariants } from "@/lib/animations";
 import {
   Mail,
@@ -13,6 +12,7 @@ import {
   Trash2,
 } from "lucide-react";
 import Image from "next/image";
+import { Employee } from "../types";
 
 interface EmployeeTableProps {
   employees: Employee[];
@@ -23,32 +23,15 @@ interface EmployeeTableProps {
   deletingId?: string | null;
 }
 
-export const EmployeeTable = ({
+export default function EmployeeTable({
   employees,
   isLoading,
   isFetching,
   onEdit,
   onDelete,
   deletingId,
-}: EmployeeTableProps) => {
+}: EmployeeTableProps) {
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-        Cargando empleados...
-      </div>
-    );
-  }
-
-  if (!employees.length) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        No hay empleados registrados en esta tienda.
-      </p>
-    );
-  }
 
   return (
     <div className="overflow-hidden rounded-md border">
@@ -241,4 +224,5 @@ export const EmployeeTable = ({
       )}
     </div>
   );
-};
+}
+

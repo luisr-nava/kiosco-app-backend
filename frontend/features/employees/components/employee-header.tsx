@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { useDebounce } from "@/app/(protected)/hooks/useDebounce";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useDebounce } from "@/src/hooks/useDebounce";
 
 interface Props {
   search: string;
@@ -10,11 +10,11 @@ interface Props {
   handleOpenCreate: () => void;
 }
 
-export const EmployeeHeader = ({
+export default function EmployeeHeader({
   search,
   setSearch,
   handleOpenCreate,
-}: Props) => {
+}: Props) {
   const [localSearch, setLocalSearch] = useState(search);
   const debouncedSearch = useDebounce(localSearch, 400);
 
@@ -54,5 +54,5 @@ export const EmployeeHeader = ({
       </div>
     </div>
   );
-};
+}
 

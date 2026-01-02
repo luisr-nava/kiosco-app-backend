@@ -1,140 +1,58 @@
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import {
+  Control,
+  FieldErrors,
+  useForm,
+  UseFormRegister,
+} from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { PasswordInput } from "@/components/ui/password-input";
-import { Employee, EmployeeRole } from "../../interfaces";
-
-const RequiredMark = () => (
-  <Tooltip>
-    <TooltipTrigger asChild>
-      <span className="ml-1 text-destructive" aria-label="Requerido">
-        *
-      </span>
-    </TooltipTrigger>
-    <TooltipContent>Campo requerido por el backend</TooltipContent>
-  </Tooltip>
-);
-
-export interface EmployeeFormValues {
-  fullName: string;
-  email: string;
-  password: string;
-  dni: string;
-  phone?: string | null;
-  address?: string | null;
-  hireDate?: string | null;
-  salary?: number | null;
-  notes?: string | null;
-  profileImage?: string | null;
-  emergencyContact?: string | null;
-  role: EmployeeRole;
-}
+import { CreateEmployeeDto, Employee, EmployeeRole } from "../types";
 
 interface EmployeeFormProps {
-  onSubmit: (values: EmployeeFormValues) => void;
+  register: UseFormRegister<CreateEmployeeDto>;
+  control: Control<CreateEmployeeDto>;
+  errors: FieldErrors<CreateEmployeeDto>;
+  onSubmit: () => void;
+  onCancel: () => void;
+  isEdit: boolean;
   isSubmitting: boolean;
-  editingEmployee?: Employee | null;
-  onCancelEdit: () => void;
 }
 
-const DEFAULT_VALUES: EmployeeFormValues = {
-  fullName: "",
-  password: "",
-  email: "",
-  dni: "",
-  phone: "",
-  address: "",
-  hireDate: "",
-  salary: undefined,
-  notes: "",
-  profileImage: "",
-  emergencyContact: "",
-  role: "EMPLOYEE",
-};
-
-export const EmployeeForm = ({
+export default function EmployeeForm({
+  register,
+  control,
+  errors,
   onSubmit,
+  onCancel,
+  isEdit,
   isSubmitting,
-  editingEmployee,
-  onCancelEdit,
-}: EmployeeFormProps) => {
-  const form = useForm<EmployeeFormValues>({
-    defaultValues: DEFAULT_VALUES,
-  });
-
-  useEffect(() => {
-    if (editingEmployee) {
-      form.reset({
-        fullName: editingEmployee.fullName,
-        email: editingEmployee.email,
-        password: "",
-        dni: editingEmployee.dni || "",
-        phone: editingEmployee.phone || "",
-        address: editingEmployee.address || "",
-        hireDate: editingEmployee.hireDate
-          ? editingEmployee.hireDate.split("T")[0]
-          : "",
-        salary: editingEmployee.salary ?? undefined,
-        notes: editingEmployee.notes || "",
-        profileImage: editingEmployee.profileImage || "",
-        emergencyContact: editingEmployee.emergencyContact || "",
-        role: editingEmployee.role,
-      });
-    } else {
-      form.reset(DEFAULT_VALUES);
-    }
-  }, [editingEmployee, form]);
-
-  const handleSubmit = form.handleSubmit((values) => {
-    onSubmit({
-      ...values,
-      password: values.password || "",
-      phone: values.phone?.trim() || null,
-      address: values.address?.trim() || null,
-      hireDate: values.hireDate || null,
-      salary: values.salary ? Number(values.salary) : null,
-      notes: values.notes?.trim() || null,
-      profileImage: values.profileImage?.trim() || null,
-      emergencyContact: values.emergencyContact?.trim() || null,
-    });
-  });
-
+}: EmployeeFormProps) {
   return (
-    <form className="space-y-4" onSubmit={handleSubmit}>
+    <form className="space-y-4" onSubmit={() => {}}>
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="fullName">
-            Nombre completo
-            <RequiredMark />
-          </Label>
+          <Label htmlFor="fullName">Nombre completo</Label>
           <Input
             id="fullName"
             placeholder="Ej: Ana Pérez"
-            {...form.register("fullName", { required: true })}
+            {...register("fullName", { required: true })}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="email">
-            Email
-            <RequiredMark />
-          </Label>
+          <Label htmlFor="email">Email</Label>
           <Input
             id="email"
             type="email"
             placeholder="email@empresa.com"
-            {...form.register("email", { required: true })}
+            {...register("email", { required: true })}
           />
         </div>
       </div>
 
-      {!editingEmployee && (
+      {/* {!editingEmployee && (
         <div className="space-y-2">
           <Label htmlFor="password">
             Contraseña
@@ -143,10 +61,10 @@ export const EmployeeForm = ({
           <PasswordInput
             id="password"
             placeholder="Mínimo 8 caracteres"
-            {...form.register("password", { required: !editingEmployee })}
+            {...register("password", { required: !editingEmployee })}
           />
         </div>
-      )}
+      )} */}
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
@@ -154,7 +72,7 @@ export const EmployeeForm = ({
           <Input
             id="dni"
             placeholder="Documento"
-            {...form.register("dni", { required: true })}
+            {...register("dni", { required: true })}
           />
         </div>
         <div className="space-y-2">
@@ -162,7 +80,7 @@ export const EmployeeForm = ({
           <Input
             id="phone"
             placeholder="+54 9 11 1234 5678"
-            {...form.register("phone")}
+            {...register("phone")}
           />
         </div>
       </div>
@@ -173,12 +91,12 @@ export const EmployeeForm = ({
           <Input
             id="address"
             placeholder="Av. Siempre Viva 123"
-            {...form.register("address")}
+            {...register("address")}
           />
         </div>
         <div className="space-y-2">
           <Label htmlFor="hireDate">Fecha de contratación</Label>
-          <Input id="hireDate" type="date" {...form.register("hireDate")} />
+          <Input id="hireDate" type="date" {...register("hireDate")} />
         </div>
       </div>
 
@@ -191,7 +109,7 @@ export const EmployeeForm = ({
             step="0.01"
             min="0"
             placeholder="0"
-            {...form.register("salary", { valueAsNumber: true })}
+            {...register("salary", { valueAsNumber: true })}
           />
         </div>
         <div className="space-y-2">
@@ -199,7 +117,7 @@ export const EmployeeForm = ({
           <Input
             id="emergencyContact"
             placeholder="Nombre / teléfono"
-            {...form.register("emergencyContact")}
+            {...register("emergencyContact")}
           />
         </div>
       </div>
@@ -210,7 +128,7 @@ export const EmployeeForm = ({
           <Input
             id="profileImage"
             placeholder="https://..."
-            {...form.register("profileImage")}
+            {...register("profileImage")}
           />
         </div>
         <div className="space-y-2">
@@ -218,7 +136,7 @@ export const EmployeeForm = ({
           <Input
             id="notes"
             placeholder="Notas internas"
-            {...form.register("notes")}
+            {...register("notes")}
           />
         </div>
       </div>
@@ -228,10 +146,10 @@ export const EmployeeForm = ({
         <div className="rounded-md border bg-muted/60 px-3 py-2 text-sm text-muted-foreground">
           Empleado (por defecto)
         </div>
-        <input type="hidden" {...form.register("role")} value="EMPLOYEE" />
+        <input type="hidden" {...register("role")} value="EMPLOYEE" />
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      {/* <div className="flex flex-wrap gap-2">
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting
             ? editingEmployee
@@ -250,8 +168,8 @@ export const EmployeeForm = ({
             Cancelar edición
           </Button>
         )}
-      </div>
+      </div> */}
     </form>
   );
-};
+}
 
