@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useEmployeeForm, useEmployeeModals } from "../hooks";
 import { Modal } from "@/components/ui/modal";
 import EmployeeForm from "./employee-form";
@@ -32,6 +32,25 @@ export default function ModalEmployee() {
     closeAll();
     reset({ ...initialForm });
   };
+
+  useEffect(() => {
+    if (!editEmpoyee) return;
+    reset({
+      fullName: editEmpoyee.fullName || "",
+      email: editEmpoyee.email || "",
+      dni: editEmpoyee.dni || "",
+      password: editEmpoyee.password || "",
+      phone: editEmpoyee.phone || "",
+      address: editEmpoyee.address,
+      hireDate: editEmpoyee.hireDate || "",
+      salary: editEmpoyee.salary || 0,
+      emergencyContact: editEmpoyee.emergencyContact || "",
+      profileImage: editEmpoyee.profileImage || "",
+      notes: editEmpoyee.notes || "",
+    });
+  }, [editEmpoyee, reset]);
+  console.log(editEmpoyee);
+
   const isSubmitting = isLoadingCreate || isLoadingUpdate;
   return (
     <Modal

@@ -32,17 +32,20 @@ export default function EmployeeForm({
   isEdit,
   isSubmitting,
 }: EmployeeFormProps) {
-  const { shops } = useShopQuery();
   return (
     <form className="space-y-4" onSubmit={onSubmit}>
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="fullName">Nombre completo</Label>
+          <Label>Nombre completo</Label>
           <Input
-            id="fullName"
             placeholder="Ej: Ana Pérez"
-            {...register("fullName", { required: true })}
+            {...register("fullName", { required: "El nombre es obligatorio" })}
           />
+          {errors.fullName && (
+            <p className="text-xs text-destructive">
+              {errors.fullName.message?.toString()}
+            </p>
+          )}
         </div>
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
@@ -54,16 +57,27 @@ export default function EmployeeForm({
           />
         </div>
       </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="password">Contraseña</Label>
-        <PasswordInput
-          id="password"
-          placeholder="Mínimo 8 caracteres"
-          {...register("password", { required: true })}
-        />
-      </div>
-
+      {!isEdit && (
+        <div className="space-y-2">
+          <Label htmlFor="password">Contraseña</Label>
+          <PasswordInput
+            id="password"
+            placeholder="Mínimo 8 caracteres"
+            {...register("password", {
+              required: "La contraseña es obligatoria",
+              minLength: {
+                value: 8,
+                message: "Debe tener al menos 8 caracteres",
+              },
+            })}
+          />
+          {errors.password && (
+            <p className="text-xs text-destructive">
+              {errors.password.message?.toString()}
+            </p>
+          )}
+        </div>
+      )}
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="dni">DNI</Label>
@@ -107,7 +121,10 @@ export default function EmployeeForm({
             step="0.01"
             min="0"
             placeholder="0"
-            {...register("salary", { valueAsNumber: true })}
+            {...register("salary", {
+              valueAsNumber: true,
+              min: { value: 0, message: "No puede ser negativo" },
+            })}
           />
         </div>
         <div className="space-y-2">
@@ -147,8 +164,8 @@ export default function EmployeeForm({
           {isSubmitting
             ? "Guardando..."
             : isEdit
-            ? "Actualizar cliente"
-            : "Crear cliente"}
+            ? "Actualizar empleado"
+            : "Crear empleado"}
         </Button>
       </ModalFooter>
     </form>

@@ -2,6 +2,7 @@ import { Modal } from "@/components/ui/modal";
 import { useCustomerForm, useCustomerModals } from "../hooks";
 import CustomerForm from "./customer-form";
 import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
 
 export default function ModalClient() {
   const {
@@ -39,6 +40,19 @@ export default function ModalClient() {
   };
 
   const isSubmitting = isLoadingCreate || isLoadingUpdate || isLoadingDelete;
+
+  useEffect(() => {
+    if (!editCustomer) return;
+    reset({
+      fullName: editCustomer.fullName || "",
+      email: editCustomer.email || "",
+      dni: editCustomer.dni || "",
+      phone: editCustomer.phone || "",
+      address: editCustomer.address,
+      notes: editCustomer.notes || "",
+      creditLimit: +editCustomer.creditLimit || 0,
+    });
+  }, [editCustomer, reset]);
 
   return (
     <Modal

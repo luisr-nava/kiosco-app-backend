@@ -41,7 +41,6 @@ export default function ModalProduct({
     closeAll();
     reset({ ...initialForm, shopId: activeShopId || "" });
   });
-  //   const { initialForm, setValue, reset } = form;
   const isSubmitting = isLoadingCreate || isLoadingUpdate;
 
   const handleClose = () => {

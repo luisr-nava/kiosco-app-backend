@@ -8,6 +8,7 @@ import {
   deleteEmployeeAction,
   updateEmployeeAction,
 } from "../actions";
+import { updateAuthUserAction } from "../actions/update.employee.user.action";
 
 // toast.success("Empleado creado");
 // toast.error("No se pudo crear el empleado");
@@ -17,22 +18,11 @@ export const useEmployeeCreateMutation = () => {
 
   return useMutation({
     mutationFn: async (payload: CreateEmployeeDto) => {
-      console.log({ payload });
       const { shopIds, id, ...rest } = payload;
-      // Primero creamos el usuario en el servicio de Auth.
       const authResponse = await createAuthUserAction(rest);
-      console.log({ authResponse });
-
-      // Obtenemos el ID generado por Auth.
       const userId = authResponse.userId;
-
-      // Creamos un nuevo payload para el empleado, reutilizando el mismo ID.
       const { password, ...employeeData } = payload;
-
-      // Añadimos el userId recibido del Auth al empleado.
       employeeData.id = userId;
-
-      // Ahora creamos el empleado con ese ID.
       return createEmployeeAction(employeeData);
     },
     onSuccess: () => {
@@ -44,25 +34,23 @@ export const useEmployeeCreateMutation = () => {
 export const useEmployeeUpdateMutation = () => {
   const queryClient = useQueryClient();
   const { activeShopId } = useShopStore();
-  // toast.success("Empleado actualizado");
-  // toast.error("No se pudo actualizar el empleado");
   return useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       id,
       payload,
     }: {
       id: string;
       payload: Partial<CreateEmployeeDto>;
-    }) => updateEmployeeAction(id, payload),
+    }) => {
+      const { password, shopIds, ...safePayload } = payload;
+
+      await updateAuthUserAction(id, safePayload);
+
+      return updateEmployeeAction(id, safePayload);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees", activeShopId] });
     },
   });
 };
-
-// export const useEmployeeDeleteMutation=()=>{
-//     const queryClient = useQueryClient();
-//     const { activeShopId } = useShopStore();
-
-// }
 

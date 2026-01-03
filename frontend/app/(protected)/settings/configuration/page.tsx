@@ -82,9 +82,8 @@ export default function ConfigurationPage() {
     supplierPending,
   } = useCategoryForm();
 
-  const { activeShopLoading, activeShopId } = useShopStore(
+  const { activeShopId } = useShopStore(
     useShallow((state) => ({
-      activeShopLoading: state.activeShopLoading,
       activeShopId: state.activeShopId,
     })),
   );
@@ -124,10 +123,6 @@ export default function ConfigurationPage() {
   const [deletingMeasurementUnitId, setDeletingMeasurementUnitId] = useState<
     string | null
   >(null);
-
-  if (activeShopLoading) {
-    return <ShopLoading />;
-  }
 
   const categoriesView = (
     <div className="space-y-6">

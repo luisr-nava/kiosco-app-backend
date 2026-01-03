@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/error-handler";
 import { AxiosError } from "axios";
 import { useShopStore } from "@/features/shop/shop.store";
+import { useShopQuery } from "@/features/shop/hooks/useShopQuery";
 
 type CategoryFormValues = {
   name: string;
@@ -25,10 +26,10 @@ type CategoryType = "product" | "supplier";
 export const useCategoryForm = () => {
   const { user } = useAuth();
   const isOwner = user?.role === "OWNER";
-  const { activeShopId, shops } = useShopStore(
+  const { shops } = useShopQuery();
+  const { activeShopId } = useShopStore(
     useShallow((state) => ({
       activeShopId: state.activeShopId,
-      shops: state.shops,
     })),
   );
 

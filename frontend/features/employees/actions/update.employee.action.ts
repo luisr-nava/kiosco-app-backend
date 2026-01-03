@@ -1,5 +1,5 @@
 import { kioscoApi } from "@/lib/kioscoApi";
-import { CreateEmployeeDto, Employee } from "../interfaces";
+import { CreateEmployeeDto, Employee } from "../types";
 import { unwrapResponse } from "@/lib/api/utils";
 
 export const updateEmployeeAction = async (
@@ -7,8 +7,9 @@ export const updateEmployeeAction = async (
   payload: Partial<CreateEmployeeDto>,
 ): Promise<Employee> => {
   const { data } = await kioscoApi.patch<Employee | { data: Employee }>(
-    `/employee/${id}`,
+    `/employees/${id}`,
     payload,
   );
   return unwrapResponse(data);
 };
+

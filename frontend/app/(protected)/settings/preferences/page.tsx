@@ -34,14 +34,14 @@ export default function PreferencesPage() {
     queryFn: () => notificationApi.getPreferences(activeShopId || ""),
     enabled: Boolean(activeShopId),
     refetchOnWindowFocus: false,
-    onSuccess: (data) => form.reset(data),
-    onError: (error) => {
-      const { title, message } = getErrorMessage(
-        error,
-        "No se pudieron cargar las preferencias",
-      );
-      toast.error(title, { description: message });
-    },
+    // onSuccess: (data) => form.reset(data),
+    // onError: (error) => {
+    //   const { title, message } = getErrorMessage(
+    //     error,
+    //     "No se pudieron cargar las preferencias",
+    //   );
+    //   toast.error(title, { description: message });
+    // },
   });
 
   const updatePreferences = useMutation({
@@ -91,7 +91,7 @@ export default function PreferencesPage() {
           <CardDescription>
             Define cómo quieres recibir alertas para{" "}
             <span className="font-semibold text-foreground">
-              {activeShop?.name || activeShopId}
+              {/* {activeShop?.name || activeShopId} */}
             </span>
           </CardDescription>
         </CardHeader>

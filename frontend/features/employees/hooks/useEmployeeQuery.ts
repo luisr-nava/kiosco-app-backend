@@ -33,8 +33,6 @@ export const useEmployeeQuery = ({
   const employees = query.data?.employees || [];
   const pagination = query.data?.pagination;
 
-  console.log(employees);
-
   return {
     employees,
     pagination,

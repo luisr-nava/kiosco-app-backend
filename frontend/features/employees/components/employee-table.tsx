@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/table";
 import EmptyTable from "@/components/empty-table";
 import { Pagination } from "@/components/pagination";
+import { useCurrencyFormatter } from "@/src/hooks/useCurrencyFormatter";
 
 interface EmployeeTableProps {
   employees: Employee[];
@@ -52,7 +53,7 @@ export default function EmployeeTable({
   handleEdit,
 }: EmployeeTableProps) {
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
-
+  const formatCurrency = useCurrencyFormatter();
   return (
     <Table className="overflow-hidden rounded-md border">
       <TableHeader className="bg-muted">
@@ -68,6 +69,8 @@ export default function EmployeeTable({
           <EmptyTable title="No hay empleados cargados." colSpan={5} />
         ) : (
           employees.map((employee) => {
+            console.log(employee);
+
             const isOpen = expandedRow === employee.id;
             return (
               <React.Fragment key={employee.id}>
@@ -96,35 +99,49 @@ export default function EmployeeTable({
                     <TableCell colSpan={7} className="p-0">
                       <div className="grid grid-cols-2 gap-4 p-4 text-sm">
                         <div className="space-y-2">
-                          <p className="text-muted-foreground">Direccion:</p>
-                          <p className="font-medium text-right sm:text-left">
-                            {employee.address || "Sin Direccion"}
-                          </p>
-                          {/* <div>
-                            <p className="text-muted-foreground">
-                              Limite de Crédito:
-                            </p>
+                          <div className="">
+                            <p className="text-muted-foreground">DNI:</p>
                             <p className="font-medium text-right sm:text-left">
-                              {formatCurrency(employee.creditLimit)}
-                            </p>
-                          </div> */}
-                        </div>
-                        {/* <div className="space-y-2">
-                          <div>
-                            <p className="text-muted-foreground">
-                              Estado actual:
-                            </p>
-                            <p className="font-medium text-right sm:text-left">
-                              {formatCurrency(employee.currentBalance)}
+                              {employee.dni || "Sin DNI"}
                             </p>
                           </div>
-                          <div>
+                          <div className="">
+                            <p className="text-muted-foreground">
+                              Fecha de contratación:
+                            </p>
+                            <p className="font-medium text-right sm:text-left">
+                              {employee.hireDate || "Sin fecha"}
+                            </p>
+                          </div>
+                          <div className="">
+                            <p className="text-muted-foreground">Salario:</p>
+                            <p className="font-medium text-right sm:text-left">
+                              {formatCurrency(employee.salary!)}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="">
+                            <p className="text-muted-foreground">Direccion:</p>
+                            <p className="font-medium text-right sm:text-left">
+                              {employee.address || "Sin Direccion"}
+                            </p>
+                          </div>
+                          <div className="">
+                            <p className="text-muted-foreground">
+                              Contacto de emergencia:
+                            </p>
+                            <p className="font-medium text-right sm:text-left">
+                              {employee.emergencyContact || "Sin contacto"}
+                            </p>
+                          </div>
+                          <div className="">
                             <p className="text-muted-foreground">Notas:</p>
                             <p className="font-medium text-right sm:text-left">
                               {employee.notes || "Sin notas"}
                             </p>
                           </div>
-                        </div> */}
+                        </div>
                       </div>
                     </TableCell>
                   </TableRow>

@@ -30,7 +30,7 @@ export default function CustomerForm({
   isEdit,
   isSubmitting,
 }: Props) {
-  const [watchName, watchShopId] = useWatch<CreateCustomerDto>({
+  const [watchName] = useWatch<CreateCustomerDto>({
     control,
     name: ["fullName"],
   });
@@ -116,7 +116,10 @@ export default function CustomerForm({
           <Label>Limite de Crédito</Label>
           <Input
             type="number"
-            {...register("creditLimit")}
+            {...register("creditLimit", {
+              valueAsNumber: true,
+              min: { value: 0, message: "No puede ser negativo" },
+            })}
             placeholder="1000"
           />
         </div>
@@ -136,5 +139,4 @@ export default function CustomerForm({
     </form>
   );
 }
-
 

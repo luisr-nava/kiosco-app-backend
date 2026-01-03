@@ -16,6 +16,7 @@ export interface Employee {
   profileImage?: string | null;
   emergencyContact?: string | null;
   shopIds?: string[];
+  password?: string;
 }
 export interface EmployeeAuth {
   message: string;

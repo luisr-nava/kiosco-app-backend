@@ -23,8 +23,6 @@ export const getEmployeesAction = async (
       },
     },
   );
-  console.log(data);
-
   return {
     employees: data.data,
     pagination: data.meta,
