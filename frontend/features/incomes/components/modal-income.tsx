@@ -1,20 +1,21 @@
-import { Modal } from "@/components/ui/modal";
-import { useEffect } from "react";
-import { useExpenseForm, useExpenseModals } from "../hooks";
-import ExpenseForm from "./expense-form";
 import { usePaymentMethods } from "@/app/(protected)/settings/payment-method/hooks";
+import { Modal } from "@/components/ui/modal";
+import React, { useEffect } from "react";
+import { useIncomeForm } from "../hooks/useIncomeForm";
+import { useIncomeModals } from "../hooks";
+import IncomeForm from "./income-form";
 
-export default function ModalExpense() {
+export default function ModalIncome() {
   const {
-    createExpenseModal,
-    editExpense,
-    editExpenseModal,
-    deleteExpense,
-    deleteExpenseModal,
+    createIncomeModal,
+    editIncome,
+    editIncomeModal,
+    deleteIncome,
+    deleteIncomeModal,
     isEdit,
     closeAll,
-  } = useExpenseModals();
-  const openModal = createExpenseModal.isOpen || editExpenseModal.isOpen;
+  } = useIncomeModals();
+  const openModal = createIncomeModal.isOpen || editIncomeModal.isOpen;
 
   const {
     initialForm,
@@ -27,7 +28,7 @@ export default function ModalExpense() {
     control,
     errors,
     onSubmit,
-  } = useExpenseForm(editExpense!, deleteExpense!, () => {
+  } = useIncomeForm(editIncome!, deleteIncome!, () => {
     closeAll();
     reset({ ...initialForm });
   });
@@ -40,27 +41,26 @@ export default function ModalExpense() {
   const isSubmitting = isLoadingCreate || isLoadingUpdate || isLoadingDelete;
   const { paymentMethods } = usePaymentMethods();
   useEffect(() => {
-    if (!editExpense) return;
+    if (!editIncome) return;
     reset({
-      description: editExpense.description || "",
-      amount: editExpense.amount || 0,
-      paymentMethodId: editExpense.paymentMethodId || "",
-      date: editExpense.date || "",
+      description: editIncome.description || "",
+      amount: editIncome.amount || 0,
+      paymentMethodId: editIncome.paymentMethodId || "",
+      date: editIncome.date || "",
     });
-  }, [editExpense, reset]);
-
+  }, [editIncome, reset]);
   return (
     <Modal
       isOpen={openModal}
       onClose={handleClose}
-      title={editExpenseModal.isOpen ? "Editar gasto" : "Crear gasto"}
+      title={editIncomeModal.isOpen ? "Editar ingreso" : "Crear ingreso"}
       description={
-        editExpenseModal.isOpen || createExpenseModal.isOpen
-          ? "Completa los datos del gasto"
+        editIncomeModal.isOpen || createIncomeModal.isOpen
+          ? "Completa los datos del ingreso"
           : ""
       }
       size="lg">
-      <ExpenseForm
+      <IncomeForm
         register={register}
         onSubmit={onSubmit}
         control={control}

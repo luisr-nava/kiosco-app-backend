@@ -23,10 +23,10 @@ export interface Income {
 export interface CreateIncomeDto {
   description: string;
   amount: number;
-  shopId: string;
   paymentMethodId: string;
   cashRegisterId: string;
   date: string;
+  shopId: string;
 }
 
 export interface GetIncomesResponse {
@@ -40,3 +40,4 @@ export interface GetIncomesResponse {
     totalAmount?: number;
   };
 }
+

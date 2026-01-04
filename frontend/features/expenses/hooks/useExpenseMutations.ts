@@ -1,17 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 import {
   createExpenseAction,
   updateExpenseAction,
   deleteExpenseAction,
 } from "../actions";
 import type { CreateExpenseDto } from "../types";
-import { getErrorMessage } from "@/lib/error-handler";
 import { useShopStore } from "@/features/shop/shop.store";
 
-// toast.success("Gasto creado");
-// const { message } = getErrorMessage(error, "No se pudo crear el gasto");
-// toast.error("Error", { description: message });
 export const useExpenseCreateMutation = () => {
   const queryClient = useQueryClient();
   const { activeShopId } = useShopStore();
@@ -37,12 +32,6 @@ export const useExpenseUpdateMutation = () => {
     }) => updateExpenseAction(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["expenses", activeShopId] });
-      // toast.success("Gasto actualizado");
-      // const { message } = getErrorMessage(
-      //   error,
-      //   "No se pudo actualizar el gasto",
-      // );
-      // toast.error("No se pudo actualizar el gasto" );
     },
   });
 };

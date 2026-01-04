@@ -1,166 +1,75 @@
 "use client";
 
-import { useAuth } from "@/features/auth/hooks";
-
-import { ShopLoading } from "@/components/shop-loading";
-import { Modal } from "@/components/ui/modal";
-import {
-  AccessRestrictedCard,
-  Pagination,
-  SelectShopCard,
-} from "@/app/(protected)/components";
 import { usePaymentMethods } from "@/app/(protected)/settings/payment-method/hooks";
-import { IncomeHeader, IncomeForm, IncomeTable } from "./components";
-import { useIncome } from "./hooks/useIncome";
-import { Button } from "@/components/ui/button";
+import { Loading } from "@/components/loading";
+import { OpenCashRegisterModal } from "@/features/cash-register/components";
+import { useCashRegisterStateQuery } from "@/features/cash-register/hooks";
+import { IncomeHeader } from "@/features/incomes/components";
+import ModalIncome from "@/features/incomes/components/modal-income";
+import TableIncome from "@/features/incomes/components/table-income";
+import { useIncomeModals, useIncomes } from "@/features/incomes/hooks";
 import { useShopStore } from "@/features/shop/shop.store";
+import { usePaginationParams } from "@/src/hooks/usePaginationParams";
+import { useState } from "react";
 
 export default function IncomesPage() {
-  const { user } = useAuth();
-  const isOwner = user?.role === "OWNER";
+  const { openCreate, openEdit, openDelete } = useIncomeModals();
+  const { search, setSearch, debouncedSearch, page, limit, setPage, setLimit } =
+    usePaginationParams(300);
   const { activeShopId } = useShopStore();
-
-  const {
-    search,
-    setSearch,
+  const { incomes, incomesLoading, pagination, isFetching } = useIncomes(
+    debouncedSearch,
     page,
     limit,
-    setPage,
-    setLimit,
-    pagination,
-    incomes,
-    incomesLoading,
-    isFetching,
-    isModalOpen,
-    editingIncome,
-    deleteTarget,
-    deletingId,
-    handleSubmit,
-    handleOpenCreate,
-    handleEdit,
-    handleCancelEdit,
-    handleDelete,
-    closeDeleteModal,
-    confirmDelete,
-    createMutation,
-    updateMutation,
-    deleteMutation,
-    startDate,
-    endDate,
-    setStartDate,
-    setEndDate,
-    dateError,
-    openCashLoading,
-    openCashFetching,
-  } = useIncome({ isOwner, activeShopId });
-
+  );
   const {
     paymentMethods,
     isLoading: paymentMethodsLoading,
     isFetching: paymentMethodsFetching,
   } = usePaymentMethods();
+  const { data } = useCashRegisterStateQuery(activeShopId!);
+  const hasOpenCashRegister = data?.hasOpenCashRegister === true;
+  const [openCashModal, setOpenCashRegisterModal] = useState(false);
+  const handleCreateExpense = () => {
+    if (!hasOpenCashRegister) {
+      setOpenCashRegisterModal(true);
+      return;
+    }
 
-  if (!isOwner) {
-    return <AccessRestrictedCard />;
-  }
-
-  if (!activeShopId) {
-    return (
-      <SelectShopCard description="Debes elegir una tienda activa para gestionar los ingresos." />
-    );
-  }
+    openCreate();
+  };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <IncomeHeader
+        handleOpenCreate={handleCreateExpense}
         search={search}
         setSearch={setSearch}
-        startDate={startDate}
-        endDate={endDate}
-        setStartDate={setStartDate}
-        setEndDate={setEndDate}
-        dateError={dateError}
-        handleOpenCreate={handleOpenCreate}
       />
-
-      <IncomeTable
-        incomes={incomes}
-        isLoading={incomesLoading}
-        isFetching={isFetching}
-        onEdit={(income) => {
-          handleEdit(income);
-        }}
-        onDelete={handleDelete}
-        deletingId={deletingId}
-        paymentMethods={paymentMethods}
-      />
-
-      {incomes.length > 0 && (
-        <Pagination
-          page={page}
-          totalPages={pagination?.totalPages ?? 1}
-          limit={limit}
-          onPageChange={(nextPage) => {
-            if (nextPage < 1) return;
-            setPage(nextPage);
-          }}
-          onLimitChange={(nextLimit) => setLimit(nextLimit)}
-          isLoading={isFetching}
-          totalItems={pagination?.total ?? 0}
-        />
-      )}
-
-      <Modal
-        isOpen={isModalOpen}
-        onClose={handleCancelEdit}
-        title={editingIncome ? "Editar ingreso" : "Nuevo ingreso"}
-        // description={`Tienda: ${activeShop?.name || activeShopId}`}
-        >
-        <IncomeForm
-          onSubmit={handleSubmit}
-          isSubmitting={
-            createMutation.isPending ||
-            updateMutation.isPending ||
-            openCashLoading ||
-            openCashFetching
-          }
-          editingIncome={editingIncome}
-          onCancelEdit={handleCancelEdit}
-          paymentMethods={paymentMethods}
-          paymentMethodsLoading={paymentMethodsLoading}
-          paymentMethodsFetching={paymentMethodsFetching}
-        />
-      </Modal>
-
-      <Modal
-        isOpen={Boolean(deleteTarget)}
-        onClose={closeDeleteModal}
-        title="Eliminar ingreso"
-        description="Esta acción es permanente y no podrás recuperar el registro.">
-        <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            ¿Seguro que deseas eliminar{" "}
-            <span className="font-semibold">{deleteTarget?.description}</span>?
-            Esta acción no se puede deshacer.
-          </p>
-          <div className="flex justify-end gap-2">
-            <Button
-              variant="outline"
-              onClick={closeDeleteModal}
-              disabled={deleteMutation.isPending}>
-              Cancelar
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={confirmDelete}
-              disabled={deleteMutation.isPending}>
-              {deleteMutation.isPending
-                ? "Eliminando..."
-                : "Eliminar definitivamente"}
-            </Button>
-          </div>
+      {incomesLoading ? (
+        <Loading />
+      ) : (
+        <div className="p-5 space-y-4">
+          <TableIncome
+            incomes={incomes}
+            handleEdit={openEdit}
+            limit={limit}
+            page={page}
+            setLimit={setLimit}
+            setPage={setPage}
+            pagination={pagination!}
+            isFetching={isFetching}
+            paymentMethods={paymentMethods}
+            handleDelete={openDelete}
+          />
         </div>
-      </Modal>
+      )}
+      <ModalIncome />
+      <OpenCashRegisterModal
+        open={openCashModal}
+        onOpenChange={setOpenCashRegisterModal}
+        shopId={activeShopId!}
+      />
     </div>
   );
 }

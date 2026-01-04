@@ -28,6 +28,7 @@ export default function ExpensesPage() {
   const { data } = useCashRegisterStateQuery(activeShopId!);
   const hasOpenCashRegister = data?.hasOpenCashRegister === true;
   const [openCashModal, setOpenCashRegisterModal] = useState(false);
+  
   const handleCreateExpense = () => {
     if (!hasOpenCashRegister) {
       setOpenCashRegisterModal(true);

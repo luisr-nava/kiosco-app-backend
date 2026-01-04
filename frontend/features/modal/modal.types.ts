@@ -17,6 +17,9 @@ export type ModalType =
   | "createExpense"
   | "editExpense"
   | "deleteExpense"
+  | "createIncome"
+  | "editIncome"
+  | "deleteIncome"
   | null;
 
 export interface ModalStoreState {
