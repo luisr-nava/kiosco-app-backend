@@ -34,18 +34,18 @@ services:
     env_file: .env
     environment:
       DATABASE_URL: postgresql://postgres:postgres@kiosco-db:5432/kiosco
-      AUTH_SERVICE_URL: http://auth_service:3000/api/v1
+      # AUTH_SERVICE_URL: http://auth_service:3000/api/v1
     ports:
       - '3002:3000'
     networks:
       - kiosco-network
-      - microservices-network
+      # - microservices-network
     command: []
 networks:
   kiosco-network:
     driver: bridge
-  microservices-network:
-    external: true
+  # microservices-network:
+  #   external: true
 
 volumes:
   kiosco_data:

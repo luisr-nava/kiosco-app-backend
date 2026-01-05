@@ -18,7 +18,6 @@ export class EmployeeService {
       throw new ForbiddenException('Solo los OWNER pueden crear empleados');
     }
 
-    // Verificar si ya existe un empleado con el mismo email o DNI
     const existingEmployee = await this.prisma.employee.findFirst({
       where: {
         OR: [{ email: dto.email }, { dni: dto.dni }],
@@ -31,24 +30,34 @@ export class EmployeeService {
       );
     }
 
-    const employeeData = {
-      id: dto.id,
-      fullName: dto.fullName,
-      email: dto.email,
-      role: dto.role ?? 'EMPLOYEE',
-      dni: dto.dni,
-      phone: dto.phone,
-      address: dto.address,
-      hireDate: dto.hireDate ? new Date(dto.hireDate) : undefined,
-      salary: dto.salary,
-      notes: dto.notes,
-      profileImage: dto.profileImage,
-      emergencyContact: dto.emergencyContact,
-    };
-
+    // 1️⃣ Crear employee
     const createdEmployee = await this.prisma.employee.create({
-      data: employeeData,
+      data: {
+        id: dto.id,
+        fullName: dto.fullName,
+        email: dto.email,
+        role: dto.role ?? 'EMPLOYEE',
+        dni: dto.dni,
+        phone: dto.phone,
+        address: dto.address,
+        hireDate: dto.hireDate ? new Date(dto.hireDate) : undefined,
+        salary: dto.salary,
+        notes: dto.notes,
+        profileImage: dto.profileImage,
+        emergencyContact: dto.emergencyContact,
+      },
     });
+
+    // 2️⃣ Crear relaciones employee ↔ shop
+    if (dto.shopIds && dto.shopIds.length > 0) {
+      await this.prisma.employeeShop.createMany({
+        data: dto.shopIds.map((shopId) => ({
+          employeeId: createdEmployee.id,
+          shopId,
+        })),
+        skipDuplicates: true,
+      });
+    }
 
     return createdEmployee;
   }
@@ -66,6 +75,7 @@ export class EmployeeService {
         },
       },
     });
+
     if (!employee) throw new NotFoundException('Empleado no encontrado');
 
     const isOwner = user.role === 'OWNER';
@@ -86,13 +96,64 @@ export class EmployeeService {
       );
     }
 
+    // 🔥 UPDATE DE TIENDAS
     if (dto.shopIds) {
-      throw new BadRequestException(
-        'Las asignaciones de tiendas no se actualizan desde este endpoint',
+      if (!isOwner) {
+        throw new ForbiddenException(
+          'Solo el OWNER puede modificar las tiendas del empleado',
+        );
+      }
+
+      const currentShopIds = employee.employeeShops.map(
+        (relation) => relation.shop.id,
       );
+
+      const nextShopIds = dto.shopIds;
+
+      // Normalizamos para comparar
+      const currentSet = new Set(currentShopIds);
+      const nextSet = new Set(nextShopIds);
+
+      const shopsToAdd = nextShopIds.filter((id) => !currentSet.has(id));
+      const shopsToRemove = currentShopIds.filter((id) => !nextSet.has(id));
+
+      // Validar que las tiendas pertenezcan al OWNER
+      const ownedShops = await this.prisma.shop.findMany({
+        where: {
+          id: { in: nextShopIds },
+          ownerId: user.id,
+          projectId: user.projectId,
+        },
+        select: { id: true },
+      });
+
+      if (ownedShops.length !== nextShopIds.length) {
+        throw new ForbiddenException(
+          'Alguna de las tiendas no pertenece al propietario',
+        );
+      }
+
+      if (shopsToAdd.length > 0) {
+        await this.prisma.employeeShop.createMany({
+          data: shopsToAdd.map((shopId) => ({
+            employeeId: employee.id,
+            shopId,
+          })),
+          skipDuplicates: true,
+        });
+      }
+
+      if (shopsToRemove.length > 0) {
+        await this.prisma.employeeShop.deleteMany({
+          where: {
+            employeeId: employee.id,
+            shopId: { in: shopsToRemove },
+          },
+        });
+      }
     }
 
-    const { shopIds: _ignoreShopIds, ...employeeData } = dto;
+    const { shopIds: _ignore, ...employeeData } = dto;
 
     const updatedEmployee = await this.prisma.employee.update({
       where: { id },
