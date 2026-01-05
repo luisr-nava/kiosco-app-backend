@@ -5,6 +5,7 @@ export type ModalType =
   | "editCategory"
   | "createSupplier"
   | "editSupplier"
+  | "deleteSupplier"
   | "createPurchase"
   | "editPurchase"
   | "createSale"

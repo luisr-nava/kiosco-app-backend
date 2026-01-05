@@ -13,7 +13,7 @@ import {
 } from "@/features/products/components";
 import { useProductModals } from "@/features/products/hooks/useProductModals";
 
-export default function ProductosPage() {
+export default function ProductsPage() {
   const { activeShopId } = useShopStore();
 
   const { openCreate, openEdit } = useProductModals();

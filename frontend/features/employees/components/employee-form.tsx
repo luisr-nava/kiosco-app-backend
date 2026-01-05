@@ -1,174 +1,240 @@
-import { useEffect } from "react";
+import { BaseForm } from "@/components/form/BaseForm";
+import { FormGrid } from "@/components/form/FormGrid";
 import {
-  Control,
-  FieldErrors,
-  useForm,
-  UseFormRegister,
-} from "react-hook-form";
-import { Button } from "@/components/ui/button";
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password-input";
-import { CreateEmployeeDto, Employee, EmployeeRole } from "../types";
-import { useShopQuery } from "@/features/shop/hooks/useShopQuery";
-import { ModalFooter } from "@/components/ui/modal";
-
+import { UseFormReturn } from "react-hook-form";
+import { CreateEmployeeDto } from "../types";
+import { Textarea } from "@/components/ui/textarea";
 interface EmployeeFormProps {
-  register: UseFormRegister<CreateEmployeeDto>;
-  control: Control<CreateEmployeeDto>;
-  errors: FieldErrors<CreateEmployeeDto>;
-  onSubmit: () => void;
+  form: UseFormReturn<CreateEmployeeDto>;
+  onSubmit: (values: CreateEmployeeDto) => void;
   onCancel: () => void;
   isEdit: boolean;
   isSubmitting: boolean;
 }
-
 export default function EmployeeForm({
-  register,
-  control,
-  errors,
+  form,
   onSubmit,
   onCancel,
   isEdit,
   isSubmitting,
 }: EmployeeFormProps) {
   return (
-    <form className="space-y-4" onSubmit={onSubmit}>
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label>Nombre completo</Label>
-          <Input
-            placeholder="Ej: Ana Pérez"
-            {...register("fullName", { required: "El nombre es obligatorio" })}
-          />
-          {errors.fullName && (
-            <p className="text-xs text-destructive">
-              {errors.fullName.message?.toString()}
-            </p>
+    <BaseForm
+      form={form}
+      onSubmit={onSubmit}
+      onCancel={onCancel}
+      submitLabel={isEdit ? "Actualizar empleado" : "Crear empleado"}
+      isSubmitting={isSubmitting}>
+      <FormGrid cols={2}>
+        <FormField
+          control={form.control}
+          name="fullName"
+          rules={{ required: "El nombre es obligatorio" }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                Nombre completo <span className="text-destructive">*</span>
+              </FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Ej: Ana Pérez" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           )}
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="email@empresa.com"
-            {...register("email", { required: true })}
-          />
-        </div>
-      </div>
+        />
+        <FormField
+          control={form.control}
+          name="email"
+          rules={{ required: "El email es obligatorio" }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                Email <span className="text-destructive">*</span>
+              </FormLabel>
+              <FormControl>
+                <Input placeholder="email@empresa.com" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </FormGrid>
       {!isEdit && (
-        <div className="space-y-2">
-          <Label htmlFor="password">Contraseña</Label>
-          <PasswordInput
-            id="password"
-            placeholder="Mínimo 8 caracteres"
-            {...register("password", {
-              required: "La contraseña es obligatoria",
-              minLength: {
-                value: 8,
-                message: "Debe tener al menos 8 caracteres",
-              },
-            })}
+        <FormGrid cols={1}>
+          <FormField
+            control={form.control}
+            rules={{ required: "El password es obligatorio" }}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Contraseña <span className="text-destructive">*</span>
+                </FormLabel>
+                <FormControl>
+                  <PasswordInput
+                    id="password"
+                    placeholder="Mínimo 8 caracteres"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          {errors.password && (
-            <p className="text-xs text-destructive">
-              {errors.password.message?.toString()}
-            </p>
-          )}
-        </div>
+        </FormGrid>
       )}
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="dni">DNI</Label>
-          <Input
-            id="dni"
-            placeholder="Documento"
-            {...register("dni", { required: true })}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="phone">Teléfono</Label>
-          <Input
-            id="phone"
-            placeholder="+54 9 11 1234 5678"
-            {...register("phone")}
-          />
-        </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="address">Dirección</Label>
-          <Input
-            id="address"
-            placeholder="Av. Siempre Viva 123"
-            {...register("address")}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="hireDate">Fecha de contratación</Label>
-          <Input id="hireDate" type="date" {...register("hireDate")} />
-        </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="salary">Salario</Label>
-          <Input
-            id="salary"
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="0"
-            {...register("salary", {
-              valueAsNumber: true,
-              min: { value: 0, message: "No puede ser negativo" },
-            })}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="emergencyContact">Contacto de emergencia</Label>
-          <Input
-            id="emergencyContact"
-            placeholder="Nombre / teléfono"
-            {...register("emergencyContact")}
-          />
-        </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="profileImage">Foto de perfil (URL)</Label>
-          <Input
-            id="profileImage"
-            placeholder="https://..."
-            {...register("profileImage")}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="notes">Notas</Label>
-          <Input
-            id="notes"
-            placeholder="Notas internas"
-            {...register("notes")}
-          />
-        </div>
-      </div>
-
-      <ModalFooter>
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Cancelar
-        </Button>
-        <Button type="submit">
-          {isSubmitting
-            ? "Guardando..."
-            : isEdit
-            ? "Actualizar empleado"
-            : "Crear empleado"}
-        </Button>
-      </ModalFooter>
-    </form>
+      <FormGrid cols={2}>
+        <FormField
+          control={form.control}
+          name="dni"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Documento</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Documento" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Teléfono</FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  placeholder="+54 9 11 1234 5678"
+                  value={field.value ?? ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </FormGrid>
+      <FormGrid cols={2}>
+        <FormField
+          control={form.control}
+          name="address"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Dirección</FormLabel>
+              <FormControl>
+                <Input
+                  id="address"
+                  placeholder="Av. Siempre Viva 123"
+                  {...field}
+                  value={field.value ?? ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="hireDate"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Fecha de contratacion</FormLabel>
+              <FormControl>
+                <Input {...field} value={field.value ?? ""} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </FormGrid>
+      <FormGrid cols={2}>
+        <FormField
+          control={form.control}
+          name="emergencyContact"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Contacto de emergencia</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Nombre / teléfono"
+                  {...field}
+                  value={field.value ?? ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="salary"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Salario</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  placeholder="0"
+                  {...field}
+                  step="0.01"
+                  min="0"
+                  value={field.value ?? 0}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </FormGrid>
+      <FormGrid cols={1}>
+        <FormField
+          control={form.control}
+          name="profileImage"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Foto de perfil (URL)</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="https://..."
+                  {...field}
+                  value={field.value ?? ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </FormGrid>
+      <FormGrid cols={1}>
+        <FormField
+          control={form.control}
+          name="notes"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Notas</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Notas internas"
+                  {...field}
+                  value={field.value ?? ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </FormGrid>
+    </BaseForm>
   );
 }
+
 

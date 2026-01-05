@@ -54,7 +54,7 @@ export interface RegisterFormData {
   fullName: string;
   email: string;
   password: string;
-  role: string;
+  role?: string;
 }
 
 export interface RegisterActionPayload extends RegisterFormData {

@@ -1,9 +1,5 @@
-import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Edit3, Trash2 } from "lucide-react";
-import type { Expense } from "../types";
-import type { PaymentMethod } from "@/app/(protected)/settings/payment-method/interfaces";
-import { Pagination } from "@/components/pagination";
+import { Supplier } from "../types";
 import {
   Table,
   TableBody,
@@ -14,17 +10,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import EmptyTable from "@/components/empty-table";
+import { Pagination } from "@/components/pagination";
+import { Edit3, Trash2 } from "lucide-react";
+import React, { useState } from "react";
 
 interface Props {
-  handleEdit: (expense: Expense) => void;
-  handleDelete: (expense: Expense) => void;
+  handleEdit: (supplier: Supplier) => void;
+  handleDelete: (supplier: Supplier) => void;
   limit: number;
   page: number;
-  expenses: Expense[];
+  suppliers: Supplier[];
   setLimit: (value: number) => void;
   setPage: (value: number) => void;
   isFetching: boolean;
-  paymentMethods?: PaymentMethod[];
   pagination: {
     total: number;
     page: number;
@@ -33,42 +31,36 @@ interface Props {
   };
 }
 
-export default function TableExpense({
+export default function SupplierTable({
+  suppliers,
   handleEdit,
   handleDelete,
   limit,
   page,
-  expenses,
   setLimit,
   setPage,
   isFetching,
   pagination,
-  paymentMethods = [],
 }: Props) {
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
-
   return (
     <Table className="overflow-hidden rounded-md border">
       <TableHeader className="bg-muted">
         <TableRow>
-          <TableHead>Descripción</TableHead>
-          <TableHead>Fecha</TableHead>
-          <TableHead>Monto</TableHead>
+          <TableHead>Nombre</TableHead>
+          <TableHead>Contacto</TableHead>
+          <TableHead>Teléfono</TableHead>
+          <TableHead>Email</TableHead>
+          <TableHead>Categoría</TableHead>
           <TableHead className="text-right">Acción</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {expenses.length === 0 ? (
-          <EmptyTable title="No hay gastos cargados." colSpan={4} />
+        {suppliers.length === 0 ? (
+          <EmptyTable title="No hay proveedores cargados." colSpan={7} />
         ) : (
-          expenses.map((expense, index) => {
+          suppliers.map((expense, index) => {
             const isOpen = expandedRow === expense.id;
-            const isLastRow = index === expenses.length - 1;
-            const paymentMethodName =
-              expense.paymentMethod?.name ||
-              paymentMethods.find((pm) => pm.id === expense.paymentMethodId)
-                ?.name ||
-              "Método no disponible";
 
             return (
               <React.Fragment key={expense.id}>

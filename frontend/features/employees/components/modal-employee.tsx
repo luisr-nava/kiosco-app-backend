@@ -1,74 +1,46 @@
-import React, { useEffect } from "react";
 import { useEmployeeForm, useEmployeeModals } from "../hooks";
-import { Modal } from "@/components/ui/modal";
 import EmployeeForm from "./employee-form";
-
-export default function ModalEmployee() {
+import { BaseFormModal } from "@/components/modal/BaseFormModal";
+interface ModalEmployeeProps {
+  modals: ReturnType<typeof useEmployeeModals>;
+}
+export default function ModalEmployee({ modals }: ModalEmployeeProps) {
   const {
     createEmployeeModal,
     editEmployeeModal,
-    editEmpoyee,
-    openCreate,
-    openEdit,
+    editEmployee,
     isEdit,
     closeAll,
-  } = useEmployeeModals();
+  } = modals;
   const openModal = createEmployeeModal.isOpen || editEmployeeModal.isOpen;
 
-  const {
-    initialForm,
-    reset,
-    isLoadingCreate,
-    isLoadingUpdate,
-    register,
-    control,
-    errors,
-    onSubmit,
-  } = useEmployeeForm(editEmpoyee!, () => {
-    closeAll();
-    reset({ ...initialForm });
-  });
+  const { form, onSubmit, isLoadingCreate, isLoadingUpdate, reset } =
+    useEmployeeForm(editEmployee!, isEdit, () => {
+      closeAll();
+      reset();
+    });
   const handleClose = () => {
     closeAll();
-    reset({ ...initialForm });
+    reset();
   };
-
-  useEffect(() => {
-    if (!editEmpoyee) return;
-    reset({
-      fullName: editEmpoyee.fullName || "",
-      email: editEmpoyee.email || "",
-      dni: editEmpoyee.dni || "",
-      password: editEmpoyee.password || "",
-      phone: editEmpoyee.phone || "",
-      address: editEmpoyee.address,
-      hireDate: editEmpoyee.hireDate || "",
-      salary: editEmpoyee.salary || 0,
-      emergencyContact: editEmpoyee.emergencyContact || "",
-      profileImage: editEmpoyee.profileImage || "",
-      notes: editEmpoyee.notes || "",
-    });
-  }, [editEmpoyee, reset]);
-  console.log(editEmpoyee);
 
   const isSubmitting = isLoadingCreate || isLoadingUpdate;
   return (
-    <Modal
+    <BaseFormModal
       isOpen={openModal}
-      onClose={handleClose}
-      title={editEmployeeModal.isOpen ? "Editar empleado" : "Crear empleado"}
-      description={"Completa los datos del empleado"}
-      size="lg">
+      title={isEdit ? "Editar empleado" : "Crear empleado"}
+      description="Completa los datos del empleado"
+      size="lg"
+      isSubmitting={isSubmitting}
+      onClose={handleClose}>
       <EmployeeForm
-        register={register}
+        form={form}
         onSubmit={onSubmit}
-        control={control}
-        errors={errors}
         onCancel={handleClose}
         isEdit={isEdit}
-        isSubmitting={isSubmitting}
+        isSubmitting={isLoadingCreate || isLoadingUpdate}
       />
-    </Modal>
+    </BaseFormModal>
   );
 }
 

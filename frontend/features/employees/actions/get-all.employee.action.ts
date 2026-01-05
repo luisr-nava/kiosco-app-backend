@@ -1,6 +1,6 @@
 import { kioscoApi } from "@/lib/kioscoApi";
-import type { Pagination } from "@/app/(protected)/interfaces";
 import { Employee, GetAllEmployeesResponse } from "../types";
+import { Pagination } from "@/src/types";
 
 export const getEmployeesAction = async (
   shopId: string,

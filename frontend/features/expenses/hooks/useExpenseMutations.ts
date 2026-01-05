@@ -43,8 +43,9 @@ export const useExpenseDeleteMutation = () => {
   return useMutation({
     mutationFn: ({ id }: { id: string }) => deleteExpenseAction(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["customers", activeShopId] });
+      queryClient.invalidateQueries({ queryKey: ["expenses", activeShopId] });
     },
   });
 };
+
 

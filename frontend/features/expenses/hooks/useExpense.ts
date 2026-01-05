@@ -5,11 +5,9 @@ export const useExpenses = (
   page: number,
   limit: number = 10,
   enabled: boolean = true,
-  startDate?: string,
-  endDate?: string,
 ) => {
   const { expenses, pagination, expensesLoading, isFetching, refetch } =
-    useExpenseQuery({ search, page, limit, enabled, startDate, endDate });
+    useExpenseQuery({ search, page, limit, enabled });
 
   return {
     expenses,
@@ -19,3 +17,4 @@ export const useExpenses = (
     refetch,
   };
 };
+

@@ -28,7 +28,7 @@ export default function ExpensesPage() {
   const { data } = useCashRegisterStateQuery(activeShopId!);
   const hasOpenCashRegister = data?.hasOpenCashRegister === true;
   const [openCashModal, setOpenCashRegisterModal] = useState(false);
-  
+
   const handleCreateExpense = () => {
     if (!hasOpenCashRegister) {
       setOpenCashRegisterModal(true);
@@ -38,11 +38,7 @@ export default function ExpensesPage() {
     openCreate();
   };
 
-  const {
-    paymentMethods,
-    isLoading: paymentMethodsLoading,
-    isFetching: paymentMethodsFetching,
-  } = usePaymentMethods();
+  const { paymentMethods } = usePaymentMethods();
   return (
     <div className="space-y-4">
       <ExpenseHeader

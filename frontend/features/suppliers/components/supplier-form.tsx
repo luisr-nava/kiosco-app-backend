@@ -3,9 +3,13 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import type { Supplier } from "@/lib/types/supplier";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { Shop } from "@/lib/types/shop";
+import { Supplier } from "../types";
 
 export interface SupplierFormValues {
   name: string;
@@ -43,7 +47,7 @@ const DEFAULT_VALUES: SupplierFormValues = {
   shopIds: [],
 };
 
-export const SupplierForm = ({
+export default function SupplierForm({
   onSubmit,
   isSubmitting,
   editingSupplier,
@@ -55,7 +59,7 @@ export const SupplierForm = ({
   loadMoreCategories,
   hasMoreCategories,
   isLoadingCategories,
-}: SupplierFormProps) => {
+}: SupplierFormProps) {
   const form = useForm<SupplierFormValues>({
     defaultValues: DEFAULT_VALUES,
   });
@@ -81,7 +85,13 @@ export const SupplierForm = ({
         address: editingSupplier.address || "",
         notes: editingSupplier.notes || "",
         categoryId: editingSupplier.categoryId || "",
-        shopIds: editingSupplier.shopIds || (editingSupplier.shopId ? [editingSupplier.shopId] : activeShopId ? [activeShopId] : []),
+        shopIds:
+          editingSupplier.shopIds ||
+          (editingSupplier.shopId
+            ? [editingSupplier.shopId]
+            : activeShopId
+            ? [activeShopId]
+            : []),
       });
     } else {
       form.reset({
@@ -103,8 +113,8 @@ export const SupplierForm = ({
       shopIds: values.shopIds.length
         ? values.shopIds
         : activeShopId
-          ? [activeShopId]
-          : [],
+        ? [activeShopId]
+        : [],
     }),
   );
 
@@ -240,8 +250,8 @@ export const SupplierForm = ({
               ? "Guardando..."
               : "Creando..."
             : editingSupplier
-              ? "Actualizar proveedor"
-              : "Crear proveedor"}
+            ? "Actualizar proveedor"
+            : "Crear proveedor"}
         </Button>
         {editingSupplier && (
           <Button
@@ -255,4 +265,5 @@ export const SupplierForm = ({
       </div>
     </form>
   );
-};
+}
+

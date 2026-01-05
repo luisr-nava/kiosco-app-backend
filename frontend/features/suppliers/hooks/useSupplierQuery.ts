@@ -1,42 +1,54 @@
 import { useQuery } from "@tanstack/react-query";
-import { getExpensesAction } from "../actions";
+import { getSuppliersAction } from "../actions";
 import { useShopStore } from "@/features/shop/shop.store";
 
-interface UseExpenseQueryParams {
+interface UseSupplierQueryParams {
   search: string;
   page: number;
   limit?: number;
   enabled?: boolean;
+  startDate?: string;
+  endDate?: string;
 }
-
-export const useExpenseQuery = ({
+export const useSupplierQuery = ({
   search,
   page,
   limit = 10,
   enabled = true,
-}: UseExpenseQueryParams) => {
+  startDate,
+  endDate,
+}: UseSupplierQueryParams) => {
   const { activeShopId } = useShopStore();
-
   const query = useQuery({
-    queryKey: ["expenses", activeShopId, search, page, limit],
+    queryKey: [
+      "suppliers",
+      activeShopId,
+      search,
+      page,
+      limit,
+      startDate,
+      endDate,
+    ],
     queryFn: () =>
-      getExpensesAction(activeShopId!, {
+      getSuppliersAction(activeShopId!, {
         search,
         limit,
         page,
+        startDate,
+        endDate,
       }),
     enabled: enabled && Boolean(activeShopId),
     staleTime: 1000 * 30,
     placeholderData: (prev) => prev,
   });
 
-  const expenses = query.data?.expenses || [];
+  const suppliers = query.data?.suppliers || [];
   const pagination = query.data?.pagination;
 
   return {
-    expenses,
+    suppliers,
     pagination,
-    expensesLoading: query.isLoading,
+    supplierLoading: query.isLoading,
     isFetching: query.isFetching,
     refetch: query.refetch,
   };

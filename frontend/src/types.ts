@@ -1,5 +1,7 @@
 export interface Pagination {
-  search?: string;
-  page?: number;
-  limit?: number;
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
+

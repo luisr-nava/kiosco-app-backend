@@ -4,8 +4,8 @@ import { Employee } from "../types";
 export const useEmployeeModals = () => {
   const createEmployeeModal = useModal("createEmployee");
   const editEmployeeModal = useModal<Employee>("editEmployee");
-  const editEmpoyee = editEmployeeModal.data ?? null;
-  const isEdit = Boolean(editEmpoyee);
+  const editEmployee = editEmployeeModal.data ?? null;
+  const isEdit = Boolean(editEmployee);
 
   const openCreate = () => {
     createEmployeeModal.open();
@@ -24,7 +24,7 @@ export const useEmployeeModals = () => {
     createEmployeeModal,
     editEmployeeModal,
 
-    editEmpoyee,
+    editEmployee,
     isEdit,
 
     openCreate,

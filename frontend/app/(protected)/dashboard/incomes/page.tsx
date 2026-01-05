@@ -22,11 +22,8 @@ export default function IncomesPage() {
     page,
     limit,
   );
-  const {
-    paymentMethods,
-    isLoading: paymentMethodsLoading,
-    isFetching: paymentMethodsFetching,
-  } = usePaymentMethods();
+  const { paymentMethods } = usePaymentMethods();
+  
   const { data } = useCashRegisterStateQuery(activeShopId!);
   const hasOpenCashRegister = data?.hasOpenCashRegister === true;
   const [openCashModal, setOpenCashRegisterModal] = useState(false);

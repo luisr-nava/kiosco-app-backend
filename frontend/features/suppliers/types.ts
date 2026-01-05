@@ -24,3 +24,16 @@ export interface CreateSupplierDto {
   categoryId?: string | null;
   shopIds?: string[];
 }
+
+export interface GetSuppliersResponse {
+  message?: string;
+  data: Supplier[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    totalAmount?: number;
+  };
+
+}

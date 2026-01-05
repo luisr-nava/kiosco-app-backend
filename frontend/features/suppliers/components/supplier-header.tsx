@@ -10,14 +10,13 @@ interface Props {
   handleOpenCreate: () => void;
 }
 
-export default function EmployeeHeader({
+export default function SupplierHeader({
+  handleOpenCreate,
   search,
   setSearch,
-  handleOpenCreate,
 }: Props) {
   const [localSearch, setLocalSearch] = useState(search);
   const debouncedSearch = useDebounce(localSearch, 400);
-
   useEffect(() => {
     setLocalSearch(search);
   }, [search]);
@@ -36,20 +35,14 @@ export default function EmployeeHeader({
             Buscar
           </Label>
           <Input
-            className="w-full sm:w-64"
-            placeholder="Nombre o email"
+            className="w-full sm:w-56"
+            placeholder="Nombre"
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
           />
         </div>
-        <Button
-          className="w-full sm:w-auto"
-          onClick={() => {
-            setLocalSearch("");
-            setSearch("");
-            handleOpenCreate();
-          }}>
-          Nuevo empleado
+        <Button className="w-full sm:w-auto" onClick={handleOpenCreate}>
+          Nuevo Proveedor
         </Button>
       </div>
     </div>

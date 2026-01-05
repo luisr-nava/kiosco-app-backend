@@ -1,16 +1,16 @@
 "use client";
 
+import { BaseHeader } from "@/components/header/BaseHeader";
 import { Loading } from "@/components/loading";
-import {
-  EmployeeHeader,
-  EmployeeTable,
-  ModalEmployee,
-} from "@/features/employees/components";
-import { useEmployeeModals, useEmployees } from "@/features/employees/hooks/";
+import { BaseTable } from "@/components/table/BaseTable";
+import { EmployeeExpanded, ModalEmployee } from "@/features/employees/components";
+import { employeeColumns } from "@/features/employees/employee.columns";
+import { useEmployeeModals, useEmployees } from "@/features/employees/hooks";
+import { Employee } from "@/features/employees/types";
 import { usePaginationParams } from "@/src/hooks/usePaginationParams";
 
 export default function EmployeesPage() {
-  const { openCreate, openEdit } = useEmployeeModals();
+  const employeeModals = useEmployeeModals();
   const { search, setSearch, debouncedSearch, page, limit, setPage, setLimit } =
     usePaginationParams(300);
   const { employees, employeesLoading, pagination, isFetching } = useEmployees(
@@ -21,27 +21,39 @@ export default function EmployeesPage() {
 
   return (
     <div className="space-y-6">
-      <EmployeeHeader
-        handleOpenCreate={openCreate}
+      <BaseHeader
         search={search}
         setSearch={setSearch}
+        searchPlaceholder="Nombre o email"
+        createLabel="Nuevo empleado"
+        onCreate={employeeModals.openCreate}
       />
       {employeesLoading ? (
         <Loading />
       ) : (
-        <EmployeeTable
-          employees={employees}
-          handleEdit={openEdit}
-          limit={limit}
-          page={page}
-          setLimit={setLimit}
-          setPage={setPage}
-          pagination={pagination!}
-          isFetching={isFetching}
+        <BaseTable<Employee>
+          data={employees}
+          getRowId={(e) => e.id}
+          columns={employeeColumns}
+          actions={(e) => [
+            {
+              type: "edit",
+              onClick: employeeModals.openEdit,
+            },
+          ]}
+          renderExpandedContent={(e) => <EmployeeExpanded employee={e} />}
+          pagination={{
+            page,
+            limit,
+            totalPages: pagination!.totalPages,
+            totalItems: pagination!.total,
+            isFetching,
+            onPageChange: setPage,
+            onLimitChange: setLimit,
+          }}
         />
       )}
-
-      <ModalEmployee />
+      <ModalEmployee modals={employeeModals} />
     </div>
   );
 }
