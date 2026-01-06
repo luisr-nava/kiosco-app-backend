@@ -67,7 +67,9 @@ export function BaseHeader({
       {/* RIGHT */}
       {onCreate && (
         <div className="flex justify-end sm:items-end">
-          <Button onClick={onCreate}>{createLabel}</Button>
+          <Button onClick={onCreate} className="w-full">
+            {createLabel}
+          </Button>
         </div>
       )}
     </div>

@@ -3,29 +3,27 @@ import { getEmployeesAction } from "../actions";
 import { useShopStore } from "@/features/shop/shop.store";
 
 interface UseEmployeeQueryParams {
-  search: string;
-  page: number;
+  search?: string;
+  page?: number;
   limit?: number;
-  enabled?: boolean;
 }
 
-export const useEmployeeQuery = ({
-  search,
-  page,
-  limit = 10,
-  enabled = true,
-}: UseEmployeeQueryParams) => {
+export const useEmployeeQuery = (params: UseEmployeeQueryParams) => {
   const { activeShopId } = useShopStore();
 
   const query = useQuery({
-    queryKey: ["employees", activeShopId, search, page, limit],
+    queryKey: [
+      "employees",
+      activeShopId,
+      params.page,
+      params.limit,
+      params.search ?? "",
+    ],
     queryFn: () =>
       getEmployeesAction(activeShopId!, {
-        search,
-        limit,
-        page,
+        ...params,
       }),
-    enabled: enabled && Boolean(activeShopId),
+    enabled: Boolean(activeShopId),
     staleTime: 1000 * 30,
     placeholderData: (prev) => prev,
   });

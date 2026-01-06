@@ -1,13 +1,13 @@
 import { useEmployeeQuery } from "./useEmployeeQuery";
-
-export const useEmployees = (
-  search: string,
-  page: number,
-  limit: number = 10,
-  enabled: boolean = true,
-) => {
+interface UseEmployeeParams {
+  search?: string;
+  page: number;
+  limit?: number;
+  enabled?: boolean;
+}
+export const useEmployees = ({ ...params }: UseEmployeeParams) => {
   const { employees, pagination, employeesLoading, isFetching, refetch } =
-    useEmployeeQuery({ search, page, limit, enabled });
+    useEmployeeQuery(params);
 
   return {
     employees,

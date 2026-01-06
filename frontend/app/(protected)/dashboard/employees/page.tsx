@@ -3,26 +3,42 @@
 import { BaseHeader } from "@/components/header/BaseHeader";
 import { Loading } from "@/components/loading";
 import { BaseTable } from "@/components/table/BaseTable";
-import { EmployeeExpanded, ModalEmployee } from "@/features/employees/components";
+import {
+  EmployeeExpanded,
+  ModalEmployee,
+} from "@/features/employees/components";
 import { employeeColumns } from "@/features/employees/employee.columns";
 import { useEmployeeModals, useEmployees } from "@/features/employees/hooks";
 import { Employee } from "@/features/employees/types";
 import { usePaginationParams } from "@/src/hooks/usePaginationParams";
+import { useState } from "react";
 
 export default function EmployeesPage() {
   const employeeModals = useEmployeeModals();
-  const { search, setSearch, debouncedSearch, page, limit, setPage, setLimit } =
-    usePaginationParams(300);
-  const { employees, employeesLoading, pagination, isFetching } = useEmployees(
+  const {
+    searchInput,
+    setSearch,
     debouncedSearch,
     page,
     limit,
-  );
+    setPage,
+    setLimit,
+  } = usePaginationParams(300);
+  const [filters, setFilters] = useState<{
+    categoryId?: string;
+    supplierId?: string;
+  }>({});
+  const { employees, employeesLoading, pagination, isFetching } = useEmployees({
+    ...filters,
+    search: debouncedSearch,
+    page,
+    limit,
+  });
 
   return (
     <div className="space-y-6">
       <BaseHeader
-        search={search}
+        search={searchInput}
         setSearch={setSearch}
         searchPlaceholder="Nombre o email"
         createLabel="Nuevo empleado"
@@ -57,4 +73,5 @@ export default function EmployeesPage() {
     </div>
   );
 }
+
 

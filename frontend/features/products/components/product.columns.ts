@@ -1,5 +1,5 @@
 import { TableColumn } from "@/components/table/types";
-import { Product } from "./types";
+import { Product } from "../types";
 
 export const productColumns: TableColumn<Product>[] = [
   {
@@ -27,22 +27,10 @@ export const productColumns: TableColumn<Product>[] = [
     sortKey: (e) => e.salePrice,
   },
   {
-    header: "Proveedor",
-    cell: (e) => e.supplierName || "Sin proveedor",
-    sortable: true,
-    sortKey: (e) => e.supplierName || "Sin proveedor",
-  },
-  {
     header: "Estado",
     cell: (e) => (e.isActive ? "Activo" : "Desactivado"),
     sortable: true,
     sortKey: (e) => (e.isActive ? "Activo" : "Desactivado"),
   },
 ];
-
-
-
-
-
-
 

@@ -1,143 +1,166 @@
-import {
-  Control,
-  FieldErrors,
-  UseFormRegister,
-  useWatch,
-} from "react-hook-form";
-import { Label } from "@/components/ui/label";
+import { UseFormReturn } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { ModalFooter } from "@/components/ui/modal";
-import { Button } from "@/components/ui/button";
-import { CreateCustomerDto } from "../types";
+import { CreateCustomerDto, Customer } from "../types";
+import { BaseForm } from "@/components/form/BaseForm";
+import { FormGrid } from "@/components/form/FormGrid";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 type Props = {
-  register: UseFormRegister<CreateCustomerDto>;
-  control: Control<CreateCustomerDto>;
-  errors: FieldErrors<CreateCustomerDto>;
-  onSubmit: () => void;
+  form: UseFormReturn<CreateCustomerDto>;
+  onSubmit: (values: CreateCustomerDto) => void;
   onCancel: () => void;
   isEdit: boolean;
   isSubmitting: boolean;
 };
 
 export default function CustomerForm({
-  register,
-  control,
-  errors,
+  form,
   onSubmit,
   onCancel,
   isEdit,
   isSubmitting,
 }: Props) {
-  const [watchName] = useWatch<CreateCustomerDto>({
-    control,
-    name: ["fullName"],
-  });
-
-  const normalizedName =
-    typeof watchName === "string"
-      ? watchName.trim()
-      : String(watchName ?? "").trim();
-
-  const canSubmit = Boolean(normalizedName);
-
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <div className="space-y-3">
-        <div className="grid gap-1">
-          <Label>Nombre completo *</Label>
-          <Input
-            {...register("fullName", { required: "El nombre es obligatorio" })}
-            placeholder="Juan Pérez"
+    <>
+      <BaseForm
+        form={form}
+        onSubmit={onSubmit}
+        onCancel={onCancel}
+        submitLabel={isEdit ? "Actualizar producto" : "Crear producto"}
+        isSubmitting={isSubmitting}>
+        <FormGrid cols={2}>
+          <FormField
+            control={form.control}
+            name="fullName"
+            rules={{ required: "El nombre es obligatorio" }}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Nombre completo <span className="text-destructive">*</span>
+                </FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Luis Navarro" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          {errors.fullName && (
-            <p className="text-xs text-destructive">
-              {errors.fullName.message?.toString()}
-            </p>
-          )}
-        </div>
-        <div className="flex gap-5 w-full">
-          <div className="grid gap-1 w-1/2">
-            <Label>Email</Label>
-            <Input
-              type="email"
-              {...register("email")}
-              placeholder="cliente@email.com"
-            />
-          </div>
-          <div className="grid gap-1 w-1/2">
-            <Label>DNI</Label>
-            <Input
-              placeholder="00.000.000"
-              {...register("dni", {
-                pattern: {
-                  value: /^\d+$/,
-                  message: "El DNI solo puede contener números",
-                },
-                minLength: {
-                  value: 7,
-                  message: "El DNI debe tener al menos 7 dígitos",
-                },
-                maxLength: {
-                  value: 8,
-                  message: "El DNI no puede tener más de 8 dígitos",
-                },
-              })}
-              onChange={(e) => {
-                e.target.value = e.target.value.replace(/\D/g, "");
-              }}
-            />
-          </div>
-        </div>
-        <div className="flex gap-5 w-full">
-          <div className="grid gap-1 w-1/2">
-            <Label>Teléfono</Label>
-            <Input
-              type="tel"
-              {...register("phone")}
-              placeholder="+54 9 11 1234-5678"
-            />
-          </div>
-          <div className="grid gap-1 w-1/2">
-            <Label>Dirección</Label>
-            <Input {...register("address")} placeholder="Calle y número" />
-          </div>
-        </div>
-        <div className="grid gap-1">
-          <Label>Notas</Label>
-          <Textarea
-            {...register("notes")}
-            placeholder="Preferencias, historial de contacto u otras referencias"
-            rows={3}
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    value={field.value ?? ""}
+                    placeholder="cliente@email.com"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
-        <div className="grid gap-1">
-          <Label>Limite de Crédito</Label>
-          <Input
-            type="number"
-            {...register("creditLimit", {
-              valueAsNumber: true,
-              min: { value: 0, message: "No puede ser negativo" },
-            })}
-            placeholder="1000"
+        </FormGrid>
+        <FormGrid cols={2}>
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Teléfono</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    value={field.value ?? ""}
+                    placeholder="+54 9 11 1234-5678"
+                  />
+                </FormControl>
+              </FormItem>
+            )}
           />
-        </div>
-      </div>
-      <ModalFooter>
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Cancelar
-        </Button>
-        <Button type="submit" disabled={!canSubmit} variant="default">
-          {isSubmitting
-            ? "Guardando..."
-            : isEdit
-            ? "Actualizar cliente"
-            : "Crear cliente"}
-        </Button>
-      </ModalFooter>
-    </form>
+          <FormField
+            control={form.control}
+            name="address"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Direccion</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    value={field.value ?? ""}
+                    placeholder="Av. Corrientes N°1000"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </FormGrid>
+        <FormGrid cols={2}>
+          <FormField
+            control={form.control}
+            name="dni"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Documento de Identidad</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    value={field.value ?? ""}
+                    placeholder="3344556677"
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="notes"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Notas</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    value={field.value ?? ""}
+                    placeholder="Es de pagar los domingos"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </FormGrid>
+        <FormGrid cols={1}>
+          <FormField
+            control={form.control}
+            name="creditLimit"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Limite de credito</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="number"
+                    value={field.value ?? 0}
+                    placeholder="10000"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </FormGrid>
+      </BaseForm>
+    </>
   );
 }
-
 

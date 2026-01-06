@@ -33,7 +33,7 @@ export function TableActions<T>({ row, actions }: Props<T>) {
               key={index}
               size="icon"
               variant="outline"
-              className="text-destructive border-destructive"
+              className="text-destructive border-destructive hover:bg-destructive"
               disabled={action.disabled}
               onClick={() => action.onClick(row)}>
               <Trash2 className="h-4 w-4" />

@@ -1,24 +1,27 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
-import { useProducts } from "../../../../features/products/hooks/useProducts";
 import { supplierApi } from "@/lib/api/supplier.api";
 import { useMeasurementUnits } from "@/app/(protected)/settings/measurement-unit/hooks";
 import { useShopStore } from "@/features/shop/shop.store";
 import { usePaginationParams } from "@/src/hooks/usePaginationParams";
 import { Loading } from "@/components/loading";
-import { ModalProduct } from "@/features/products/components";
-import { useProductModals } from "@/features/products/hooks/useProductModals";
-import { BaseHeader } from "@/components/header/BaseHeader";
-import { BaseTable } from "@/components/table/BaseTable";
-import { productColumns } from "@/features/products/product.columns";
+import {
+  ModalProduct,
+  ProductExpanded,
+  ProductFilters,
+  productColumns,
+} from "@/features/products/components";
 import { Product } from "@/features/products/types";
 import { useState } from "react";
-import { ProductFilters } from "@/features/products/components/product-filters";
+import { useProductModals, useProducts } from "@/features/products/hooks";
+import { BaseTable } from "@/components/table/BaseTable";
+import { BaseHeader } from "@/components/header/BaseHeader";
 
 export default function ProductsPage() {
   const { activeShopId } = useShopStore();
 
   const productsModals = useProductModals();
+
   const {
     searchInput,
     debouncedSearch,
@@ -29,6 +32,7 @@ export default function ProductsPage() {
     setLimit,
     reset,
   } = usePaginationParams(500);
+
   const [filters, setFilters] = useState<{
     categoryId?: string;
     supplierId?: string;
@@ -97,7 +101,7 @@ export default function ProductsPage() {
             //   onClick: productsModals.openEdit,
             // },
           ]}
-          // renderExpandedContent={(e) => <EmployeeExpanded employee={e} />}
+          renderExpandedContent={(e) => <ProductExpanded product={e} />}
           pagination={{
             page,
             limit,
@@ -112,9 +116,7 @@ export default function ProductsPage() {
       <ModalProduct
         modals={productsModals}
         suppliers={suppliers}
-        suppliersLoading={suppliersLoading}
         measurementUnits={measurementUnits}
-        measurementUnitsLoading={measurementUnitsLoading}
       />
     </div>
   );

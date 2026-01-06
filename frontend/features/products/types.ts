@@ -95,5 +95,4 @@ export interface ProductQueryParams {
   lowStock?: boolean;
   page?: number;
   limit?: number;
-
 }

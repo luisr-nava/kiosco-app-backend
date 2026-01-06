@@ -1,12 +1,15 @@
 import { useCustomerQuery } from "./useCustomerQuery";
 
-export const useCustomers = (
-  search: string,
-  page: number,
-  limit: number = 10,
-) => {
+interface UseCustomerParams {
+  search?: string;
+  page: number;
+  limit?: number;
+  enabled?: boolean;
+}
+
+export const useCustomers = ({ ...params }: UseCustomerParams) => {
   const { customers, customersLoading, pagination, isFetching, refetch } =
-    useCustomerQuery({ search, page, limit });
+    useCustomerQuery(params);
 
   return {
     customers,

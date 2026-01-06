@@ -2,9 +2,10 @@ import { Modal } from "@/components/ui/modal";
 import { useCustomerForm, useCustomerModals } from "../hooks";
 import CustomerForm from "./customer-form";
 import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
-
-export default function ModalClient() {
+interface ModalCustomerProps {
+  modals: ReturnType<typeof useCustomerModals>;
+}
+export default function ModalClient({ modals }: ModalCustomerProps) {
   const {
     createCustomerModal,
     editCustomer,
@@ -13,63 +14,45 @@ export default function ModalClient() {
     deleteCustomer,
     isEdit,
     closeAll,
-  } = useCustomerModals();
+  } = modals;
+
   const openModal =
     createCustomerModal.isOpen ||
     editCustomerModal.isOpen ||
     deleteCustomerModal.isOpen;
 
   const {
-    initialForm,
-    reset,
+    form,
     isLoadingCreate,
     isLoadingUpdate,
-    isLoadingDelete,
-    register,
-    control,
-    errors,
     onSubmit,
-  } = useCustomerForm(editCustomer!, deleteCustomer!, () => {
+    reset,
+    isLoadingDelete,
+  } = useCustomerForm(editCustomer!, deleteCustomer!, isEdit, () => {
     closeAll();
-    reset({ ...initialForm });
   });
 
   const handleClose = () => {
     closeAll();
-    reset({ ...initialForm });
+    reset();
   };
 
-  const isSubmitting = isLoadingCreate || isLoadingUpdate || isLoadingDelete;
-
-  useEffect(() => {
-    if (!editCustomer) return;
-    reset({
-      fullName: editCustomer.fullName || "",
-      email: editCustomer.email || "",
-      dni: editCustomer.dni || "",
-      phone: editCustomer.phone || "",
-      address: editCustomer.address,
-      notes: editCustomer.notes || "",
-      creditLimit: +editCustomer.creditLimit || 0,
-    });
-  }, [editCustomer, reset]);
-
+  const isSubmitting = isLoadingCreate || isLoadingUpdate;
+  const title = editCustomerModal.isOpen
+    ? "Editar cliente"
+    : deleteCustomer
+    ? "Eliminar cliente"
+    : "Crear cliente";
+  const description =
+    editCustomerModal.isOpen || createCustomerModal.isOpen
+      ? "Completa los datos del cliente"
+      : "";
   return (
     <Modal
       isOpen={openModal}
       onClose={handleClose}
-      title={
-        editCustomerModal.isOpen
-          ? "Editar cliente"
-          : deleteCustomer
-          ? "Eliminar cliente"
-          : "Crear cliente"
-      }
-      description={
-        editCustomerModal.isOpen || createCustomerModal.isOpen
-          ? "Completa los datos del cliente"
-          : ""
-      }
+      title={title}
+      description={description}
       size="lg">
       {deleteCustomerModal.isOpen ? (
         <div className="space-y-4">
@@ -89,7 +72,9 @@ export default function ModalClient() {
             </Button>
             <Button
               variant="destructive"
-              onClick={onSubmit}
+              onClick={() => {
+                onSubmit(deleteCustomer!);
+              }}
               disabled={isLoadingDelete}>
               {isLoadingDelete ? "Eliminando..." : "¿Eliminar?"}
             </Button>
@@ -97,10 +82,8 @@ export default function ModalClient() {
         </div>
       ) : (
         <CustomerForm
-          register={register}
+          form={form}
           onSubmit={onSubmit}
-          control={control}
-          errors={errors}
           onCancel={handleClose}
           isEdit={isEdit}
           isSubmitting={isSubmitting}

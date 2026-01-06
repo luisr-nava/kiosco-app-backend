@@ -18,7 +18,7 @@ const initialForm: CreateProductDto = {
   stock: undefined,
   supplierId: "",
   isActive: true,
-  measurementUnitId: undefined,
+  measurementUnitId: "",
 };
 
 function mapProductToForm(
@@ -35,12 +35,15 @@ function mapProductToForm(
     stock: product.stock,
     supplierId: product.supplierId || "",
     isActive: product.isActive,
-    measurementUnitId: product.measurementUnit?.id,
+    measurementUnitId: product.measurementUnit?.id
+      ? String(product.measurementUnit.id)
+      : "",
   };
 }
 export const useProductForm = (
   editProduct?: Product,
   isEdit?: boolean,
+  measurementUnits: { id: string }[] = [],
   onClose?: () => void,
 ) => {
   const { activeShopId } = useShopStore();
@@ -70,6 +73,8 @@ export const useProductForm = (
         {
           onSuccess: () => {
             toast.success("Producto actualizado");
+            onClose?.();
+            updateMutation.reset();
           },
           onError: () => {
             toast.error("No se pudo actualizar el producto");
@@ -80,15 +85,13 @@ export const useProductForm = (
       createMutation.mutate(basePayload, {
         onSuccess: () => {
           toast.success("Producto creado");
+          onClose?.();
         },
         onError: () => {
           toast.error("No se pudo crear el producto");
         },
       });
     }
-
-    onClose?.();
-    updateMutation.reset();
   };
 
   useEffect(() => {
@@ -96,13 +99,18 @@ export const useProductForm = (
       form.reset(initialForm);
       return;
     }
+    if (!editProduct || measurementUnits.length === 0) return;
 
-    if (editProduct) {
-      const mapped = mapProductToForm(editProduct, initialForm);
-      console.log("MAPPED FORM", mapped);
-      form.reset(mapped);
-    }
-  }, [isEdit, editProduct, form]);
+    const mapped = mapProductToForm(editProduct, initialForm);
+    form.reset(mapped);
+
+    form.setValue("measurementUnitId", mapped.measurementUnitId, {
+      shouldDirty: false,
+      shouldTouch: false,
+      shouldValidate: false,
+    });
+  }, [isEdit, editProduct, measurementUnits, form]);
+
   return {
     form,
     activeShopId,

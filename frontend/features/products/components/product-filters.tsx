@@ -5,14 +5,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Supplier } from "@/features/suppliers/types";
 export interface ProductFiltersValue {
   categoryId?: string;
   supplierId?: string;
-  lowStock?: boolean;
-  isActive?: boolean;
 }
 interface Props {
   value: ProductFiltersValue;
@@ -22,7 +19,7 @@ interface Props {
   suppliers: Supplier[];
 }
 
-export function ProductFilters({
+export default function ProductFilters({
   value,
   onChange,
   //   categories,

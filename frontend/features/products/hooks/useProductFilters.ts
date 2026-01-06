@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 type ProductFilterValue = string | number | boolean | undefined;
 
-export function useProductFilters() {
+export const useProductFilters = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -28,5 +28,5 @@ export function useProductFilters() {
   };
 
   return { setFilter };
-}
+};
 

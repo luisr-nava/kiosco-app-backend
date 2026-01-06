@@ -1,5 +1,5 @@
-export { default as TableCustomers } from "./table-customers";
 export { default as CustomerForm } from "./customer-form";
-export { default as CustomerHeader } from "./customer-header";
-export { default as ModalClient } from "./modal-client";
+export { default as CustomerModal } from "./customer-modal";
+export { default as CustomerExpanded } from "./customer-expanded";
+export { customersColumns } from "./customer.columns";
 

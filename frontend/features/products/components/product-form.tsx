@@ -1,5 +1,5 @@
 import { Input } from "@/components/ui/input";
-import type { CreateProductDto } from "../types";
+import type { CreateProductDto, Product } from "../types";
 import type { MeasurementUnit } from "@/app/(protected)/settings/measurement-unit/interfaces";
 
 import { Controller, type UseFormReturn } from "react-hook-form";
@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 type Props = {
   form: UseFormReturn<CreateProductDto>;
@@ -30,6 +31,7 @@ type Props = {
   isSubmitting: boolean;
   suppliers: Supplier[];
   measurementUnits: MeasurementUnit[];
+  editProduct: Product;
 };
 
 export default function ProductForm({
@@ -226,47 +228,37 @@ export default function ProductForm({
         />
       </FormGrid>
       <FormGrid cols={2}>
-        <FormField
+        <Controller
           control={form.control}
           name="measurementUnitId"
           rules={{ required: "La unidad es requerida" }}
-          render={({ field }) => {
-            const ready =
-              !!field.value &&
-              measurementUnits.some((u) => u.id === field.value);
-
-            return (
-              <FormItem>
-                <FormLabel>
-                  Unidad de medida <span className="text-destructive">*</span>
-                </FormLabel>
-
-                {ready ? (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
-
-                    <SelectContent>
-                      {measurementUnits.map((unit) => (
-                        <SelectItem key={unit.id} value={unit.id}>
-                          {unit.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <div className="h-10 rounded-md border px-3 flex items-center text-muted-foreground text-sm">
-                    Seleccionar unidad
-                  </div>
-                )}
-
-                <FormMessage />
-              </FormItem>
-            );
-          }}
+          render={({ field, fieldState }) => (
+            <div className="">
+              <Label className="pb-2">
+                Unidad de medida <span className="text-destructive">*</span>
+              </Label>
+              <Select
+                key={field.value}
+                value={field.value}
+                onValueChange={field.onChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccionar unidad" />
+                </SelectTrigger>
+                <SelectContent>
+                  {measurementUnits.map((u) => (
+                    <SelectItem key={u.id} value={String(u.id)}>
+                      {u.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {fieldState.error && (
+                <p className="text-xs text-destructive">
+                  {fieldState.error.message}
+                </p>
+              )}
+            </div>
+          )}
         />
 
         {/* <FormField

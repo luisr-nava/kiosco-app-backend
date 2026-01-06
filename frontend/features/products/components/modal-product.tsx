@@ -1,27 +1,20 @@
 import { Modal } from "@/components/ui/modal";
 import { useProductForm } from "../hooks/useProductForm";
-import { useShopStore } from "@/features/shop/shop.store";
 import { MeasurementUnit } from "@/app/(protected)/settings/measurement-unit/interfaces";
 import ProductForm from "./product-form";
 import { useProductModals } from "../hooks/useProductModals";
-import { useEffect } from "react";
 import { Supplier } from "@/features/suppliers/types";
 
 interface ModalProductProps {
   suppliers: Supplier[];
-  suppliersLoading: boolean;
   measurementUnits: MeasurementUnit[];
-  measurementUnitsLoading: boolean;
   modals: ReturnType<typeof useProductModals>;
 }
 export default function ModalProduct({
   suppliers,
-  suppliersLoading,
   measurementUnits,
-  measurementUnitsLoading,
   modals,
 }: ModalProductProps) {
-  const { activeShopId } = useShopStore();
   const {
     createProductModal,
     editProductModal,
@@ -31,7 +24,7 @@ export default function ModalProduct({
   } = modals;
 
   const { form, isLoadingCreate, isLoadingUpdate, onSubmit, reset } =
-    useProductForm(editProduct!, isEdit, () => {
+    useProductForm(editProduct!, isEdit, measurementUnits, () => {
       closeAll();
       reset();
     });
@@ -57,6 +50,7 @@ export default function ModalProduct({
         isSubmitting={isLoadingCreate || isLoadingUpdate}
         suppliers={suppliers}
         measurementUnits={measurementUnits}
+        editProduct={editProduct!}
       />
     </Modal>
   );

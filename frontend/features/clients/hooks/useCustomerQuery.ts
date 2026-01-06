@@ -3,25 +3,25 @@ import { getAllCustomerAction } from "../actions/get-all.customer.action";
 import { useShopStore } from "@/features/shop/shop.store";
 
 interface UseCustomerQueryParams {
-  search: string;
-  page: number;
+  search?: string;
+  page?: number;
   limit?: number;
 }
 
-export const useCustomerQuery = ({
-  search,
-  page,
-  limit = 10,
-}: UseCustomerQueryParams) => {
+export const useCustomerQuery = (params: UseCustomerQueryParams) => {
   const { activeShopId } = useShopStore();
 
   const query = useQuery({
-    queryKey: ["customers", activeShopId, search, page, limit],
+    queryKey: [
+      "customers",
+      activeShopId,
+      params.page,
+      params.limit,
+      params.search ?? "",
+    ],
     queryFn: () =>
       getAllCustomerAction(activeShopId!, {
-        search,
-        limit,
-        page,
+        ...params,
       }),
     enabled: Boolean(activeShopId),
     staleTime: 1000 * 30,
