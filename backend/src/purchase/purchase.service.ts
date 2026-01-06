@@ -10,7 +10,7 @@ import { DeletePurchaseDto } from './dto/delete-purchase.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { CashRegisterService } from '../cash-register/cash-register.service';
 import { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface';
-import { Prisma } from '@prisma/client';
+import { Prisma, PurchaseStatus } from '@prisma/client';
 import { StockService } from '../stock/stock.service';
 
 interface PurchaseQuery {
@@ -21,6 +21,7 @@ interface PurchaseQuery {
   supplierId?: string;
   startDate?: string;
   endDate?: string;
+  status?: PurchaseStatus;
 }
 
 type PurchaseWithItems = Prisma.PurchaseGetPayload<{
@@ -245,6 +246,7 @@ export class PurchaseService {
       supplierId,
       startDate,
       endDate,
+      status,
     } = query;
 
     let accessibleShopIds: string[] = [];
@@ -283,7 +285,7 @@ export class PurchaseService {
 
     const filters: Prisma.PurchaseWhereInput = {
       shopId: { in: targetShopIds },
-      status: 'COMPLETED', // Por defecto solo mostrar compras completadas
+      status: status ?? 'COMPLETED',
     };
 
     if (supplierId) {
@@ -299,6 +301,29 @@ export class PurchaseService {
         purchaseDate.lte = new Date(endDate);
       }
       filters.purchaseDate = purchaseDate;
+    }
+
+    const normalizedSearch = search?.trim();
+
+    if (normalizedSearch) {
+      filters.OR = [
+        {
+          supplier: {
+            name: { contains: normalizedSearch, mode: 'insensitive' },
+          },
+        },
+        {
+          items: {
+            some: {
+              shopProduct: {
+                product: {
+                  name: { contains: normalizedSearch, mode: 'insensitive' },
+                },
+              },
+            },
+          },
+        },
+      ];
     }
 
     const [purchases, total] = await Promise.all([

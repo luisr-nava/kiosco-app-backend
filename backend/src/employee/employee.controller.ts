@@ -7,6 +7,7 @@ import {
   Param,
   UseGuards,
   Query,
+  ParseBoolPipe,
 } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
@@ -45,12 +46,18 @@ export class EmployeeController {
     @Param('shopId') shopId: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @Query('role') role?: string,
+    @Query('isActive', new ParseBoolPipe({ optional: true })) isActive?: boolean,
+    @Query('search') search?: string,
   ) {
     return this.employeeService.findAll(
       user,
       shopId,
       page ? parseInt(page, 10) : 1,
       limit ? parseInt(limit, 10) : 10,
+      role,
+      isActive,
+      search,
     );
   }
 

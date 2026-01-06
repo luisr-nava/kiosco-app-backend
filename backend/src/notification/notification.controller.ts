@@ -15,6 +15,7 @@ import type { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface
 import { UpdateNotificationPreferencesDto } from './dto/update-preferences.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { NotificationType } from '@prisma/client';
 
 @Controller()
 @UseGuards(JwtAuthGuard)
@@ -29,6 +30,7 @@ export class NotificationController {
     @GetUser() user: JwtPayload,
     @Query('shopId') shopId?: string,
     @Query('read') read?: string,
+    @Query('type') type?: string,
   ) {
     const readFilter =
       read === undefined
@@ -39,10 +41,16 @@ export class NotificationController {
             ? false
             : undefined;
 
+    const parsedType =
+      type && Object.values(NotificationType).includes(type as NotificationType)
+        ? (type as NotificationType)
+        : undefined;
+
     return this.notificationService.getNotifications(
       user.id,
       shopId,
       readFilter,
+      parsedType,
     );
   }
 

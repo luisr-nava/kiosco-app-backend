@@ -11,13 +11,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, Supplier } from '@prisma/client';
 import { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface';
 import { DEFAULT_CURRENCY_CODE } from '../common/constants/currencies';
-
-interface ProductQuery {
-  search?: string;
-  page?: number;
-  limit?: number;
-  shopId?: string;
-}
+import { ProductQueryDto } from './dto/product-query.dto';
 
 type MeasurementUnitWithShops = Prisma.MeasurementUnitGetPayload<{
   include: { shopMeasurementUnits: { select: { shopId: true } } };
@@ -33,6 +27,8 @@ type MeasurementUnitLike = {
   isBaseUnit: boolean;
   isDefault: boolean;
 };
+
+const DEFAULT_LOW_STOCK_THRESHOLD = 10;
 
 @Injectable()
 export class ProductService {
@@ -281,33 +277,59 @@ export class ProductService {
     };
   }
 
-  async getAllProducts(user: JwtPayload, query: ProductQuery) {
-    const { search, page = 1, limit = 20, shopId } = query;
+  async getAllProducts(user: JwtPayload, query: ProductQueryDto) {
+    const {
+      search,
+      page = 1,
+      limit = 20,
+      shopId,
+      categoryId,
+      supplierId,
+      isActive,
+      lowStock,
+    } = query;
 
-    let accessibleShopIds: string[] = [];
+    type AccessibleShop = { id: string; lowStockThreshold: number };
+    let accessibleShops: AccessibleShop[] = [];
+
     if (user.role === 'OWNER') {
       const shops = await this.prisma.shop.findMany({
         where: { ownerId: user.id },
-        select: { id: true },
+        select: { id: true, lowStockThreshold: true },
       });
-      accessibleShopIds = shops.map((s) => s.id);
+      accessibleShops = shops.map((shop) => ({
+        id: shop.id,
+        lowStockThreshold:
+          shop.lowStockThreshold ?? DEFAULT_LOW_STOCK_THRESHOLD,
+      }));
     } else {
       const employee = await this.prisma.employee.findFirst({
         where: { id: user.id },
-        select: { employeeShops: { select: { shopId: true } } },
+        select: {
+          employeeShops: {
+            select: {
+              shopId: true,
+              shop: { select: { lowStockThreshold: true } },
+            },
+          },
+        },
       });
 
-      if (!employee) {
+      const employeeShopData =
+        employee?.employeeShops.map((relation) => ({
+          id: relation.shopId,
+          lowStockThreshold:
+            relation.shop.lowStockThreshold ?? DEFAULT_LOW_STOCK_THRESHOLD,
+        })) ?? [];
+
+      if (employeeShopData.length === 0) {
         throw new ForbiddenException('No se encontró información del empleado');
       }
 
-      accessibleShopIds = employee.employeeShops.map(
-        (relation) => relation.shopId,
-      );
-      if (accessibleShopIds.length === 0) {
-        throw new ForbiddenException('No tenés tiendas asignadas');
-      }
+      accessibleShops = employeeShopData;
     }
+
+    const accessibleShopIds = accessibleShops.map((shop) => shop.id);
 
     if (shopId && !accessibleShopIds.includes(shopId)) {
       throw new ForbiddenException('No tenés acceso a esta tienda');
@@ -319,23 +341,57 @@ export class ProductService {
       throw new ForbiddenException('No tenés tiendas asignadas');
     }
 
-    const filters: {
-      shopId: { in: string[] };
-      product?: {
-        OR?: (
-          | { name: { contains: string; mode: 'insensitive' } }
-          | { barcode: { contains: string; mode: 'insensitive' } }
-        )[];
-      };
-    } = { shopId: { in: targetShopIds } };
+    const thresholdByShop = new Map(
+      accessibleShops.map((shop) => [shop.id, shop.lowStockThreshold]),
+    );
 
-    if (search) {
-      filters.product = {
-        OR: [
-          { name: { contains: search, mode: 'insensitive' } },
-          { barcode: { contains: search, mode: 'insensitive' } },
-        ],
-      };
+    const normalizedSearch = search?.trim();
+
+    const baseFilters: Prisma.ShopProductWhereInput = {
+      shopId: { in: targetShopIds },
+      ...(isActive !== undefined ? { isActive } : {}),
+    };
+
+    const productFilters: Prisma.ProductWhereInput = {};
+    if (categoryId) {
+      productFilters.categoryId = categoryId;
+    }
+    if (supplierId) {
+      productFilters.supplierId = supplierId;
+    }
+
+    if (normalizedSearch) {
+      productFilters.OR = [
+        { name: { contains: normalizedSearch, mode: 'insensitive' } },
+        { barcode: { contains: normalizedSearch, mode: 'insensitive' } },
+      ];
+    }
+
+    if (Object.keys(productFilters).length > 0) {
+      baseFilters.product = productFilters;
+    }
+
+    let filters: Prisma.ShopProductWhereInput = baseFilters;
+    if (lowStock) {
+      const stockCondition: Prisma.ShopProductWhereInput =
+        shopId && thresholdByShop.has(shopId)
+          ? {
+              stock: {
+                not: null,
+                lte: thresholdByShop.get(shopId)!,
+              },
+            }
+          : {
+              OR: targetShopIds.map((id) => ({
+                shopId: id,
+                stock: {
+                  not: null,
+                  lte: thresholdByShop.get(id) ?? DEFAULT_LOW_STOCK_THRESHOLD,
+                },
+              })),
+            };
+
+      filters = { AND: [baseFilters, stockCondition] };
     }
 
     const [shopProducts, total] = await Promise.all([

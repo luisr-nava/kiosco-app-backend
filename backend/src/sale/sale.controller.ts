@@ -17,6 +17,7 @@ import { UpdateSaleDto } from './dto/update-sale.dto';
 import { JwtAuthGuard } from '../auth-client/guards/jwt-auth.guard';
 import { GetUser } from '../auth-client/decorators/get-user.decorator';
 import type { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface';
+import { SaleStatus } from '@prisma/client';
 
 @UseGuards(JwtAuthGuard)
 @Controller('sale')
@@ -34,8 +35,20 @@ export class SaleController {
     @GetUser() user: JwtPayload,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
+    @Query('paymentMethodId') paymentMethodId?: string,
+    @Query('status') status?: string,
   ) {
-    return this.saleService.findAll(shopId, user, startDate, endDate);
+    const parsedStatus =
+      status && Object.values(SaleStatus).includes(status as SaleStatus)
+        ? (status as SaleStatus)
+        : undefined;
+
+    return this.saleService.findAll(shopId, user, {
+      startDate,
+      endDate,
+      paymentMethodId,
+      status: parsedStatus,
+    });
   }
 
   @Get(':id')

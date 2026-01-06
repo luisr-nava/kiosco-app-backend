@@ -9,6 +9,7 @@ import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import type { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface';
 import { PrismaService } from '../prisma/prisma.service';
+import type { Prisma } from '@prisma/client';
 
 @Injectable()
 export class EmployeeService {
@@ -163,7 +164,15 @@ export class EmployeeService {
     return updatedEmployee;
   }
 
-  async findAll(user: JwtPayload, shopId: string, page = 1, limit = 10) {
+  async findAll(
+    user: JwtPayload,
+    shopId: string,
+    page = 1,
+    limit = 10,
+    role?: string,
+    isActive?: boolean,
+    search?: string,
+  ) {
     if (user.role !== 'OWNER') {
       throw new ForbiddenException('Solo los OWNER pueden ver los empleados');
     }
@@ -180,13 +189,34 @@ export class EmployeeService {
 
     const skip = (page - 1) * limit;
 
-    const where = {
+    const where: Prisma.EmployeeWhereInput = {
       employeeShops: {
         some: {
           shopId,
         },
       },
+      ...(role ? { role } : {}),
+      ...(isActive !== undefined ? { isActive } : {}),
     };
+
+    const normalizedSearch = search?.trim();
+    if (normalizedSearch) {
+      const existingAnd = Array.isArray(where.AND)
+        ? where.AND
+        : where.AND
+          ? [where.AND]
+          : [];
+
+      where.AND = [
+        ...existingAnd,
+        {
+          OR: [
+            { fullName: { contains: normalizedSearch, mode: 'insensitive' } },
+            { email: { contains: normalizedSearch, mode: 'insensitive' } },
+          ],
+        },
+      ];
+    }
 
     const [employees, total] = await Promise.all([
       this.prisma.employee.findMany({

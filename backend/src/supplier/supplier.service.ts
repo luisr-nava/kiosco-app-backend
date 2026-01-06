@@ -9,6 +9,7 @@ import { UpdateSupplierDto } from './dto/update-supplier.dto';
 import { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
+import { SearchQueryWithInactiveDto } from '../common/dto';
 
 type SupplierWithRelations = Prisma.SupplierGetPayload<{
   include: {
@@ -269,18 +270,47 @@ export class SupplierService {
   // GET ALL
   // ───────────────────────────────────────────────
 
-  async getSuppliers(user: JwtPayload) {
+  async getSuppliers(user: JwtPayload, query: SearchQueryWithInactiveDto) {
+    const { search, includeInactive = false } = query;
     const { ownerId, shopId } = await this.getOwnerAndShopFromUser(user);
 
+    const filters: Prisma.SupplierWhereInput = { ownerId };
+
+    if (!includeInactive) {
+      filters.isActive = true;
+    }
+
+    if (user.role !== 'OWNER') {
+      filters.supplierShop = { some: { shopId: shopId! } };
+    }
+
+    if (search?.trim()) {
+      const normalizedSearch = search.trim();
+      filters.OR = [
+        { name: { contains: normalizedSearch, mode: 'insensitive' } },
+        {
+          contactName: {
+            contains: normalizedSearch,
+            mode: 'insensitive',
+          },
+        },
+        {
+          email: {
+            contains: normalizedSearch,
+            mode: 'insensitive',
+          },
+        },
+        {
+          phone: {
+            contains: normalizedSearch,
+            mode: 'insensitive',
+          },
+        },
+      ];
+    }
+
     return this.prisma.supplier.findMany({
-      where:
-        user.role === 'OWNER'
-          ? { ownerId, isActive: true }
-          : {
-              ownerId,
-              isActive: true,
-              supplierShop: { some: { shopId: shopId! } },
-            },
+      where: filters,
       include: {
         supplierShop: { select: { shopId: true } },
         category: { select: { id: true, name: true } },

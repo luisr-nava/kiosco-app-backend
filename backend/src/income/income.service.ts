@@ -105,6 +105,9 @@ export class IncomeService {
       endDate?: string;
       page?: number;
       limit?: number;
+      paymentMethodId?: string;
+      categoryId?: string;
+      search?: string;
     },
   ) {
     // Solo OWNER puede ver ingresos
@@ -126,6 +129,22 @@ export class IncomeService {
 
     if (filters.shopId) {
       where.shopId = filters.shopId;
+    }
+
+    if (filters.paymentMethodId) {
+      where.paymentMethodId = filters.paymentMethodId;
+    }
+
+    if (filters.categoryId) {
+      where.category = filters.categoryId;
+    }
+
+    const normalizedSearch = filters.search?.trim();
+    if (normalizedSearch) {
+      where.description = {
+        contains: normalizedSearch,
+        mode: 'insensitive',
+      };
     }
 
     if (filters.startDate || filters.endDate) {

@@ -64,6 +64,7 @@ export class CustomerService {
     page = 1,
     limit = 10,
     search?: string,
+    hasDebt?: boolean,
   ) {
     const shop = await this.prisma.shop.findUnique({
       where: { id: shopId },
@@ -80,6 +81,12 @@ export class CustomerService {
     }
     if (normalizedSearch) {
       where.fullName = { contains: normalizedSearch, mode: 'insensitive' };
+    }
+
+    if (hasDebt !== undefined) {
+      where.currentBalance = hasDebt
+        ? { gt: 0 }
+        : { lte: 0 };
     }
 
     const skip = (page - 1) * limit;

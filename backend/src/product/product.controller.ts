@@ -16,7 +16,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { GetUser } from '../auth-client/decorators/get-user.decorator';
 import type { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface';
 import { JwtAuthGuard } from '../auth-client/guards/jwt-auth.guard';
-import { SearchQueryWithShopDto } from '../common/dto';
+import { ProductQueryDto } from './dto/product-query.dto';
 
 @Controller('product')
 export class ProductController {
@@ -43,7 +43,7 @@ export class ProductController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  findAll(@GetUser() user: JwtPayload, @Query() query: SearchQueryWithShopDto) {
+  findAll(@GetUser() user: JwtPayload, @Query() query: ProductQueryDto) {
     return this.productService.getAllProducts(user, query);
   }
 

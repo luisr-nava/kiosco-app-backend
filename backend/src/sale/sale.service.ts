@@ -10,6 +10,7 @@ import { CreateSaleDto } from './dto/create-sale.dto';
 import { UpdateSaleDto } from './dto/update-sale.dto';
 import type { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface';
 import { StockService } from '../stock/stock.service';
+import { SaleStatus } from '@prisma/client';
 import type { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -316,8 +317,12 @@ export class SaleService {
   async findAll(
     shopId: string,
     user: JwtPayload,
-    startDate?: string,
-    endDate?: string,
+    filters: {
+      startDate?: string;
+      endDate?: string;
+      paymentMethodId?: string;
+      status?: SaleStatus;
+    },
   ) {
     const shop = await this.prisma.shop.findUnique({
       where: { id: shopId },
@@ -329,10 +334,18 @@ export class SaleService {
 
     const where: Prisma.SaleWhereInput = { shopId };
 
-    if (startDate || endDate) {
+    if (filters.paymentMethodId) {
+      where.paymentMethodId = filters.paymentMethodId;
+    }
+
+    if (filters.status) {
+      where.status = filters.status;
+    }
+
+    if (filters.startDate || filters.endDate) {
       const saleDate: Prisma.DateTimeFilter = {};
-      if (startDate) saleDate.gte = new Date(startDate);
-      if (endDate) saleDate.lte = new Date(endDate);
+      if (filters.startDate) saleDate.gte = new Date(filters.startDate);
+      if (filters.endDate) saleDate.lte = new Date(filters.endDate);
       where.saleDate = saleDate;
     }
 
