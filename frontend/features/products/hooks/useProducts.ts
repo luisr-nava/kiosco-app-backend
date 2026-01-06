@@ -1,18 +1,22 @@
-import { useProductQuery } from "./useProductQuery";
+import { useProductQuery } from "@/features/products/hooks/useProductQuery";
 
-export const useProducts = (
-  search: string,
-  page: number,
-  limit: number = 10,
-  enabled: boolean = true,
-) => {
-  const { products, productsLoading, pagination, isFetching, refetch } =
-    useProductQuery({ search, page, limit, enabled });
+interface UseProductsParams {
+  search?: string;
+  categoryId?: string;
+  supplierId?: string;
+  page: number;
+  limit?: number;
+  enabled?: boolean;
+}
+
+export const useProducts = ({ ...params }: UseProductsParams) => {
+  const { products, pagination, productsLoading, isFetching, refetch } =
+    useProductQuery(params);
 
   return {
     products,
-    productsLoading,
     pagination,
+    productsLoading,
     isFetching,
     refetch,
   };

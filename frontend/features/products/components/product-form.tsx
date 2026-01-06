@@ -1,204 +1,308 @@
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { ModalFooter } from "@/components/ui/modal";
-import { Button } from "@/components/ui/button";
-import { Controller, useWatch } from "react-hook-form";
 import type { CreateProductDto } from "../types";
-import type { Supplier } from "@/lib/types/supplier";
 import type { MeasurementUnit } from "@/app/(protected)/settings/measurement-unit/interfaces";
 
-import type { Control, FieldErrors, UseFormRegister } from "react-hook-form";
+import { Controller, type UseFormReturn } from "react-hook-form";
+import { Supplier } from "@/features/suppliers/types";
+import { BaseForm } from "@/components/form/BaseForm";
+import { FormGrid } from "@/components/form/FormGrid";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 
 type Props = {
-  register: UseFormRegister<CreateProductDto>;
-  control: Control<CreateProductDto>;
-  errors: FieldErrors<CreateProductDto>;
-  onSubmit: () => void;
+  form: UseFormReturn<CreateProductDto>;
+  onSubmit: (values: CreateProductDto) => void;
   onCancel: () => void;
   isEdit: boolean;
   isSubmitting: boolean;
   suppliers: Supplier[];
-  suppliersLoading: boolean;
   measurementUnits: MeasurementUnit[];
-  measurementUnitsLoading: boolean;
 };
 
 export default function ProductForm({
-  register,
-  control,
-  errors,
+  form,
   onSubmit,
   onCancel,
   isEdit,
   isSubmitting,
   suppliers,
-  suppliersLoading,
   measurementUnits,
-  measurementUnitsLoading,
 }: Props) {
-  const [
-    watchName,
-    watchCost,
-    watchSalePrice,
-    watchStock,
-    watchMeasurementUnitId,
-  ] = useWatch<CreateProductDto>({
-    control,
-    name: ["name", "costPrice", "salePrice", "stock", "measurementUnitId"],
-  });
-
-  const salePriceValue =
-    typeof watchSalePrice === "number"
-      ? watchSalePrice
-      : Number(watchSalePrice || 0);
-  const costPriceValue =
-    typeof watchCost === "number" ? watchCost : Number(watchCost || 0);
-  const stockValue =
-    typeof watchStock === "number" ? watchStock : Number(watchStock || 0);
-  const normalizedName =
-    typeof watchName === "string"
-      ? watchName.trim()
-      : String(watchName ?? "").trim();
-
-  const canSubmit = Boolean(
-    normalizedName &&
-      salePriceValue > 0 &&
-      costPriceValue < salePriceValue &&
-      stockValue > 0 &&
-      watchMeasurementUnitId,
-  );
-
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <div className="space-y-3">
-        <div className="grid gap-1">
-          <Label>Nombre *</Label>
-          <Input
-            {...register("name", { required: true })}
-            placeholder="Jabón"
-          />
-        </div>
-        <div className="grid gap-1">
-          <Label>Descripción</Label>
-          <Input {...register("description")} placeholder="Opcional" />
-        </div>
-        <div className="grid gap-1">
-          <Label>Código de barras</Label>
-          <Input {...register("barcode")} placeholder="EAN/UPC" />
-        </div>
-        <div className="grid grid-cols-3 gap-3">
-          <div className="grid gap-1">
-            <Label>Precio costo</Label>
-            <Input
-              type="number"
-              min={0.01}
-              step="0.01"
-              {...register("costPrice", {
-                required: "El precio de costo es requerido",
-                setValueAs: (value) => (value === "" ? 0 : Number(value)),
-                validate: (value, formValues) => {
-                  const sale = Number(
-                    (formValues as CreateProductDto)?.salePrice ?? 0,
-                  );
-                  if (value <= 0) return "El costo debe ser mayor a 0";
-                  if (sale && value >= sale) {
-                    return "El costo debe ser menor al precio de venta";
-                  }
-                  return true;
-                },
-              })}
-            />
-            {errors.costPrice && (
-              <p className="text-xs text-destructive">
-                {errors.costPrice.message?.toString()}
-              </p>
-            )}
-          </div>
-          <div className="grid gap-1">
-            <Label>Precio venta *</Label>
-            <Input
-              type="number"
-              min={0.01}
-              step="0.01"
-              {...register("salePrice", {
-                required: "El precio de venta es requerido",
-                setValueAs: (value) => (value === "" ? 0 : Number(value)),
-                validate: (value, formValues) => {
-                  const cost = Number(
-                    (formValues as CreateProductDto)?.costPrice ?? 0,
-                  );
-                  if (value <= 0)
-                    return "El precio de venta debe ser mayor a 0";
-                  if (cost && value <= cost) {
-                    return "El precio de venta debe ser mayor al costo";
-                  }
-                  return true;
-                },
-              })}
-            />
-            {errors.salePrice && (
-              <p className="text-xs text-destructive">
-                {errors.salePrice.message?.toString()}
-              </p>
-            )}
-          </div>
-          <div className="grid gap-1">
-            <Label>Stock</Label>
-            <Input
-              type="number"
-              min={1}
-              {...register("stock", {
-                setValueAs: (value) => (value === "" ? 0 : Number(value)),
-                validate: (value) => {
-                  if (value <= 0) return "El stock debe ser mayor a 0";
-                  return true;
-                },
-              })}
-            />
-            {errors.stock && (
-              <p className="text-xs text-destructive">
-                {errors.stock.message?.toString()}
-              </p>
-            )}
-          </div>
-        </div>
-        <div className="grid gap-1">
-          <Label>Proveedor (opcional)</Label>
-          <select
-            className="h-10 rounded-md border bg-background px-3 text-sm"
-            {...register("supplierId")}
-            disabled={suppliersLoading}>
-            <option value="">Sin proveedor</option>
-            {suppliers.map((supplier) => (
-              <option key={supplier.id} value={supplier.id}>
-                {supplier.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="grid gap-1">
-          <Label>Unidad de medida *</Label>
-          <select
-            className="h-10 rounded-md border bg-background px-3 text-sm"
-            {...register("measurementUnitId", { required: true })}
-            disabled={measurementUnitsLoading || measurementUnits.length === 0}>
-            <option value="">Seleccionar unidad</option>
-            {measurementUnits.map((unit) => (
-              <option key={unit.id} value={unit.id}>
-                {unit.name} ({unit.code})
-              </option>
-            ))}
-          </select>
-          {measurementUnits.length === 0 && !measurementUnitsLoading && (
-            <p className="text-xs text-destructive">
-              No hay unidades disponibles para esta tienda.
-            </p>
+    <BaseForm
+      form={form}
+      onSubmit={onSubmit}
+      onCancel={onCancel}
+      submitLabel={isEdit ? "Actualizar producto" : "Crear producto"}
+      isSubmitting={isSubmitting}>
+      <FormGrid cols={1}>
+        <FormField
+          control={form.control}
+          name="name"
+          rules={{ required: "El nombre es obligatorio" }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                Nombre completo <span className="text-destructive">*</span>
+              </FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Jabón" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           )}
-        </div>
-        {isEdit && (
+        />
+      </FormGrid>
+      <FormGrid cols={2}>
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Descripción</FormLabel>
+              <FormControl>
+                <Input placeholder="Producto de limpieza" {...field} />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="barcode"
+          rules={{ required: "El código de barras es obligatorio" }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                Código de barras <span className="text-destructive">*</span>
+              </FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="123123" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </FormGrid>
+      <FormGrid cols={3}>
+        <FormField
+          control={form.control}
+          rules={{
+            required: "El precio de costo es requerido",
+            min: {
+              value: 0.01,
+              message: "El precio debe ser mayor a 0",
+            },
+            validate: (costPrice) => {
+              const salePrice = form.getValues("salePrice");
+
+              if (salePrice == null) return true;
+
+              return (
+                costPrice! < salePrice ||
+                "El precio de costo debe ser menor al precio de venta"
+              );
+            },
+          }}
+          name="costPrice"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                Precio costo <span className="text-destructive">*</span>
+              </FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="100"
+                  {...field}
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  value={field.value ?? ""}
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value === ""
+                        ? undefined
+                        : Number(e.target.value),
+                    )
+                  }
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="salePrice"
+          rules={{
+            required: "El precio de venta es requerido",
+            min: {
+              value: 0.01,
+              message: "El precio debe ser mayor a 0",
+            },
+            validate: (salePrice) => {
+              const costPrice = form.getValues("costPrice");
+
+              if (costPrice == null) return true;
+
+              return (
+                salePrice! > costPrice ||
+                "El precio de venta debe ser mayor al precio de costo"
+              );
+            },
+          }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                Precio de venta <span className="text-destructive">*</span>
+              </FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  placeholder="150"
+                  value={field.value ?? ""}
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value === ""
+                        ? undefined
+                        : Number(e.target.value),
+                    )
+                  }
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="stock"
+          rules={{
+            required: "El stock es requerido",
+            min: {
+              value: 1,
+              message: "El stock debe ser mayor a 0",
+            },
+          }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                Stock <span className="text-destructive">*</span>
+              </FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  min={0}
+                  step="1"
+                  placeholder="10"
+                  {...field}
+                  value={field.value ?? ""}
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value === ""
+                        ? undefined
+                        : Number(e.target.value),
+                    )
+                  }
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </FormGrid>
+      <FormGrid cols={2}>
+        <FormField
+          control={form.control}
+          name="measurementUnitId"
+          rules={{ required: "La unidad es requerida" }}
+          render={({ field }) => {
+            const ready =
+              !!field.value &&
+              measurementUnits.some((u) => u.id === field.value);
+
+            return (
+              <FormItem>
+                <FormLabel>
+                  Unidad de medida <span className="text-destructive">*</span>
+                </FormLabel>
+
+                {ready ? (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+
+                    <SelectContent>
+                      {measurementUnits.map((unit) => (
+                        <SelectItem key={unit.id} value={unit.id}>
+                          {unit.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <div className="h-10 rounded-md border px-3 flex items-center text-muted-foreground text-sm">
+                    Seleccionar unidad
+                  </div>
+                )}
+
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
+
+        {/* <FormField
+          control={form.control}
+          name="supplierId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Proveedor</FormLabel>
+
+              <Select
+                value={field.value ?? ""}
+                onValueChange={(value) => field.onChange(value)}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona un proveedor" />
+                  </SelectTrigger>
+                </FormControl>
+
+                <SelectContent>
+                  {suppliers.map((supplier) => (
+                    <SelectItem key={supplier.id} value={supplier.id}>
+                      {supplier.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <FormMessage />
+            </FormItem>
+          )}
+        /> */}
+      </FormGrid>
+      {isEdit && (
+        <FormGrid cols={1}>
           <Controller
-            control={control}
+            control={form.control}
             name="isActive"
             render={({ field }) => (
               <div className="flex items-center justify-between rounded-md border px-3 py-2">
@@ -215,21 +319,9 @@ export default function ProductForm({
               </div>
             )}
           />
-        )}
-      </div>
-      <ModalFooter>
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Cancelar
-        </Button>
-        <Button type="submit" disabled={!canSubmit || isSubmitting}>
-          {isSubmitting
-            ? "Guardando..."
-            : isEdit
-            ? "Actualizar producto"
-            : "Crear producto"}
-        </Button>
-      </ModalFooter>
-    </form>
+        </FormGrid>
+      )}
+    </BaseForm>
   );
 }
 

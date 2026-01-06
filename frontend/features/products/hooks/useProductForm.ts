@@ -6,39 +6,53 @@ import { CreateProductDto, Product } from "../types";
 import { useForm } from "react-hook-form";
 import { useShopStore } from "@/features/shop/shop.store";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 const initialForm: CreateProductDto = {
   name: "",
   description: "",
   barcode: "",
   shopId: "",
-  costPrice: 0,
-  salePrice: 0,
-  stock: 1,
+  costPrice: undefined,
+  salePrice: undefined,
+  stock: undefined,
   supplierId: "",
   isActive: true,
-  measurementUnitId: "",
+  measurementUnitId: undefined,
 };
 
-export const useProductForm = (editProduct?: Product, onClose?: () => void) => {
+function mapProductToForm(
+  product: Product,
+  initialForm: CreateProductDto,
+): CreateProductDto {
+  return {
+    ...initialForm,
+    name: product.name,
+    description: product.description || "",
+    barcode: product.barcode || "",
+    costPrice: product.costPrice,
+    salePrice: product.salePrice,
+    stock: product.stock,
+    supplierId: product.supplierId || "",
+    isActive: product.isActive,
+    measurementUnitId: product.measurementUnit?.id,
+  };
+}
+export const useProductForm = (
+  editProduct?: Product,
+  isEdit?: boolean,
+  onClose?: () => void,
+) => {
   const { activeShopId } = useShopStore();
 
   const createMutation = usePoductCreateMutation();
   const updateMutation = useProductUpdateMutation();
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    control,
-    getValues,
-    formState: { errors },
-  } = useForm<CreateProductDto>({
+  const form = useForm<CreateProductDto>({
     defaultValues: initialForm,
   });
 
-  const onSubmit = handleSubmit((values) => {
+  const onSubmit = async (values: CreateProductDto) => {
     const { isActive, ...restValues } = values;
 
     const basePayload: CreateProductDto = {
@@ -75,22 +89,30 @@ export const useProductForm = (editProduct?: Product, onClose?: () => void) => {
 
     onClose?.();
     updateMutation.reset();
-  });
+  };
 
+  useEffect(() => {
+    if (!isEdit) {
+      form.reset(initialForm);
+      return;
+    }
+
+    if (editProduct) {
+      const mapped = mapProductToForm(editProduct, initialForm);
+      console.log("MAPPED FORM", mapped);
+      form.reset(mapped);
+    }
+  }, [isEdit, editProduct, form]);
   return {
+    form,
     activeShopId,
     createMutation,
     updateMutation,
     isLoadingCreate: createMutation.isPending,
     isLoadingUpdate: updateMutation.isPending,
-    register,
-    reset,
     onSubmit,
+    reset: form.reset,
     initialForm,
-    setValue,
-    control,
-    getValues,
-    errors,
   };
 };
 

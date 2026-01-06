@@ -13,6 +13,7 @@ import { Pagination } from "@/components/pagination";
 import { TableAction, TableColumn, TablePagination } from "./types";
 import { useTableSort } from "./useTableSort";
 import { TableActions } from "./TableActions";
+import EmptyTable from "../empty-table";
 
 interface BaseTableProps<T> {
   data: T[];
@@ -71,52 +72,58 @@ export function BaseTable<T>({
 
       {/* BODY */}
       <TableBody>
-        {sortedData.map((row) => {
-          const id = getRowId(row);
-          const isOpen = expandedRow === id;
+        {sortedData.length === 0 ? (
+          <EmptyTable colSpan={7} title="No datos cargados"/>
+        ) : (
+          sortedData.map((row) => {
+            const id = getRowId(row);
+            const isOpen = expandedRow === id;
 
-          return (
-            <React.Fragment key={id}>
-              <TableRow
-                className={isExpandable ? "cursor-pointer" : undefined}
-                onClick={
-                  isExpandable
-                    ? () => setExpandedRow(isOpen ? null : id)
-                    : undefined
-                }>
-                {columns.map((col) => (
-                  <TableCell
-                    key={col.header}
-                    className={col.align === "right" ? "text-right" : ""}>
-                    {col.cell(row)}
-                  </TableCell>
-                ))}
+            return (
+              <React.Fragment key={id}>
+                <TableRow
+                  className={isExpandable ? "cursor-pointer" : undefined}
+                  onClick={
+                    isExpandable
+                      ? () => setExpandedRow(isOpen ? null : id)
+                      : undefined
+                  }>
+                  {columns.map((col) => (
+                    <TableCell
+                      key={col.header}
+                      className={col.align === "right" ? "text-right" : ""}>
+                      {col.cell(row)}
+                    </TableCell>
+                  ))}
 
-                {actions && (
-                  <TableCell align="right" onClick={(e) => e.stopPropagation()}>
-                    <TableActions
-                      row={row}
-                      actions={actions(row).map((a) => ({
-                        ...a,
-                        disabled: a.disabled?.(row),
-                      }))}
-                    />
-                  </TableCell>
-                )}
-              </TableRow>
-
-              {isExpandable && isOpen && (
-                <TableRow className="bg-muted/40">
-                  <TableCell
-                    colSpan={columns.length + (actions ? 1 : 0)}
-                    className="p-0">
-                    {renderExpandedContent!(row)}
-                  </TableCell>
+                  {actions && (
+                    <TableCell
+                      align="right"
+                      onClick={(e) => e.stopPropagation()}>
+                      <TableActions
+                        row={row}
+                        actions={actions(row).map((a) => ({
+                          ...a,
+                          disabled: a.disabled?.(row),
+                        }))}
+                      />
+                    </TableCell>
+                  )}
                 </TableRow>
-              )}
-            </React.Fragment>
-          );
-        })}
+
+                {isExpandable && isOpen && (
+                  <TableRow className="bg-muted/40">
+                    <TableCell
+                      colSpan={columns.length + (actions ? 1 : 0)}
+                      className="p-0">
+                      {renderExpandedContent!(row)}
+                    </TableCell>
+                  </TableRow>
+                )}
+              </React.Fragment>
+            );
+          })
+        )}
       </TableBody>
 
       {/* FOOTER (opcional) */}

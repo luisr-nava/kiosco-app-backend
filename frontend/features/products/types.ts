@@ -31,13 +31,13 @@ export interface CreateProductDto {
   description?: string;
   barcode?: string;
   shopId: string;
-  costPrice: number;
-  salePrice: number;
-  stock: number;
+  costPrice?: number;
+  salePrice?: number;
+  stock?: number;
   supplierId?: string | null;
   categoryId?: string;
   isActive?: boolean;
-  measurementUnitId: string;
+  measurementUnitId?: string;
 }
 
 export interface CreateProductResponse {
@@ -47,7 +47,6 @@ export interface CreateProductResponse {
     shopProduct: ShopProduct;
   };
 }
-
 
 export interface GetAllProductResponse {
   message: string;
@@ -87,3 +86,14 @@ export interface ProductMeasurementUnit {
 }
 
 
+export interface ProductQueryParams {
+  shopId?: string;
+  search?: string;
+  categoryId?: string;
+  supplierId?: string;
+  isActive?: boolean;
+  lowStock?: boolean;
+  page?: number;
+  limit?: number;
+
+}

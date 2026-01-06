@@ -1,17 +1,14 @@
 import { kioscoApi } from "@/lib/kioscoApi";
-import { GetAllProductResponse, Product } from "../types";
-import { Pagination } from "@/src/types";
+import { GetAllProductResponse, Product, ProductQueryParams } from "../types";
 
 export const GetAllProductAction = async (
-  shopId: string,
-  params: Pagination,
+  params: ProductQueryParams,
 ): Promise<{
   products: Product[];
   pagination: GetAllProductResponse["pagination"];
 }> => {
-  const { data } = await kioscoApi.get<GetAllProductResponse>(`/product`, {
+  const { data } = await kioscoApi.get<GetAllProductResponse>("/product", {
     params: {
-      shopId: shopId || undefined,
       ...params,
       page: params.page ?? 1,
       limit: params.limit ?? 10,
@@ -23,4 +20,6 @@ export const GetAllProductAction = async (
     pagination: data.pagination,
   };
 };
+
+
 

@@ -1,32 +1,25 @@
 import { kioscoApi } from "@/lib/kioscoApi";
 import type { CreatePurchaseDto, Purchase } from "@/lib/types/purchase";
-import { unwrapResponse } from "./utils";
 
 const PURCHASE_BASE_PATH = "/purchase";
 
 export const purchaseApi = {
   listAll: async (): Promise<Purchase[]> => {
-    const { data } = await kioscoApi.get<Purchase[] | { data: Purchase[] }>(
-      PURCHASE_BASE_PATH,
-    );
-    return unwrapResponse(data);
+    const { data } = await kioscoApi.get<Purchase[]>(PURCHASE_BASE_PATH);
+    return data;
   },
-  listByShop: async (
-    shopId: string,
-  ): Promise<Purchase[]> => {
-    const { data } = await kioscoApi.get<Purchase[] | { data: Purchase[] }>(
-      PURCHASE_BASE_PATH,
-      {
+  listByShop: async (shopId: string): Promise<Purchase[]> => {
+    const { data } = await kioscoApi.get<Purchase[]>(PURCHASE_BASE_PATH, {
       params: { shopId },
-      },
-    );
-    return unwrapResponse(data);
+    });
+    return data;
   },
   create: async (payload: CreatePurchaseDto): Promise<Purchase> => {
-    const { data } = await kioscoApi.post<Purchase | { data: Purchase }>(
+    const { data } = await kioscoApi.post<Purchase>(
       PURCHASE_BASE_PATH,
       payload,
     );
-    return unwrapResponse(data);
+    return data;
   },
 };
+

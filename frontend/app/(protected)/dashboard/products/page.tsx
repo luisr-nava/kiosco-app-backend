@@ -6,25 +6,40 @@ import { useMeasurementUnits } from "@/app/(protected)/settings/measurement-unit
 import { useShopStore } from "@/features/shop/shop.store";
 import { usePaginationParams } from "@/src/hooks/usePaginationParams";
 import { Loading } from "@/components/loading";
-import {
-  ModalProduct,
-  ProductHeader,
-  TableProducts,
-} from "@/features/products/components";
+import { ModalProduct } from "@/features/products/components";
 import { useProductModals } from "@/features/products/hooks/useProductModals";
+import { BaseHeader } from "@/components/header/BaseHeader";
+import { BaseTable } from "@/components/table/BaseTable";
+import { productColumns } from "@/features/products/product.columns";
+import { Product } from "@/features/products/types";
+import { useState } from "react";
+import { ProductFilters } from "@/features/products/components/product-filters";
 
 export default function ProductsPage() {
   const { activeShopId } = useShopStore();
 
-  const { openCreate, openEdit } = useProductModals();
-  const { search, setSearch, debouncedSearch, page, limit, setPage, setLimit } =
-    usePaginationParams(300);
-  const { products, productsLoading, pagination, isFetching } = useProducts(
+  const productsModals = useProductModals();
+  const {
+    searchInput,
     debouncedSearch,
     page,
     limit,
-    Boolean(activeShopId),
-  );
+    setSearch,
+    setPage,
+    setLimit,
+    reset,
+  } = usePaginationParams(500);
+  const [filters, setFilters] = useState<{
+    categoryId?: string;
+    supplierId?: string;
+  }>({});
+
+  const { products, productsLoading, pagination, isFetching } = useProducts({
+    ...filters,
+    search: debouncedSearch,
+    page,
+    limit,
+  });
 
   // ? TODO: Move to supplier hook
   const { data: suppliers = [], isLoading: suppliersLoading } = useQuery({
@@ -36,30 +51,66 @@ export default function ProductsPage() {
   const { measurementUnits, isLoading: measurementUnitsLoading } =
     useMeasurementUnits();
 
+  const hasActiveFilters = Boolean(
+    searchInput || filters.categoryId || filters.supplierId,
+  );
+
   return (
     <div className="space-y-4">
-      <ProductHeader
-        handleOpenCreate={openCreate}
-        search={search}
+      <BaseHeader
+        search={searchInput}
         setSearch={setSearch}
+        filters={
+          <ProductFilters
+            value={filters}
+            onChange={(next) => {
+              setFilters((prev) => ({ ...prev, ...next }));
+              setPage(1);
+            }}
+            suppliers={suppliers}
+          />
+        }
+        createLabel={"Nuevo producto"}
+        showClearFilters={hasActiveFilters}
+        onClearFilters={() => {
+          reset();
+          setFilters({});
+          setSearch("");
+        }}
+        onCreate={productsModals.openCreate}
       />
+
       {productsLoading ? (
         <Loading />
       ) : (
-        <div className="p-5 space-y-4">
-          <TableProducts
-            products={products}
-            handleEdit={openEdit}
-            limit={limit}
-            page={page}
-            setLimit={setLimit}
-            setPage={setPage}
-            pagination={pagination!}
-            isFetching={isFetching}
-          />
-        </div>
+        <BaseTable<Product>
+          data={products}
+          getRowId={(e) => e.id}
+          columns={productColumns}
+          actions={(e) => [
+            {
+              type: "edit",
+              onClick: productsModals.openEdit,
+            },
+            // {
+            //   type: "delete",
+            //   onClick: productsModals.openEdit,
+            // },
+          ]}
+          // renderExpandedContent={(e) => <EmployeeExpanded employee={e} />}
+          pagination={{
+            page,
+            limit,
+            totalPages: pagination?.totalPages || 0,
+            totalItems: pagination?.total || 0,
+            isFetching,
+            onPageChange: setPage,
+            onLimitChange: setLimit,
+          }}
+        />
       )}
       <ModalProduct
+        modals={productsModals}
         suppliers={suppliers}
         suppliersLoading={suppliersLoading}
         measurementUnits={measurementUnits}

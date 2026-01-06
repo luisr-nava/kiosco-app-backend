@@ -1,40 +1,35 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { GetAllProductAction } from "../actions/get-all.product.action";
 import { useShopStore } from "@/features/shop/shop.store";
+import { ProductQueryParams } from "../types";
 
-interface UseProductQueryParams {
-  search: string;
-  page: number;
-  limit?: number;
-  enabled?: boolean;
-}
-
-export const useProductQuery = ({
-  search,
-  page,
-  limit = 10,
-  enabled = true,
-}: UseProductQueryParams) => {
+export const useProductQuery = (params: Omit<ProductQueryParams, "shopId">) => {
   const { activeShopId } = useShopStore();
 
   const query = useQuery({
-    queryKey: ["products", activeShopId, search, page, limit],
+    queryKey: [
+      "products",
+      activeShopId,
+      params.page,
+      params.limit,
+      params.search ?? "",
+      params.categoryId ?? "",
+      params.supplierId ?? "",
+    ],
     queryFn: () =>
-      GetAllProductAction(activeShopId || "", {
-        search,
-        page,
-        limit,
+      GetAllProductAction({
+        ...params,
+        shopId: activeShopId!,
       }),
-    enabled: enabled && Boolean(activeShopId),
+    enabled: Boolean(activeShopId),
+    staleTime: 5000,
+    refetchOnWindowFocus: false,
+    retry: false,
   });
 
-  const products = query.data?.products || [];
-  const pagination = query.data?.pagination;
-
   return {
-    products,
-    pagination,
+    products: query.data?.products ?? [],
+    pagination: query.data?.pagination,
     productsLoading: query.isLoading,
     isFetching: query.isFetching,
     refetch: query.refetch,

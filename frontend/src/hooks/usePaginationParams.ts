@@ -1,85 +1,38 @@
-import { useCallback } from "react";
-import { useDebounce } from "./useDebounce";
+import { useEffect, useState } from "react";
 import { useQueryParams } from "./useQueryParams";
+import { useDebounce } from "./useDebounce";
 
-interface PaginationParams {
-  search?: string;
-  page?: string;
-  limit?: string;
-}
+export function usePaginationParams(debounceDelay = 500) {
+  const { params, updateParams, resetParams } = useQueryParams();
 
-interface UsePaginationOptions {
-  debounceDelay?: number;
-  defaultPage?: number;
-  defaultLimit?: number;
-}
+  const page = params.page ?? 1;
+  const limit = params.limit ?? 10;
 
-export function usePaginationParams(debounceDelay: number = 500) {
-  const { params, updateParams, resetParams } = useQueryParams({
-    debounceDelay,
-    debounceKeys: ["search"],
-  });
+  const [searchInput, setSearchInput] = useState(params.search ?? "");
 
-  // Valores con defaults
-  const search = (params.search as string) || "";
-  const page = Number(params.page) || 1;
-  const limit = Number(params.limit) || 10;
+  const debouncedSearch = useDebounce(searchInput, debounceDelay);
 
-  // Aplicar debounce solo para usarlo en queries, no para la URL
-  const debouncedSearch = useDebounce(search, debounceDelay);
+  useEffect(() => {
+    const current = params.search ?? "";
+    const next = debouncedSearch.trim();
 
-  /**
-   * Actualiza la búsqueda (con debounce) y resetea la página a 1
-   */
-  const setSearch = useCallback(
-    (value: string) => {
-      updateParams({ search: value, page: 1 });
-    },
-    [updateParams],
-  );
+    if (current === next) return;
 
-  /**
-   * Actualiza la página
-   */
-  const setPage = useCallback(
-    (value: number) => {
-      updateParams({ page: value });
-    },
-    [updateParams],
-  );
-
-  /**
-   * Actualiza el límite y resetea a página 1
-   */
-  const setLimit = useCallback(
-    (value: number) => {
-      updateParams({ limit: value, page: 1 });
-    },
-    [updateParams],
-  );
-
-  /**
-   * Resetea todos los parámetros a sus valores por defecto
-   */
-  const reset = useCallback(() => {
-    resetParams();
-  }, [resetParams]);
+    updateParams({
+      search: next || undefined,
+      page: 1,
+    });
+  }, [debouncedSearch, params.search, updateParams]);
 
   return {
-    // Valores actuales
-    search,
+    searchInput,
+    debouncedSearch,
     page,
     limit,
-    debouncedSearch, // Para usar en queries
-
-    // Setters
-    setSearch,
-    setPage,
-    setLimit,
-    reset,
-
-    // Utilidad para actualizar múltiples a la vez
-    updateParams,
+    setSearch: setSearchInput,
+    setPage: (p: number) => updateParams({ page: p }),
+    setLimit: (l: number) => updateParams({ limit: l, page: 1 }),
+    reset: resetParams,
   };
 }
 

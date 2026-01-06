@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { useHeaderSearch } from "./useHeaderSearch";
+import { useDebounce } from "@/src/hooks/useDebounce";
 
 interface BaseHeaderProps {
   search: string;
@@ -15,8 +16,10 @@ interface BaseHeaderProps {
   createLabel?: string;
 
   filters?: ReactNode;
-}
 
+  onClearFilters?: () => void;
+  showClearFilters?: boolean;
+}
 export function BaseHeader({
   search,
   setSearch,
@@ -25,42 +28,48 @@ export function BaseHeader({
   onCreate,
   createLabel = "Nuevo",
   filters,
+  onClearFilters,
+  showClearFilters,
 }: BaseHeaderProps) {
-  const { localSearch, setLocalSearch, resetSearch } = useHeaderSearch(
-    search,
-    setSearch,
-  );
-
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      {/* LEFT */}
+      <div className="flex flex-col sm:flex-row sm:items-end gap-3 w-full">
         {/* Search */}
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Label className="text-sm text-muted-foreground whitespace-nowrap">
-            {searchLabel}
-          </Label>
+        <div className="space-y-1">
+          <Label>{searchLabel}</Label>
           <Input
             className="w-full sm:w-64"
             placeholder={searchPlaceholder}
-            value={localSearch}
-            onChange={(e) => setLocalSearch(e.target.value)}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
-        {/* Extra filters */}
-        {filters}
+        {/* Filters */}
+        <div className="flex flex-wrap items-end gap-3">
+          {filters}
 
-        {/* Create */}
-        {onCreate && (
-          <Button
-            className="w-full sm:w-auto"
-            onClick={() => {
-              onCreate();
-            }}>
-            {createLabel}
-          </Button>
-        )}
+          {showClearFilters && onClearFilters && (
+            <div className="flex flex-col gap-1">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-10"
+                onClick={onClearFilters}>
+                Borrar filtros
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* RIGHT */}
+      {onCreate && (
+        <div className="flex justify-end sm:items-end">
+          <Button onClick={onCreate}>{createLabel}</Button>
+        </div>
+      )}
     </div>
   );
 }
