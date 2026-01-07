@@ -10,16 +10,14 @@ interface ResetPasswordResponse {
 }
 
 export const resetPasswordAction = async (
-  payload: ResetPasswordPayload,
+  payload: ResetPasswordPayload
 ): Promise<ResetPasswordResponse> => {
   try {
-    const { data } = await authApi.post<ResetPasswordResponse>(
-      "/auth/reset-password",
-      { ...payload },
-    );
+    const { data } = await authApi.post<ResetPasswordResponse>("/auth/reset-password", {
+      ...payload,
+    });
     return data;
   } catch (error) {
     throw error;
   }
 };
-

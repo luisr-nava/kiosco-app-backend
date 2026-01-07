@@ -1,10 +1,7 @@
 import { authApi } from "@/lib/authApi";
 import { LoginResponse } from "../types";
 
-export const loginActions = async (
-  email: string,
-  password: string,
-): Promise<LoginResponse> => {
+export const loginActions = async (email: string, password: string): Promise<LoginResponse> => {
   console.log({ email, password });
 
   try {
@@ -23,4 +20,3 @@ export const loginActions = async (
     throw error;
   }
 };
-

@@ -18,8 +18,7 @@ export const useRegister = () => {
       {
         onSuccess: () => {
           toast.success("¡Cuenta creada exitosamente!", {
-            description:
-              "Te hemos enviado un código de verificación de 6 dígitos a tu email.",
+            description: "Te hemos enviado un código de verificación de 6 dígitos a tu email.",
             duration: 5000,
           });
 
@@ -33,7 +32,7 @@ export const useRegister = () => {
             duration: 5000,
           });
         },
-      },
+      }
     );
   };
   // const mutation = useMutation({
@@ -76,4 +75,3 @@ export const useRegister = () => {
     isLoading: isPending,
   };
 };
-

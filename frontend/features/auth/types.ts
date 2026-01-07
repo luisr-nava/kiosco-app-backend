@@ -60,4 +60,3 @@ export interface RegisterFormData {
 export interface RegisterActionPayload extends RegisterFormData {
   verifyPassword: string;
 }
-

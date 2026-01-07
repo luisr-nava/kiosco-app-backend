@@ -6,4 +6,3 @@ export const getAllShops = async (): Promise<Shop[]> => {
 
   return data.data;
 };
-

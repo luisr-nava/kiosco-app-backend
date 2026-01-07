@@ -6,8 +6,7 @@ interface UseEmployeeParams {
   enabled?: boolean;
 }
 export const useEmployees = ({ ...params }: UseEmployeeParams) => {
-  const { employees, pagination, employeesLoading, isFetching, refetch } =
-    useEmployeeQuery(params);
+  const { employees, pagination, employeesLoading, isFetching, refetch } = useEmployeeQuery(params);
 
   return {
     employees,
@@ -17,4 +16,3 @@ export const useEmployees = ({ ...params }: UseEmployeeParams) => {
     refetch,
   };
 };
-

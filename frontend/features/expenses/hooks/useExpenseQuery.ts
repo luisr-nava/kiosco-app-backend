@@ -41,4 +41,3 @@ export const useExpenseQuery = ({
     refetch: query.refetch,
   };
 };
-

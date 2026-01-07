@@ -12,16 +12,12 @@ export default function SupplierPage() {
   const { suppliers, supplierLoading, pagination, isFetching } = useSupplier(
     debouncedSearch,
     page,
-    limit,
+    limit
   );
 
   return (
     <div className="space-y-6">
-      <SupplierHeader
-        handleOpenCreate={openCreate}
-        search={search}
-        setSearch={setSearch}
-      />
+      <SupplierHeader handleOpenCreate={openCreate} search={search} setSearch={setSearch} />
       {supplierLoading ? (
         <Loading />
       ) : (
@@ -155,4 +151,3 @@ export default function SupplierPage() {
     // </div>
   );
 }
-

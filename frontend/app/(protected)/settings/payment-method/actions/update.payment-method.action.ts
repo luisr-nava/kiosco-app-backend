@@ -3,13 +3,9 @@ import type { CreatePaymentMethodDto, PaymentMethod } from "../interfaces";
 
 export const updatePaymentMethodAction = async (
   id: string,
-  payload: Partial<CreatePaymentMethodDto>,
+  payload: Partial<CreatePaymentMethodDto>
 ): Promise<PaymentMethod> => {
-  const { data } = await kioscoApi.patch<PaymentMethod>(
-    `/payment-method/${id}`,
-    payload,
-  );
+  const { data } = await kioscoApi.patch<PaymentMethod>(`/payment-method/${id}`, payload);
 
   return data;
 };
-

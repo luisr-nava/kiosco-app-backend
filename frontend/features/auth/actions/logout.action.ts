@@ -7,4 +7,3 @@ export const logoutActions = async (): Promise<void> => {
     throw error;
   }
 };
-

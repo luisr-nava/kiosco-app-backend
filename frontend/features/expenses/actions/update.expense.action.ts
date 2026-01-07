@@ -3,9 +3,8 @@ import type { CreateExpenseDto, Expense } from "../types";
 
 export const updateExpenseAction = async (
   id: string,
-  payload: Partial<CreateExpenseDto>,
+  payload: Partial<CreateExpenseDto>
 ): Promise<Expense> => {
   const { data } = await kioscoApi.patch<Expense>(`/expense/${id}`, payload);
   return data;
 };
-

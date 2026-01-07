@@ -53,4 +53,3 @@ export interface GetAllEmployeesResponse {
   };
   data: Employee[];
 }
-

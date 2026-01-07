@@ -33,4 +33,3 @@ export const productColumns: TableColumn<Product>[] = [
     sortKey: (e) => (e.isActive ? "Activo" : "Desactivado"),
   },
 ];
-

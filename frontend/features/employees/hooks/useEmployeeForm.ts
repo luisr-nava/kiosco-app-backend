@@ -1,9 +1,6 @@
 import { CreateEmployeeDto, Employee } from "../types";
 import { useShopStore } from "@/features/shop/shop.store";
-import {
-  useEmployeeCreateMutation,
-  useEmployeeUpdateMutation,
-} from "./useEmployeeMutations";
+import { useEmployeeCreateMutation, useEmployeeUpdateMutation } from "./useEmployeeMutations";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useEffect } from "react";
@@ -25,10 +22,7 @@ const initialForm: CreateEmployeeDto = {
   shopIds: [],
 };
 
-function mapEmployeeToForm(
-  employee: Employee,
-  initialForm: CreateEmployeeDto,
-): CreateEmployeeDto {
+function mapEmployeeToForm(employee: Employee, initialForm: CreateEmployeeDto): CreateEmployeeDto {
   return {
     ...initialForm,
     fullName: employee.fullName ?? "",
@@ -36,9 +30,7 @@ function mapEmployeeToForm(
     dni: employee.dni ?? "",
     phone: employee.phone ?? "",
     address: employee.address ?? "",
-    hireDate: employee.hireDate
-      ? String(employee.hireDate).slice(0, 10)
-      : undefined,
+    hireDate: employee.hireDate ? String(employee.hireDate).slice(0, 10) : undefined,
     salary: employee.salary ?? 0,
     notes: employee.notes ?? "",
     profileImage: employee.profileImage ?? "",
@@ -51,7 +43,7 @@ function mapEmployeeToForm(
 export const useEmployeeForm = (
   editEmployee?: Employee,
   isEdit?: boolean,
-  onClose?: () => void,
+  onClose?: () => void
 ) => {
   const { activeShopId } = useShopStore();
   const createMutation = useEmployeeCreateMutation();
@@ -80,7 +72,7 @@ export const useEmployeeForm = (
           onError: () => {
             toast.error("No se pudo actualizar el empleado");
           },
-        },
+        }
       );
     } else {
       createMutation.mutate(payload, {
@@ -116,4 +108,3 @@ export const useEmployeeForm = (
     isLoadingUpdate: updateMutation.isPending,
   };
 };
-

@@ -88,9 +88,7 @@ export function Sidebar() {
       icon: TrendingDown,
     },
   ];
-  const isInMovements = movementItems.some((item) =>
-    pathname.startsWith(item.href),
-  );
+  const isInMovements = movementItems.some((item) => pathname.startsWith(item.href));
   const showMovementsExpanded = movementsOpen || (!collapsed && isInMovements);
 
   const contactItems = [
@@ -105,9 +103,7 @@ export function Sidebar() {
       icon: User,
     },
   ];
-  const isInContacts = contactItems.some((item) =>
-    pathname.startsWith(item.href),
-  );
+  const isInContacts = contactItems.some((item) => pathname.startsWith(item.href));
   const showContactsExpanded = contactsOpen || (!collapsed && isInContacts);
 
   const settingsItems = [
@@ -127,43 +123,37 @@ export function Sidebar() {
       icon: UsersRound,
     },
   ];
-  const isInSettingsGroup = settingsItems.some((item) =>
-    pathname.startsWith(item.href),
-  );
-  const showSettingsExpanded =
-    settingsOpen || (!collapsed && isInSettingsGroup);
+  const isInSettingsGroup = settingsItems.some((item) => pathname.startsWith(item.href));
+  const showSettingsExpanded = settingsOpen || (!collapsed && isInSettingsGroup);
   const baseNavClasses =
     "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-1";
-  const collapsedJustify = collapsed
-    ? "justify-center group-hover:justify-start"
-    : "justify-start";
+  const collapsedJustify = collapsed ? "justify-center group-hover:justify-start" : "justify-start";
   const getNavItemClasses = (isActive: boolean) =>
     cn(
       baseNavClasses,
       collapsedJustify,
       isActive
         ? "bg-primary text-primary-foreground shadow-sm"
-        : "text-muted-foreground hover:bg-primary/15 hover:text-foreground focus-visible:text-foreground focus-visible:bg-primary/15",
+        : "text-muted-foreground hover:bg-primary/15 hover:text-foreground focus-visible:text-foreground focus-visible:bg-primary/15"
     );
   const getNavIconClasses = () =>
-    cn(
-      "shrink-0 transition-colors duration-150",
-      collapsed ? "text-current" : "text-current",
-    );
+    cn("shrink-0 transition-colors duration-150", collapsed ? "text-current" : "text-current");
 
   return (
     <aside
       className={cn(
-        "hidden md:block fixed inset-y-0 left-0 z-30 border-r bg-card group transition-all duration-300",
-        collapsed ? "w-16 hover:w-64" : "w-64",
-      )}>
+        "bg-card group fixed inset-y-0 left-0 z-30 hidden border-r transition-all duration-300 md:block",
+        collapsed ? "w-16 hover:w-64" : "w-64"
+      )}
+    >
       <div className="flex h-full flex-col overflow-hidden">
         <div className="flex items-center gap-3 px-3 py-4">
           <button
             type="button"
             aria-label="Alternar menú"
             onClick={() => setCollapsed((prev) => !prev)}
-            className="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-accent transition-colors">
+            className="hover:bg-accent flex h-10 w-10 items-center justify-center rounded-lg transition-colors"
+          >
             {collapsed ? (
               <Menu className="h-5 w-5 shrink-0" />
             ) : (
@@ -172,33 +162,32 @@ export function Sidebar() {
           </button>
           <div
             className={cn(
-              "transition-all duration-300 overflow-hidden",
+              "overflow-hidden transition-all duration-300",
               collapsed
                 ? "w-0 opacity-0 group-hover:w-auto group-hover:opacity-100"
-                : "w-auto opacity-100",
-            )}>
+                : "w-auto opacity-100"
+            )}
+          >
             <h2 className="text-2xl font-bold whitespace-nowrap">Balanzio</h2>
           </div>
         </div>
 
-        <nav className="space-y-1 px-2 pb-6 overflow-y-auto flex-1">
+        <nav className="flex-1 space-y-1 overflow-y-auto px-2 pb-6">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
 
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={getNavItemClasses(isActive)}>
+              <Link key={item.href} href={item.href} className={getNavItemClasses(isActive)}>
                 <Icon className={getNavIconClasses()} />
                 <span
                   className={cn(
                     "block overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200",
                     collapsed
                       ? "max-w-0 opacity-0 group-hover:max-w-[200px] group-hover:opacity-100"
-                      : "max-w-[200px] opacity-100",
-                  )}>
+                      : "max-w-[200px] opacity-100"
+                  )}
+                >
                   {item.label}
                 </span>
               </Link>
@@ -209,47 +198,45 @@ export function Sidebar() {
             <button
               type="button"
               onClick={() => setMovementsOpen((prev) => !prev)}
-              className={getNavItemClasses(isInMovements)}>
+              className={getNavItemClasses(isInMovements)}
+            >
               <ArrowLeftRight className={getNavIconClasses()} />
               <span
                 className={cn(
                   "block overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200",
                   collapsed
                     ? "max-w-0 opacity-0 group-hover:max-w-[200px] group-hover:opacity-100"
-                    : "max-w-[200px] opacity-100",
-                )}>
+                    : "max-w-[200px] opacity-100"
+                )}
+              >
                 Movimientos
               </span>
               <ChevronDown
                 className={cn(
                   "ml-auto h-4 w-4 shrink-0 transition-transform",
                   showMovementsExpanded ? "rotate-180" : "",
-                  collapsed ? "hidden group-hover:inline-block" : "",
+                  collapsed ? "hidden group-hover:inline-block" : ""
                 )}
               />
             </button>
             {showMovementsExpanded && (
               <div
-                className={cn(
-                  "flex flex-col gap-1 pl-3",
-                  collapsed ? "group-hover:flex" : "flex",
-                )}>
+                className={cn("flex flex-col gap-1 pl-3", collapsed ? "group-hover:flex" : "flex")}
+              >
                 {movementItems.map((item) => {
                   const Icon = item.icon;
                   const isActive = pathname.startsWith(item.href);
                   return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={getNavItemClasses(isActive)}>
+                    <Link key={item.href} href={item.href} className={getNavItemClasses(isActive)}>
                       <Icon className={getNavIconClasses()} />
                       <span
                         className={cn(
                           "block overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200",
                           collapsed
                             ? "max-w-0 opacity-0 group-hover:max-w-[200px] group-hover:opacity-100"
-                            : "max-w-[200px] opacity-100",
-                        )}>
+                            : "max-w-[200px] opacity-100"
+                        )}
+                      >
                         {item.label}
                       </span>
                     </Link>
@@ -263,47 +250,45 @@ export function Sidebar() {
             <button
               type="button"
               onClick={() => setContactsOpen((prev) => !prev)}
-              className={getNavItemClasses(isInContacts)}>
+              className={getNavItemClasses(isInContacts)}
+            >
               <Users className={getNavIconClasses()} />
               <span
                 className={cn(
                   "block overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200",
                   collapsed
                     ? "max-w-0 opacity-0 group-hover:max-w-[200px] group-hover:opacity-100"
-                    : "max-w-[200px] opacity-100",
-                )}>
+                    : "max-w-[200px] opacity-100"
+                )}
+              >
                 Contactos
               </span>
               <ChevronDown
                 className={cn(
                   "ml-auto h-4 w-4 shrink-0 transition-transform",
                   showContactsExpanded ? "rotate-180" : "",
-                  collapsed ? "hidden group-hover:inline-block" : "",
+                  collapsed ? "hidden group-hover:inline-block" : ""
                 )}
               />
             </button>
             {showContactsExpanded && (
               <div
-                className={cn(
-                  "flex flex-col gap-1 pl-3",
-                  collapsed ? "group-hover:flex" : "flex",
-                )}>
+                className={cn("flex flex-col gap-1 pl-3", collapsed ? "group-hover:flex" : "flex")}
+              >
                 {contactItems.map((item) => {
                   const Icon = item.icon;
                   const isActive = pathname.startsWith(item.href);
                   return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={getNavItemClasses(isActive)}>
+                    <Link key={item.href} href={item.href} className={getNavItemClasses(isActive)}>
                       <Icon className={getNavIconClasses()} />
                       <span
                         className={cn(
                           "block overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200",
                           collapsed
                             ? "max-w-0 opacity-0 group-hover:max-w-[200px] group-hover:opacity-100"
-                            : "max-w-[200px] opacity-100",
-                        )}>
+                            : "max-w-[200px] opacity-100"
+                        )}
+                      >
                         {item.label}
                       </span>
                     </Link>
@@ -317,47 +302,45 @@ export function Sidebar() {
             <button
               type="button"
               onClick={() => setSettingsOpen((prev) => !prev)}
-              className={getNavItemClasses(isInSettingsGroup)}>
+              className={getNavItemClasses(isInSettingsGroup)}
+            >
               <Settings className={getNavIconClasses()} />
               <span
                 className={cn(
                   "block overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200",
                   collapsed
                     ? "max-w-0 opacity-0 group-hover:max-w-[200px] group-hover:opacity-100"
-                    : "max-w-[200px] opacity-100",
-                )}>
+                    : "max-w-[200px] opacity-100"
+                )}
+              >
                 Ajustes
               </span>
               <ChevronDown
                 className={cn(
                   "ml-auto h-4 w-4 shrink-0 transition-transform",
                   showSettingsExpanded ? "rotate-180" : "",
-                  collapsed ? "hidden group-hover:inline-block" : "",
+                  collapsed ? "hidden group-hover:inline-block" : ""
                 )}
               />
             </button>
             {showSettingsExpanded && (
               <div
-                className={cn(
-                  "flex flex-col gap-1 pl-3",
-                  collapsed ? "group-hover:flex" : "flex",
-                )}>
+                className={cn("flex flex-col gap-1 pl-3", collapsed ? "group-hover:flex" : "flex")}
+              >
                 {settingsItems.map((item) => {
                   const Icon = item.icon;
                   const isActive = pathname.startsWith(item.href);
                   return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={getNavItemClasses(isActive)}>
+                    <Link key={item.href} href={item.href} className={getNavItemClasses(isActive)}>
                       <Icon className={getNavIconClasses()} />
                       <span
                         className={cn(
                           "block overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200",
                           collapsed
                             ? "max-w-0 opacity-0 group-hover:max-w-[200px] group-hover:opacity-100"
-                            : "max-w-[200px] opacity-100",
-                        )}>
+                            : "max-w-[200px] opacity-100"
+                        )}
+                      >
                         {item.label}
                       </span>
                     </Link>
@@ -371,4 +354,3 @@ export function Sidebar() {
     </aside>
   );
 }
-

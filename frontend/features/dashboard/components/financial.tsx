@@ -37,15 +37,11 @@ export default function Financial() {
               <p className="text-center">Cargando...</p>
             ) : (
               <div className="flex items-center gap-5">
-                <item.icon className="h-6 w-6 text-primary/80 stroke-2" />
+                <item.icon className="text-primary/80 h-6 w-6 stroke-2" />
                 <div className="flex items-center gap-5">
                   <div className="">
-                    <p className="text-sm text-muted-foreground">
-                      {item.label}
-                    </p>
-                    <p className="text-2xl font-semibold">
-                      {formatCurrency(item.value ?? 0)}
-                    </p>
+                    <p className="text-muted-foreground text-sm">{item.label}</p>
+                    <p className="text-2xl font-semibold">{formatCurrency(item.value ?? 0)}</p>
                   </div>
                 </div>
               </div>
@@ -56,5 +52,3 @@ export default function Financial() {
     </div>
   );
 }
-
-

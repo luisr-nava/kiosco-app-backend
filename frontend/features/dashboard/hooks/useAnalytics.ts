@@ -22,13 +22,10 @@ export const useAnalytics = () => {
   const bestSales = analytics?.insights.bestSale ?? null;
   const hasAnyValue = useMemo(
     () =>
-      [
-        ...salesSeries,
-        ...purchasesSeries,
-        ...incomesSeries,
-        ...expensesSeries,
-      ].some((p) => p.value > 0),
-    [salesSeries, purchasesSeries, incomesSeries, expensesSeries],
+      [...salesSeries, ...purchasesSeries, ...incomesSeries, ...expensesSeries].some(
+        (p) => p.value > 0
+      ),
+    [salesSeries, purchasesSeries, incomesSeries, expensesSeries]
   );
 
   const salesVsPurchasesChart = useMemo(
@@ -61,7 +58,7 @@ export const useAnalytics = () => {
         },
       ],
     }),
-    [salesSeries, purchasesSeries, period],
+    [salesSeries, purchasesSeries, period]
   );
   const incomesVsExpensesChart = useMemo(() => {
     return {
@@ -107,4 +104,3 @@ export const useAnalytics = () => {
     bestSales,
   };
 };
-

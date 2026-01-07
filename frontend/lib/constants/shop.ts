@@ -224,7 +224,7 @@ export const CURRENCY_OPTIONS = RAW_CURRENCY_OPTIONS.map((line) => {
 const COMMON_CURRENCY_SET = new Set(COMMON_CURRENCIES);
 
 const COMMON_CURRENCY_OPTIONS = COMMON_CURRENCIES.map((code) =>
-  CURRENCY_OPTIONS.find((currency) => currency.code === code),
+  CURRENCY_OPTIONS.find((currency) => currency.code === code)
 ).filter(Boolean) as { code: string; label: string }[];
 
 export const ORDERED_CURRENCY_OPTIONS = [

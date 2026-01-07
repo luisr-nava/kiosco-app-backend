@@ -3,12 +3,8 @@ import { authApi } from "@/lib/authApi";
 
 export const updateAuthUserAction = async (
   id: string,
-  payload: Partial<CreateEmployeeDto>,
+  payload: Partial<CreateEmployeeDto>
 ): Promise<EmployeeAuth> => {
-  const { data } = await authApi.patch<EmployeeAuth>(
-    `/auth/employee/${id}`,
-    payload,
-  );
+  const { data } = await authApi.patch<EmployeeAuth>(`/auth/employee/${id}`, payload);
   return data;
 };
-

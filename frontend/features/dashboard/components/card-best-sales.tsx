@@ -8,17 +8,15 @@ interface CardBestSalesProps {
 export default function CardBestSales({ bestSales }: CardBestSalesProps) {
   const formatCurrency = useCurrencyFormatter();
   return (
-    <Card className="mx-4 w-1/2 h-[280px] flex flex-col">
+    <Card className="mx-4 flex h-[280px] w-1/2 flex-col">
       <CardTitle className="px-4 py-3">Mejor venta del período</CardTitle>
 
       <CardContent className="flex-1 px-4">
         {!bestSales ? (
-          <p className="text-sm text-muted-foreground">
-            No hay ventas destacadas en este período
-          </p>
+          <p className="text-muted-foreground text-sm">No hay ventas destacadas en este período</p>
         ) : (
-          <div className="rounded-md border border-primary bg-primary/10 p-4 space-y-2">
-            <p className="text-sm text-muted-foreground">
+          <div className="border-primary bg-primary/10 space-y-2 rounded-md border p-4">
+            <p className="text-muted-foreground text-sm">
               {new Date(bestSales.date).toLocaleDateString("es-AR", {
                 day: "2-digit",
                 month: "long",
@@ -26,18 +24,18 @@ export default function CardBestSales({ bestSales }: CardBestSalesProps) {
               })}
             </p>
             <div className="flex justify-end text-sm">
-              <p className="text-lg font-semibold justify-end">
+              <p className="justify-end text-lg font-semibold">
                 {formatCurrency(bestSales.total ?? 0)}
               </p>
             </div>
 
-            <div className="flex justify-end text-sm text-muted-foreground">
+            <div className="text-muted-foreground flex justify-end text-sm">
               <span>Total de ítems: {bestSales.itemsCount}</span>
             </div>
 
-            <div className="flex justify-between text-sm text-muted-foreground">
+            <div className="text-muted-foreground flex justify-between text-sm">
               {/* <span>Detalle</span> */}
-              <span className="font-medium text-foreground">
+              <span className="text-foreground font-medium">
                 {/* {bestSales.name ?? "Venta general"} */}
               </span>
             </div>
@@ -47,4 +45,3 @@ export default function CardBestSales({ bestSales }: CardBestSalesProps) {
     </Card>
   );
 }
-

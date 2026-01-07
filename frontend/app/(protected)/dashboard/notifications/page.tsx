@@ -1,13 +1,7 @@
 "use client";
 import { Bell, Check, RefreshCcw } from "lucide-react";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -35,7 +29,7 @@ export default function NotificationsPage() {
       <div className="flex items-center justify-between gap-3">
         <div className="space-y-1">
           <h1 className="text-2xl font-bold">Notificaciones</h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Alertas en tiempo real sobre stock y actividad de tus tiendas.
           </p>
         </div>
@@ -52,8 +46,7 @@ export default function NotificationsPage() {
               Bandeja de notificaciones
             </CardTitle>
             <CardDescription>
-              Se sincroniza al iniciar sesión y escucha nuevas alertas por
-              WebSocket.
+              Se sincroniza al iniciar sesión y escucha nuevas alertas por WebSocket.
             </CardDescription>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -146,4 +139,3 @@ export default function NotificationsPage() {
     </div>
   );
 }
-

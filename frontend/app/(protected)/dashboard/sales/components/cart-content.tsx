@@ -58,26 +58,20 @@ export const CartContent = ({
 }: CartContentProps) => {
   const safeItems = items ?? [];
   return (
-    <div className="hidden lg:block md:w-2/5 lg:w-1/5 mt-6 lg:mt-0">
-      <Card className="rounded-md border shadow-lg bg-background sticky top-20">
+    <div className="mt-6 hidden md:w-2/5 lg:mt-0 lg:block lg:w-1/5">
+      <Card className="bg-background sticky top-20 rounded-md border shadow-lg">
         <CardHeader>
           <CardTitle>Carrito</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3 ">
-          <div className={`space-y-1 overflow-y-auto max-h-[55vh] pr-1 `}>
+        <CardContent className="space-y-3">
+          <div className={`max-h-[55vh] space-y-1 overflow-y-auto pr-1`}>
             {safeItems.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                Aún no has agregado productos.
-              </p>
+              <p className="text-muted-foreground text-sm">Aún no has agregado productos.</p>
             ) : (
               safeItems.map((item, idx) => {
-                const product = products.find((p) =>
-                  matchesShopProductId(p, item.shopProductId),
-                );
+                const product = products.find((p) => matchesShopProductId(p, item.shopProductId));
                 const productName = product?.name || "Producto";
-                const unitPrice = Number(
-                  item.unitPrice || product?.salePrice || 0,
-                );
+                const unitPrice = Number(item.unitPrice || product?.salePrice || 0);
                 const quantity = Number(item.quantity || 0);
                 const stock = product?.stock ?? 0;
                 const isIncrementDisabled = stock <= 0 || quantity >= stock;
@@ -85,11 +79,12 @@ export const CartContent = ({
                   <motion.div
                     key={`${item.shopProductId}-${idx}`}
                     layout
-                    className="rounded-md border bg-background p-3 shadow-sm w-full">
-                    <div className="grid gap-3 w-full">
-                      <div className="flex  justify-between items-center  ">
-                        <p className="font-semibold truncate">{productName}</p>
-                        <p className="text-base text-muted-foreground">
+                    className="bg-background w-full rounded-md border p-3 shadow-sm"
+                  >
+                    <div className="grid w-full gap-3">
+                      <div className="flex items-center justify-between">
+                        <p className="truncate font-semibold">{productName}</p>
+                        <p className="text-muted-foreground text-base">
                           ${unitPrice.toLocaleString("es-AR")} c/u
                         </p>
                       </div>
@@ -97,30 +92,24 @@ export const CartContent = ({
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() =>
-                            decrementProduct(item.shopProductId || "")
-                          }>
+                          onClick={() => decrementProduct(item.shopProductId || "")}
+                        >
                           -
                         </Button>
-                        <span className="w-8 text-center font-semibold">
-                          {item.quantity}
-                        </span>
+                        <span className="w-8 text-center font-semibold">{item.quantity}</span>
                         <Button
                           size="sm"
                           variant="outline"
                           disabled={isIncrementDisabled}
-                          onClick={() =>
-                            incrementProduct(item.shopProductId || "")
-                          }>
+                          onClick={() => incrementProduct(item.shopProductId || "")}
+                        >
                           +
                         </Button>
                       </div>
                     </div>
-                    <div className="mt-2 flex justify-between text-base text-muted-foreground">
+                    <div className="text-muted-foreground mt-2 flex justify-between text-base">
                       <span>Subtotal</span>
-                      <span>
-                        ${Number(item.subtotal || 0).toLocaleString("es-AR")}
-                      </span>
+                      <span>${Number(item.subtotal || 0).toLocaleString("es-AR")}</span>
                     </div>
                   </motion.div>
                 );
@@ -142,13 +131,12 @@ export const CartContent = ({
                 value={paymentMethodId ?? ""}
                 onValueChange={onPaymentMethodChange}
                 aria-label="Seleccionar método de pago"
-                disabled={paymentMethodsLoading || paymentMethods.length === 0}>
+                disabled={paymentMethodsLoading || paymentMethods.length === 0}
+              >
                 <SelectTrigger>
                   <SelectValue
                     placeholder={
-                      paymentMethodsLoading
-                        ? "Cargando métodos..."
-                        : "Seleccioná un método"
+                      paymentMethodsLoading ? "Cargando métodos..." : "Seleccioná un método"
                     }
                   />
                 </SelectTrigger>
@@ -179,13 +167,11 @@ export const CartContent = ({
                 className="flex-1"
                 variant="outline"
                 onClick={clearCart}
-                disabled={safeItems.length === 0 || isSubmitting}>
+                disabled={safeItems.length === 0 || isSubmitting}
+              >
                 Vaciar
               </Button>
-              <Button
-                className="flex-1"
-                disabled={isSubmitting}
-                onClick={handleSubmit}>
+              <Button className="flex-1" disabled={isSubmitting} onClick={handleSubmit}>
                 {isSubmitting ? "Guardando..." : "Cobrar"}
               </Button>
             </div>
@@ -195,4 +181,3 @@ export const CartContent = ({
     </div>
   );
 };
-

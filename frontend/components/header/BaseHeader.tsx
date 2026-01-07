@@ -34,7 +34,7 @@ export function BaseHeader({
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       {/* LEFT */}
-      <div className="flex flex-col sm:flex-row sm:items-end gap-3 w-full">
+      <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-end">
         {/* Search */}
         <div className="space-y-1">
           <Label>{searchLabel}</Label>
@@ -52,11 +52,7 @@ export function BaseHeader({
 
           {showClearFilters && onClearFilters && (
             <div className="flex flex-col gap-1">
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-10"
-                onClick={onClearFilters}>
+              <Button variant="outline" size="sm" className="h-10" onClick={onClearFilters}>
                 Borrar filtros
               </Button>
             </div>
@@ -75,4 +71,3 @@ export function BaseHeader({
     </div>
   );
 }
-

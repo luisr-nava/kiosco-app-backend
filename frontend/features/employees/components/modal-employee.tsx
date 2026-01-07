@@ -5,20 +5,16 @@ interface ModalEmployeeProps {
   modals: ReturnType<typeof useEmployeeModals>;
 }
 export default function ModalEmployee({ modals }: ModalEmployeeProps) {
-  const {
-    createEmployeeModal,
-    editEmployeeModal,
-    editEmployee,
-    isEdit,
-    closeAll,
-  } = modals;
+  const { createEmployeeModal, editEmployeeModal, editEmployee, isEdit, closeAll } = modals;
   const openModal = createEmployeeModal.isOpen || editEmployeeModal.isOpen;
 
-  const { form, onSubmit, isLoadingCreate, isLoadingUpdate, reset } =
-    useEmployeeForm(editEmployee!, isEdit, () => {
+  const { form, onSubmit, isLoadingCreate, isLoadingUpdate, reset } = useEmployeeForm(
+    editEmployee!,
+    isEdit,
+    () => {
       closeAll();
-      reset();
-    });
+    }
+  );
   const handleClose = () => {
     closeAll();
     reset();
@@ -32,7 +28,8 @@ export default function ModalEmployee({ modals }: ModalEmployeeProps) {
       description="Completa los datos del empleado"
       size="lg"
       isSubmitting={isSubmitting}
-      onClose={handleClose}>
+      onClose={handleClose}
+    >
       <EmployeeForm
         form={form}
         onSubmit={onSubmit}
@@ -43,4 +40,3 @@ export default function ModalEmployee({ modals }: ModalEmployeeProps) {
     </BaseFormModal>
   );
 }
-

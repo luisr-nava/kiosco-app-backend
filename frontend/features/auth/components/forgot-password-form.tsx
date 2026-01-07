@@ -22,7 +22,7 @@ export default function ForgotPasswordForm() {
   });
 
   return (
-    <Card className="shadow-lg w-md">
+    <Card className="w-md shadow-lg">
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-2">
@@ -40,9 +40,7 @@ export default function ForgotPasswordForm() {
               })}
               disabled={isLoading}
             />
-            {errors.email && (
-              <p className="text-sm text-destructive">{errors.email.message}</p>
-            )}
+            {errors.email && <p className="text-destructive text-sm">{errors.email.message}</p>}
           </div>
 
           <Button type="submit" className="w-full" disabled={isLoading}>
@@ -52,7 +50,8 @@ export default function ForgotPasswordForm() {
           <div className="text-center">
             <Link
               href="/login"
-              className="inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors">
+              className="text-muted-foreground hover:text-primary inline-flex items-center text-sm transition-colors"
+            >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Volver al inicio de sesión
             </Link>
@@ -62,4 +61,3 @@ export default function ForgotPasswordForm() {
     </Card>
   );
 }
-

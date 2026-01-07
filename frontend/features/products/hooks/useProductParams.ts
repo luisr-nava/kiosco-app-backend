@@ -13,4 +13,3 @@ export const useProductParams = () => {
     limit: Number(params.get("limit") ?? 20),
   };
 };
-

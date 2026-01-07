@@ -35,4 +35,3 @@ export function usePaginationParams(debounceDelay = 500) {
     reset: resetParams,
   };
 }
-

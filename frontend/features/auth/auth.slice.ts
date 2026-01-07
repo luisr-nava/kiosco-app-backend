@@ -89,7 +89,6 @@ export const useAuthStore = create<AuthState>()(
         plan: state.plan,
         subscriptionStatus: state.subscriptionStatus,
       }),
-    },
-  ),
+    }
+  )
 );
-

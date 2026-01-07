@@ -21,25 +21,21 @@ export const PaymentMethodTable = ({
 }: Props) => {
   if (isLoading) {
     return (
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      <div className="text-muted-foreground flex items-center gap-2 text-sm">
+        <div className="border-primary h-4 w-4 animate-spin rounded-full border-2 border-t-transparent" />
         Cargando métodos de pago...
       </div>
     );
   }
 
   if (!paymentMethods.length) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        No hay métodos de pago registrados.
-      </p>
-    );
+    return <p className="text-muted-foreground text-sm">No hay métodos de pago registrados.</p>;
   }
 
   return (
     <div className="overflow-hidden rounded-md border">
       <table className="w-full text-sm">
-        <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+        <thead className="bg-muted/50 text-muted-foreground text-xs uppercase">
           <tr>
             <th className="px-4 py-3 text-left font-medium">Nombre</th>
             <th className="px-4 py-3 text-left font-medium">Código</th>
@@ -53,26 +49,20 @@ export const PaymentMethodTable = ({
             <tr key={pm.id} className="border-t">
               <td className="px-4 py-3">{pm.name}</td>
               <td className="px-4 py-3">{pm.code}</td>
+              <td className="px-4 py-3">{pm.description?.trim() || "Sin descripción"}</td>
               <td className="px-4 py-3">
-                {pm.description?.trim() || "Sin descripción"}
+                <span className="text-xs font-medium">{pm.isActive ? "Activo" : "Inactivo"}</span>
               </td>
-              <td className="px-4 py-3">
-                <span className="text-xs font-medium">
-                  {pm.isActive ? "Activo" : "Inactivo"}
-                </span>
-              </td>
-              <td className="px-4 py-3 text-right space-x-2 whitespace-nowrap">
-                <Button
-                  size="icon"
-                  variant="outline"
-                  onClick={() => onEdit(pm)}>
+              <td className="space-x-2 px-4 py-3 text-right whitespace-nowrap">
+                <Button size="icon" variant="outline" onClick={() => onEdit(pm)}>
                   <Edit3 className="h-4 w-4" />
                 </Button>
                 <Button
                   size="icon"
                   variant="destructive"
                   disabled={deletingId === pm.id}
-                  onClick={() => onDelete(pm)}>
+                  onClick={() => onDelete(pm)}
+                >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </td>
@@ -81,8 +71,8 @@ export const PaymentMethodTable = ({
         </tbody>
       </table>
       {isFetching && (
-        <div className="flex items-center gap-2 border-t px-4 py-3 text-xs text-muted-foreground">
-          <div className="h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <div className="text-muted-foreground flex items-center gap-2 border-t px-4 py-3 text-xs">
+          <div className="border-primary h-3 w-3 animate-spin rounded-full border-2 border-t-transparent" />
           Actualizando lista...
         </div>
       )}

@@ -22,27 +22,24 @@ export const CardProduct = ({
       type="button"
       disabled={shouldDisable}
       aria-disabled={shouldDisable}
-      className={`rounded-lg border bg-background p-3 text-left shadow-sm flex flex-col gap-2 transition duration-150 ${cardStateClasses}`}
+      className={`bg-background flex flex-col gap-2 rounded-lg border p-3 text-left shadow-sm transition duration-150 ${cardStateClasses}`}
       onClick={() => {
         if (shouldDisable) return;
         incrementProduct(product);
-      }}>
-      <div className="aspect-video w-full rounded-md bg-muted overflow-hidden">
-        <div className="h-full w-full bg-linear-to-br from-muted to-muted/80" />
+      }}
+    >
+      <div className="bg-muted aspect-video w-full overflow-hidden rounded-md">
+        <div className="from-muted to-muted/80 h-full w-full bg-linear-to-br" />
       </div>
       <div className="min-w-0">
-        <p className="font-semibold truncate">{product.name}</p>
-        <p className="text-xs text-muted-foreground truncate">
+        <p className="truncate font-semibold">{product.name}</p>
+        <p className="text-muted-foreground truncate text-xs">
           {product.description || "Sin descripción"}
         </p>
       </div>
       <div className="flex items-center justify-between text-sm">
-        <span className="font-semibold">
-          ${product.salePrice?.toLocaleString("es-AR") || 0}
-        </span>
-        <span className="text-xs text-muted-foreground">
-          Stock: {stock}
-        </span>
+        <span className="font-semibold">${product.salePrice?.toLocaleString("es-AR") || 0}</span>
+        <span className="text-muted-foreground text-xs">Stock: {stock}</span>
       </div>
       <div className="flex justify-end">
         <span
@@ -51,7 +48,8 @@ export const CardProduct = ({
             shouldDisable
               ? "border-muted-foreground/40 text-muted-foreground/40 opacity-50"
               : "border-foreground text-foreground"
-          }`}>
+          }`}
+        >
           +
         </span>
       </div>

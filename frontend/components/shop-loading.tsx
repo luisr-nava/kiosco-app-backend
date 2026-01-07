@@ -1,7 +1,7 @@
 export const ShopLoading = () => (
-  <div className="flex items-center justify-center min-h-[50vh]">
+  <div className="flex min-h-[50vh] items-center justify-center">
     <div className="flex flex-col items-center gap-3">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+      <div className="border-primary h-12 w-12 animate-spin rounded-full border-b-2" />
       <p className="text-muted-foreground">Cargando datos de la tienda...</p>
     </div>
   </div>

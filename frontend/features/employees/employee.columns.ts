@@ -21,4 +21,3 @@ export const employeeColumns: TableColumn<Employee>[] = [
     sortKey: (e) => e.phone?.toLowerCase() || "",
   },
 ];
-

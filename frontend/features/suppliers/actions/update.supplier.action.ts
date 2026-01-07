@@ -3,9 +3,8 @@ import { CreateSupplierDto, Supplier } from "../types";
 
 export const updateSupplierAction = async (
   id: string,
-  payload: Partial<CreateSupplierDto>,
+  payload: Partial<CreateSupplierDto>
 ): Promise<Supplier> => {
   const { data } = await kioscoApi.patch<Supplier>(`/supplier/${id}`, payload);
   return data;
 };
-

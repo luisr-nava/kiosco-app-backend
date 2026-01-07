@@ -16,32 +16,6 @@ export interface Shop {
 
 import type { ShopAnalytics } from "@/lib/types/analytics";
 
-export interface ShopDetail extends Shop {
-  hasOpenCashRegister: boolean;
-  openCashRegisters?: ShopCashRegister[];
-  taxIdNumber: string | null;
-  taxCondition: string | null;
-  taxAddress: string | null;
-  employees: unknown[];
-  employeesCount: number;
-  productsCount: number;
-  categoriesCount: number;
-  purchasesCount: number;
-  salesCount: number;
-  suppliersCount: number;
-  totalSales: number;
-  totalExpenses: number;
-  totalIncomes: number;
-  salesTransactions: number;
-  expensesTransactions: number;
-  incomesTransactions: number;
-  balance: number;
-  recentPurchases: unknown[];
-  lowStockProducts: unknown[];
-  topProductsByStock: unknown[];
-  analytics?: ShopAnalytics;
-}
-
 export interface ShopCashRegister {
   id: string;
   shopId: string;
@@ -82,4 +56,3 @@ export interface ShopState {
   setActiveShopId: (shopId: string | null) => void;
   setShouldForceStoreSelection: (force: boolean) => void;
 }
-

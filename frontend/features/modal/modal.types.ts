@@ -34,4 +34,3 @@ export interface ModalStoreActions {
 }
 
 export type ModalStore = ModalStoreState & ModalStoreActions;
-

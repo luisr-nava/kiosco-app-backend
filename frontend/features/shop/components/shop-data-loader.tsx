@@ -9,4 +9,3 @@ export function ShopDataLoader({ children }: { children: React.ReactNode }) {
 
   return <>{children}</>;
 }
-

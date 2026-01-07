@@ -30,7 +30,7 @@ export const useCategoryForm = () => {
   const { activeShopId } = useShopStore(
     useShallow((state) => ({
       activeShopId: state.activeShopId,
-    })),
+    }))
   );
 
   const productCreateMutation = useCategoryProductCreateMutation();
@@ -38,10 +38,7 @@ export const useCategoryForm = () => {
   const productUpdateMutation = useCategoryProductUpdateMutation();
   const supplierUpdateMutation = useCategorySupplierUpdateMutation();
 
-  const defaultShopIds = useMemo(
-    () => (activeShopId ? [activeShopId] : []),
-    [activeShopId],
-  );
+  const defaultShopIds = useMemo(() => (activeShopId ? [activeShopId] : []), [activeShopId]);
 
   const productForm = useForm<CategoryFormValues>({
     defaultValues: { name: "", shopIds: defaultShopIds, editingId: null },
@@ -73,26 +70,15 @@ export const useCategoryForm = () => {
     if (!supplierEditing && !supplierSelected.includes(activeShopId)) {
       supplierForm.setValue("shopIds", [activeShopId], { shouldDirty: true });
     }
-  }, [
-    isOwner,
-    activeShopId,
-    productForm,
-    supplierForm,
-    productEditing,
-    supplierEditing,
-  ]);
+  }, [isOwner, activeShopId, productForm, supplierForm, productEditing, supplierEditing]);
 
   const submitCategory = async (
     values: CategoryFormValues,
     type: CategoryType,
     editingId: string | null | undefined,
-    resetFn: (vals?: CategoryFormValues) => void,
+    resetFn: (vals?: CategoryFormValues) => void
   ) => {
-    const shopIds = isOwner
-      ? values.shopIds
-      : activeShopId
-      ? [activeShopId]
-      : [];
+    const shopIds = isOwner ? values.shopIds : activeShopId ? [activeShopId] : [];
     if (!shopIds.length) return;
     const payload = {
       name: values.name,
@@ -101,8 +87,7 @@ export const useCategoryForm = () => {
     };
 
     if (editingId) {
-      const mutation =
-        type === "product" ? productUpdateMutation : supplierUpdateMutation;
+      const mutation = type === "product" ? productUpdateMutation : supplierUpdateMutation;
       mutation.mutate(
         { id: editingId, payload },
         {
@@ -111,17 +96,13 @@ export const useCategoryForm = () => {
             resetFn({ name: "", shopIds: defaultShopIds, editingId: null });
           },
           onError: (error: unknown) => {
-            const { message } = getErrorMessage(
-              error,
-              "No se pudo actualizar la categoría",
-            );
+            const { message } = getErrorMessage(error, "No se pudo actualizar la categoría");
             toast.error("Error", { description: message });
           },
-        },
+        }
       );
     } else {
-      const mutation =
-        type === "product" ? productCreateMutation : supplierCreateMutation;
+      const mutation = type === "product" ? productCreateMutation : supplierCreateMutation;
       mutation.mutate(payload, {
         onSuccess: () => {
           toast.success("Categoría creada");
@@ -129,8 +110,7 @@ export const useCategoryForm = () => {
         },
         onError: (error: unknown) => {
           if (error instanceof AxiosError) {
-            const message =
-              error.response?.data?.message ?? "No se pudo crear la categoría";
+            const message = error.response?.data?.message ?? "No se pudo crear la categoría";
 
             toast.error("Error", { description: message });
             return;
@@ -144,37 +124,28 @@ export const useCategoryForm = () => {
   };
 
   const onSubmitProduct = productForm.handleSubmit((values) =>
-    submitCategory(values, "product", values.editingId, productForm.reset),
+    submitCategory(values, "product", values.editingId, productForm.reset)
   );
   const onSubmitSupplier = supplierForm.handleSubmit((values) =>
-    submitCategory(values, "supplier", values.editingId, supplierForm.reset),
+    submitCategory(values, "supplier", values.editingId, supplierForm.reset)
   );
 
-  const toggleShopSelection = (
-    form: "product" | "supplier",
-    shopId: string,
-  ) => {
+  const toggleShopSelection = (form: "product" | "supplier", shopId: string) => {
     const current =
-      form === "product"
-        ? productForm.watch("shopIds") || []
-        : supplierForm.watch("shopIds") || [];
-    const setter =
-      form === "product" ? productForm.setValue : supplierForm.setValue;
+      form === "product" ? productForm.watch("shopIds") || [] : supplierForm.watch("shopIds") || [];
+    const setter = form === "product" ? productForm.setValue : supplierForm.setValue;
     const next = current.includes(shopId)
       ? current.filter((id) => id !== shopId)
       : [...current, shopId];
     setter("shopIds", next);
   };
 
-  const resolveCategoryShopIds = (category: {
-    shopIds?: string[];
-    shopId?: string;
-  }) =>
+  const resolveCategoryShopIds = (category: { shopIds?: string[]; shopId?: string }) =>
     category.shopIds && category.shopIds.length > 0
       ? category.shopIds
       : category.shopId
-      ? [category.shopId]
-      : defaultShopIds;
+        ? [category.shopId]
+        : defaultShopIds;
 
   const handleEditProduct = (category: CategoryProduct) => {
     productForm.reset({
@@ -207,10 +178,8 @@ export const useCategoryForm = () => {
     (supplierForm.watch("name") || "").trim().length >= 3 &&
     (isOwner ? supplierShopIds.length > 0 : Boolean(activeShopId));
 
-  const productPending =
-    productCreateMutation.isPending || productUpdateMutation.isPending;
-  const supplierPending =
-    supplierCreateMutation.isPending || supplierUpdateMutation.isPending;
+  const productPending = productCreateMutation.isPending || productUpdateMutation.isPending;
+  const supplierPending = supplierCreateMutation.isPending || supplierUpdateMutation.isPending;
 
   return {
     isOwner,
@@ -240,4 +209,3 @@ export const useCategoryForm = () => {
 };
 
 export type UseCategoryFormReturn = ReturnType<typeof useCategoryForm>;
-

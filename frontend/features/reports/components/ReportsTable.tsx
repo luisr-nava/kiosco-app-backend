@@ -43,19 +43,17 @@ export default function ReportsTable({
   const formatCurrency = useCurrencyFormatter();
   if (!reports.length) {
     return (
-      <div className="rounded-2xl border border-dashed border-muted/40 bg-card/70 p-8 text-center text-sm text-muted-foreground">
-        <p className="text-lg font-semibold text-foreground">
+      <div className="border-muted/40 bg-card/70 text-muted-foreground rounded-2xl border border-dashed p-8 text-center text-sm">
+        <p className="text-foreground text-lg font-semibold">
           {emptyMessage ?? "No hay arqueos cerrados en este periodo."}
         </p>
-        <p>
-          Intenta otro periodo o espera a que el próximo cierre esté disponible.
-        </p>
+        <p>Intenta otro periodo o espera a que el próximo cierre esté disponible.</p>
       </div>
     );
   }
 
   return isFetching ? (
-    <p className="px-6 pt-5 text-xs uppercase tracking-wide text-muted-foreground">
+    <p className="text-muted-foreground px-6 pt-5 text-xs tracking-wide uppercase">
       Actualizando reportes...
     </p>
   ) : (
@@ -77,22 +75,20 @@ export default function ReportsTable({
           return (
             <TableRow key={report.id}>
               <TableCell>
-                <span className="font-semibold text-foreground">
-                  {report.shopName}
-                </span>
+                <span className="text-foreground font-semibold">{report.shopName}</span>
               </TableCell>
               <TableCell>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-muted-foreground text-sm">
                   {formatDateTime(report.openedAt)}
                 </span>
               </TableCell>
               <TableCell>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-muted-foreground text-sm">
                   {formatDateTime(report.closedAt)}
                 </span>
               </TableCell>
               <TableCell>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-muted-foreground text-sm">
                   {openedByName || "Responsable no disponible"}
                 </span>
               </TableCell>
@@ -128,4 +124,3 @@ export default function ReportsTable({
     </Table>
   );
 }
-

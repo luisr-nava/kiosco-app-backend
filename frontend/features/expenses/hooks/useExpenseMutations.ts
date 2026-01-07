@@ -1,9 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  createExpenseAction,
-  updateExpenseAction,
-  deleteExpenseAction,
-} from "../actions";
+import { createExpenseAction, updateExpenseAction, deleteExpenseAction } from "../actions";
 import type { CreateExpenseDto } from "../types";
 import { useShopStore } from "@/features/shop/shop.store";
 
@@ -23,13 +19,8 @@ export const useExpenseUpdateMutation = () => {
   const { activeShopId } = useShopStore();
 
   return useMutation({
-    mutationFn: ({
-      id,
-      payload,
-    }: {
-      id: string;
-      payload: Partial<CreateExpenseDto>;
-    }) => updateExpenseAction(id, payload),
+    mutationFn: ({ id, payload }: { id: string; payload: Partial<CreateExpenseDto> }) =>
+      updateExpenseAction(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["expenses", activeShopId] });
     },
@@ -47,5 +38,3 @@ export const useExpenseDeleteMutation = () => {
     },
   });
 };
-
-

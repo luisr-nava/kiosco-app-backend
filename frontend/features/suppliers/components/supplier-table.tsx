@@ -64,10 +64,9 @@ export default function SupplierTable({
 
             return (
               <React.Fragment key={expense.id}>
-                <TableRow
-                  onClick={() => setExpandedRow(isOpen ? null : expense.id)}>
+                <TableRow onClick={() => setExpandedRow(isOpen ? null : expense.id)}>
                   <TableCell align="right">
-                    <div className="flex gap-2 justify-end">
+                    <div className="flex justify-end gap-2">
                       <Button
                         size="icon"
                         variant="outline"
@@ -75,17 +74,19 @@ export default function SupplierTable({
                         onClick={(e) => {
                           e.stopPropagation();
                           handleEdit(expense);
-                        }}>
+                        }}
+                      >
                         <Edit3 className="h-4 w-4" />
                       </Button>
                       <Button
                         size="icon"
                         variant="outline"
-                        className="text-red-500 border-red-500"
+                        className="border-red-500 text-red-500"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDelete(expense);
-                        }}>
+                        }}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -98,9 +99,7 @@ export default function SupplierTable({
       </TableBody>
       <TableFooter>
         <TableRow>
-          <TableCell
-            colSpan={7}
-            className="text-center text-sm text-muted-foreground">
+          <TableCell colSpan={7} className="text-muted-foreground text-center text-sm">
             <Pagination
               page={page}
               totalPages={pagination?.totalPages ?? 1}
@@ -119,4 +118,3 @@ export default function SupplierTable({
     </Table>
   );
 }
-

@@ -55,11 +55,10 @@ export default function ModalIncome() {
       onClose={handleClose}
       title={editIncomeModal.isOpen ? "Editar ingreso" : "Crear ingreso"}
       description={
-        editIncomeModal.isOpen || createIncomeModal.isOpen
-          ? "Completa los datos del ingreso"
-          : ""
+        editIncomeModal.isOpen || createIncomeModal.isOpen ? "Completa los datos del ingreso" : ""
       }
-      size="lg">
+      size="lg"
+    >
       <IncomeForm
         register={register}
         onSubmit={onSubmit}
@@ -74,4 +73,3 @@ export default function ModalIncome() {
     </Modal>
   );
 }
-

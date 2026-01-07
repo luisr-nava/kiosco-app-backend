@@ -2,11 +2,7 @@
 import { usePaginationParams } from "@/src/hooks/usePaginationParams";
 import { Loading } from "@/components/loading";
 import { useCustomerModals, useCustomers } from "@/features/clients/hooks";
-import {
-  CustomerExpanded,
-  CustomerModal,
-  customersColumns,
-} from "@/features/clients/components";
+import { CustomerExpanded, CustomerModal, customersColumns } from "@/features/clients/components";
 import { useState } from "react";
 import { BaseHeader } from "@/components/header/BaseHeader";
 import { Customer } from "../../../../features/clients/types";
@@ -14,16 +10,8 @@ import { BaseTable } from "@/components/table/BaseTable";
 
 export default function ClientesPage() {
   const customerModals = useCustomerModals();
-  const {
-    searchInput,
-    debouncedSearch,
-    page,
-    limit,
-    setSearch,
-    setPage,
-    setLimit,
-    reset,
-  } = usePaginationParams(500);
+  const { searchInput, debouncedSearch, page, limit, setSearch, setPage, setLimit, reset } =
+    usePaginationParams(500);
 
   const { customers, customersLoading, pagination, isFetching } = useCustomers({
     search: debouncedSearch,
@@ -78,4 +66,3 @@ export default function ClientesPage() {
     </div>
   );
 }
-

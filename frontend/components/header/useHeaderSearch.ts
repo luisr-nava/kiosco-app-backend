@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDebounce } from "@/src/hooks/useDebounce";
 
-export function useHeaderSearch(
-  search: string,
-  setSearch: (value: string) => void,
-  delay = 400,
-) {
+export function useHeaderSearch(search: string, setSearch: (value: string) => void, delay = 400) {
   const [localSearch, setLocalSearch] = useState(search);
   const debouncedSearch = useDebounce(localSearch, delay);
 
@@ -30,4 +26,3 @@ export function useHeaderSearch(
     resetSearch,
   };
 }
-

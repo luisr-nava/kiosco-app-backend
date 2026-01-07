@@ -67,26 +67,23 @@ export default function VentasPage() {
   </CardHeader> */
   }
   return (
-    <div className="space-y-6 pb-16 lg:pb-0 ">
+    <div className="space-y-6 pb-16 lg:pb-0">
       <div className="lg:flex lg:items-start lg:gap-4">
-        <div className="lg:w-4/5 space-y-4">
+        <div className="space-y-4 lg:w-4/5">
           <Card className="h-full lg:max-h-[80vh]">
             <CardContent className="h-full space-y-4 lg:overflow-y-auto">
               {productsLoading ? (
-                <p className="text-sm text-muted-foreground">
-                  Cargando productos...
-                </p>
+                <p className="text-muted-foreground text-sm">Cargando productos...</p>
               ) : products.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   No hay productos disponibles en esta tienda.
                 </p>
               ) : (
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 lg:pr-1">
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:pr-1 xl:grid-cols-5">
                   {products.map((product) => {
                     const resolvedShopProductId = resolveShopProductId(product);
                     const stock = Math.max(0, Number(product.stock ?? 0));
-                    const quantityInCart =
-                      quantityByShopProductId.get(resolvedShopProductId) ?? 0;
+                    const quantityInCart = quantityByShopProductId.get(resolvedShopProductId) ?? 0;
                     const isAddDisabled = stock <= 0 || quantityInCart >= stock;
 
                     return (
@@ -126,15 +123,15 @@ export default function VentasPage() {
 
       <Drawer open={isCartOpen} onOpenChange={setIsCartOpen}>
         <div className="lg:hidden">
-          <div className="fixed bottom-4 left-4 right-4 z-40">
-            <div className="flex items-center gap-3 rounded-full border bg-background/95 px-4 py-3 shadow-lg backdrop-blur">
+          <div className="fixed right-4 bottom-4 left-4 z-40">
+            <div className="bg-background/95 flex items-center gap-3 rounded-full border px-4 py-3 shadow-lg backdrop-blur">
               <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">Carrito</p>
-                <p className="font-semibold truncate">
+                <p className="text-muted-foreground text-xs">Carrito</p>
+                <p className="truncate font-semibold">
                   {totalItems} ítems · ${total.toLocaleString("es-AR")}
                 </p>
               </div>
-              <div className="flex items-center gap-2 ml-auto">
+              <div className="ml-auto flex items-center gap-2">
                 <DrawerTrigger asChild>
                   <Button size="sm" variant="outline">
                     Ver
@@ -143,7 +140,8 @@ export default function VentasPage() {
                 <Button
                   size="sm"
                   onClick={handleSubmit}
-                  disabled={isSubmitting || items.length === 0}>
+                  disabled={isSubmitting || items.length === 0}
+                >
                   {isSubmitting ? "Guardando..." : "Cobrar"}
                 </Button>
               </div>
@@ -157,16 +155,15 @@ export default function VentasPage() {
                   size="icon"
                   variant="ghost"
                   aria-label="Cerrar carrito"
-                  className="absolute right-2 top-2">
+                  className="absolute top-2 right-2"
+                >
                   <X className="h-5 w-5" />
                 </Button>
               </DrawerClose>
               <DrawerTitle>Carrito</DrawerTitle>
-              <DrawerDescription>
-                Revisa tu carrito antes de cobrar.
-              </DrawerDescription>
+              <DrawerDescription>Revisa tu carrito antes de cobrar.</DrawerDescription>
             </DrawerHeader>
-            <div className="px-4 space-y-4 pb-2">
+            <div className="space-y-4 px-4 pb-2">
               <CartContent
                 items={items}
                 products={products}
@@ -192,4 +189,3 @@ export default function VentasPage() {
     </div>
   );
 }
-

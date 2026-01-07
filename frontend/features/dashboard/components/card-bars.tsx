@@ -162,15 +162,15 @@ export default function CardBars({
   return (
     <CardContent className="py-2">
       {analyticsLoading ? (
-        <div className="flex items-center justify-center text-xs text-muted-foreground">
+        <div className="text-muted-foreground flex items-center justify-center text-xs">
           Cargando datos…
         </div>
       ) : (
-        <div className="md:flex w-full gap-5">
+        <div className="w-full gap-5 md:flex">
           <div className="h-[280px] md:w-1/2">
             <Bar data={incomesVsExpensesChart} options={chartOptions} />
           </div>
-          <div className="h-[280px] md:w-1/2 ">
+          <div className="h-[280px] md:w-1/2">
             <Bar data={salesVsPurchasesChart} options={chartOptions} />
           </div>
         </div>
@@ -178,4 +178,3 @@ export default function CardBars({
     </CardContent>
   );
 }
-

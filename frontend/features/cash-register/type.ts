@@ -1,8 +1,14 @@
 export interface CashRegisterStateResponse {
-  message: string;
-  data: {
-    hasOpenCashRegister: boolean;
-    cashRegisterId?: string;
-  };
+  hasOpenCashRegister: boolean;
+  cashRegisterId?: string;
+  openedAt?: string;
+  openedBy?: string;
+  openingAmount?: number;
+  currentAmount?: number;
 }
 
+export interface OpenCashRegisterDto {
+  shopId?: string;
+  openingAmount?: number;
+  openedByName?: string;
+}

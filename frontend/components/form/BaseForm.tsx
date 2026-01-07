@@ -26,11 +26,7 @@ export function BaseForm<T extends FieldValues>({
         {children}
 
         <ModalFooter>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-            disabled={isSubmitting}>
+          <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
             Cancelar
           </Button>
 
@@ -42,4 +38,3 @@ export function BaseForm<T extends FieldValues>({
     </Form>
   );
 }
-

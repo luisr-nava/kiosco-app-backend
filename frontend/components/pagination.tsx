@@ -30,8 +30,7 @@ export function Pagination({
   const prevDisabled = page <= 1 || isLoading;
   const nextDisabled = page >= safeTotalPages || isLoading;
   const disableLimitSelect =
-    isLoading ||
-    (totalItems !== undefined ? totalItems <= limit : safeTotalPages <= 1);
+    isLoading || (totalItems !== undefined ? totalItems <= limit : safeTotalPages <= 1);
 
   const pagesToRender = useMemo(() => {
     if (safeTotalPages <= 7) {
@@ -61,15 +60,17 @@ export function Pagination({
     <div
       className={cn(
         "relative flex flex-col items-center gap-3 text-sm sm:flex-row sm:justify-center",
-        className,
-      )}>
+        className
+      )}
+    >
       <div className="flex items-center justify-center gap-2">
         {page > 1 ? (
           <Button
             variant="outline"
             size="sm"
             onClick={() => !prevDisabled && onPageChange(page - 1)}
-            className="h-9 w-9 p-0 border border-primary/50 bg-card/80 text-primary hover:bg-primary/20">
+            className="border-primary/50 bg-card/80 text-primary hover:bg-primary/20 h-9 w-9 border p-0"
+          >
             <ChevronLeft className="h-4 w-4" />
           </Button>
         ) : (
@@ -80,9 +81,7 @@ export function Pagination({
           {pagesToRender.map((item, idx) => {
             if (item === "...") {
               return (
-                <span
-                  key={`ellipsis-${idx}`}
-                  className="px-2 text-primary/80 font-semibold">
+                <span key={`ellipsis-${idx}`} className="text-primary/80 px-2 font-semibold">
                   ...
                 </span>
               );
@@ -98,9 +97,10 @@ export function Pagination({
                 onClick={() => onPageChange(pageNumber)}
                 disabled={isLoading || isActive}
                 className={cn(
-                  "min-w-9 h-9 rounded-md px-2 text-sm font-semibold transition border shadow-sm text-primary border-primary",
-                  isLoading && !isActive && "opacity-70 cursor-not-allowed",
-                )}>
+                  "text-primary border-primary h-9 min-w-9 rounded-md border px-2 text-sm font-semibold shadow-sm transition",
+                  isLoading && !isActive && "cursor-not-allowed opacity-70"
+                )}
+              >
                 {pageNumber}
               </Button>
             );
@@ -112,7 +112,8 @@ export function Pagination({
             variant="outline"
             size="sm"
             onClick={() => !nextDisabled && onPageChange(page + 1)}
-            className="h-9 w-9 p-0 border border-primary/50 bg-card/80 text-primary hover:bg-primary/20">
+            className="border-primary/50 bg-card/80 text-primary hover:bg-primary/20 h-9 w-9 border p-0"
+          >
             <ChevronRight className="h-4 w-4" />
           </Button>
         ) : (
@@ -120,12 +121,13 @@ export function Pagination({
         )}
       </div>
 
-      <div className="flex items-center gap-2 justify-center sm:absolute sm:right-4">
+      <div className="flex items-center justify-center gap-2 sm:absolute sm:right-4">
         <select
-          className="h-9 rounded-md border bg-background px-3 text-sm w-1/2 max-w-[220px] sm:w-44 sm:min-w-[170px] border-primary"
+          className="bg-background border-primary h-9 w-1/2 max-w-[220px] rounded-md border px-3 text-sm sm:w-44 sm:min-w-[170px]"
           value={limit}
           onChange={(e) => onLimitChange(Number(e.target.value))}
-          disabled={disableLimitSelect}>
+          disabled={disableLimitSelect}
+        >
           {limitOptions.map((option) => (
             <option key={option} value={option}>
               {option}
@@ -136,4 +138,3 @@ export function Pagination({
     </div>
   );
 }
-

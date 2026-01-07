@@ -6,11 +6,16 @@ export const useIncomes = (
   limit: number = 10,
   enabled: boolean = true,
   startDate?: string,
-  endDate?: string,
+  endDate?: string
 ) => {
-  const { incomes, pagination, incomesLoading, isFetching, refetch } =
-    useIncomeQuery({ search, page, limit, enabled, startDate, endDate });
+  const { incomes, pagination, incomesLoading, isFetching, refetch } = useIncomeQuery({
+    search,
+    page,
+    limit,
+    enabled,
+    startDate,
+    endDate,
+  });
 
   return { incomes, pagination, incomesLoading, isFetching, refetch };
 };
-

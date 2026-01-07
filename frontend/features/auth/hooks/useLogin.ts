@@ -51,7 +51,7 @@ export const useLogin = () => {
             duration: 5000,
           });
         },
-      },
+      }
     );
   };
 

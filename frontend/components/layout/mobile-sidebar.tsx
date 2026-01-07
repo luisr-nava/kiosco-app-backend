@@ -26,11 +26,11 @@ export function MobileSidebar() {
           <span className="sr-only">Abrir menú</span>
         </Button>
       </DrawerTrigger>
-      <DrawerContent className="md:hidden p-0">
+      <DrawerContent className="p-0 md:hidden">
         <DrawerHeader className="border-b">
           <DrawerTitle>Navegación</DrawerTitle>
         </DrawerHeader>
-        <nav className="space-y-1 px-3 pb-6 pt-4">
+        <nav className="space-y-1 px-3 pt-4 pb-6">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
@@ -43,7 +43,7 @@ export function MobileSidebar() {
                     "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                     isActive
                       ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                   )}
                 >
                   <Icon className="h-5 w-5" />

@@ -26,7 +26,7 @@ interface UseQueryParamsOptions {
  * @returns Objeto con valores y función de actualización
  */
 export function useQueryParams<T extends QueryParams = QueryParams>(
-  options: UseQueryParamsOptions = {},
+  options: UseQueryParamsOptions = {}
 ) {
   const { debounceDelay = 500, debounceKeys = ["search"] } = options;
 
@@ -55,10 +55,7 @@ export function useQueryParams<T extends QueryParams = QueryParams>(
    * @param options - Opciones adicionales
    */
   const updateParams = useCallback(
-    (
-      updates: Partial<T>,
-      options?: { scroll?: boolean; replace?: boolean },
-    ) => {
+    (updates: Partial<T>, options?: { scroll?: boolean; replace?: boolean }) => {
       const { scroll = false, replace = false } = options || {};
 
       const newParams = new URLSearchParams(searchParams.toString());
@@ -80,7 +77,7 @@ export function useQueryParams<T extends QueryParams = QueryParams>(
         router.push(newUrl, { scroll });
       }
     },
-    [pathname, router, searchParams],
+    [pathname, router, searchParams]
   );
 
   /**
@@ -90,7 +87,7 @@ export function useQueryParams<T extends QueryParams = QueryParams>(
     <K extends keyof T>(key: K, defaultValue?: T[K]): T[K] | undefined => {
       return (params[key] as T[K]) ?? defaultValue;
     },
-    [params],
+    [params]
   );
 
   /**
@@ -109,7 +106,7 @@ export function useQueryParams<T extends QueryParams = QueryParams>(
       keys.forEach((key) => newParams.delete(String(key)));
       router.push(`${pathname}?${newParams.toString()}`);
     },
-    [pathname, router, searchParams],
+    [pathname, router, searchParams]
   );
 
   return {

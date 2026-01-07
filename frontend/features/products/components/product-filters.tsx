@@ -26,7 +26,7 @@ export default function ProductFilters({
   suppliers,
 }: Props) {
   return (
-    <div className="flex flex-wrap gap-3 items-end ">
+    <div className="flex flex-wrap items-end gap-3">
       {/* Category */}
       {/* <div className="space-y-1">
         <Label>Categoría</Label>
@@ -54,9 +54,8 @@ export default function ProductFilters({
         <Label>Proveedor</Label>
         <Select
           value={value.supplierId ?? "all"}
-          onValueChange={(v) =>
-            onChange({ ...value, supplierId: v === "all" ? undefined : v })
-          }>
+          onValueChange={(v) => onChange({ ...value, supplierId: v === "all" ? undefined : v })}
+        >
           <SelectTrigger className="w-44">
             <SelectValue placeholder="Todos" />
           </SelectTrigger>
@@ -73,4 +72,3 @@ export default function ProductFilters({
     </div>
   );
 }
-

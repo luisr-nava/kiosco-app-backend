@@ -2,16 +2,14 @@ import { ForgotPasswordForm } from "@/features/auth/components";
 
 export default function ForgotPassword() {
   return (
-    <div className="w-full grid justify-center">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold mb-2">Recuperar Contraseña</h1>
+    <div className="grid w-full justify-center">
+      <div className="mb-8 text-center">
+        <h1 className="mb-2 text-3xl font-bold">Recuperar Contraseña</h1>
         <p className="text-muted-foreground">
-          Ingresa tu email y te enviaremos un enlace para restablecer tu
-          contraseña
+          Ingresa tu email y te enviaremos un enlace para restablecer tu contraseña
         </p>
       </div>
       <ForgotPasswordForm />
     </div>
   );
 }
-

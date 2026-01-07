@@ -11,7 +11,7 @@ type GetSuppliersParams = {
 };
 export const getSuppliersAction = async (
   shopId: string,
-  params: GetSuppliersParams = {},
+  params: GetSuppliersParams = {}
 ): Promise<{ suppliers: Supplier[]; pagination: Pagination }> => {
   const { data } = await kioscoApi.get<GetSuppliersResponse>("/supplier", {
     params: {
@@ -28,4 +28,3 @@ export const getSuppliersAction = async (
     pagination: data.meta,
   };
 };
-

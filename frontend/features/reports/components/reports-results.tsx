@@ -24,12 +24,10 @@ export default function ReportsResults({
 }: Props) {
   if (isError) {
     return (
-      <section className="rounded-3xl border border-border bg-card/80 p-6 shadow-sm">
+      <section className="border-border bg-card/80 rounded-3xl border p-6 shadow-sm">
         <Alert variant="destructive">
           <AlertTitle>Error al cargar reportes</AlertTitle>
-          <AlertDescription>
-            No pudimos obtener los reportes de caja.
-          </AlertDescription>
+          <AlertDescription>No pudimos obtener los reportes de caja.</AlertDescription>
         </Alert>
       </section>
     );
@@ -46,4 +44,3 @@ export default function ReportsResults({
     />
   );
 }
-

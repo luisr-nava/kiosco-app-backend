@@ -17,11 +17,7 @@ const initialForm: CreateIncomeDto = {
   shopId: "",
 };
 
-export const useIncomeForm = (
-  editIncome?: Income,
-  deleteIncome?: Income,
-  onClose?: () => void,
-) => {
+export const useIncomeForm = (editIncome?: Income, deleteIncome?: Income, onClose?: () => void) => {
   const { activeShopId } = useShopStore();
 
   const createMutation = useIncomeCreateMutation();
@@ -59,7 +55,7 @@ export const useIncomeForm = (
           onError: () => {
             toast.error("No se pudo actualizar el cliente");
           },
-        },
+        }
       );
     } else if (deleteIncome) {
       deleteMutation.mutate(
@@ -73,7 +69,7 @@ export const useIncomeForm = (
           onError: () => {
             toast.error("No se pudo eliminar el gasto");
           },
-        },
+        }
       );
     } else {
       createMutation.mutate(basePayload, {
@@ -108,4 +104,3 @@ export const useIncomeForm = (
     errors,
   };
 };
-

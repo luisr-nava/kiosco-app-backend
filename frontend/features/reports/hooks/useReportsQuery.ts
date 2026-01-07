@@ -2,10 +2,7 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { cashRegisterApi } from "@/lib/api/cash-register.api";
-import {
-  CashRegisterReportsQueryParams,
-  UseCashRegisterReportsResult,
-} from "../type";
+import { CashRegisterReportsQueryParams, UseCashRegisterReportsResult } from "../type";
 import { getReportsAction } from "../actions/get-reports";
 
 export function useCashRegisterReports({
@@ -27,7 +24,7 @@ export function useCashRegisterReports({
       month ?? null,
       year ?? null,
     ],
-    [period, date, dateFrom, dateTo, month, year],
+    [period, date, dateFrom, dateTo, month, year]
   );
 
   const isDayPeriod = period === "day";
@@ -57,4 +54,3 @@ export function useCashRegisterReports({
     error: query.error,
   };
 }
-

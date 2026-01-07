@@ -47,4 +47,3 @@ export const GetAllCategorySupplierAction = async (params?: {
     pagination: data.pagination,
   };
 };
-

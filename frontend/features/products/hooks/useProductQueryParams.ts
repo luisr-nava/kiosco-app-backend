@@ -11,4 +11,3 @@ export const useProductQueryParams = () => {
     limit: Number(searchParams.get("limit") ?? 20),
   };
 };
-

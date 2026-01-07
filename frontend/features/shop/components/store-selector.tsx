@@ -2,20 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2, PlusCircle, Store } from "lucide-react";
-import { ORDERED_CURRENCY_OPTIONS } from "@/lib/constants/shop";
 import { ShopFormValues } from "@/features/shop/types";
-import { useShop } from "@/features/shop/hooks/useShop";
 import { useForm } from "react-hook-form";
 import { useShopMutation } from "@/features/shop/hooks/useShopMutation";
 import { useCurrencySymbols } from "@/src/hooks/useCurrencySymbols";
@@ -31,9 +23,7 @@ export function StoreSelector() {
   const { mutate, isPending } = useShopMutation();
   const currencySymbols = useCurrencySymbols();
 
-  const [selectedShopId, setSelectedShopId] = useState<string | null>(
-    shops?.[0]?.id ?? null,
-  );
+  const [selectedShopId, setSelectedShopId] = useState<string | null>(shops?.[0]?.id ?? null);
   const countries = useCountriesWithLabels();
 
   const {
@@ -75,8 +65,9 @@ export function StoreSelector() {
   }, [shops, selectedShopId]);
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4"
-      data-store-selector-trigger>
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
+      data-store-selector-trigger
+    >
       <Card className="w-full max-w-5xl shadow-xl">
         <CardHeader className="flex flex-col gap-2">
           <CardTitle className="text-2xl">Selecciona tu tienda</CardTitle>
@@ -101,28 +92,25 @@ export function StoreSelector() {
                     <button
                       key={shop.id}
                       onClick={() => setSelectedShopId(shop.id)}
-                      className={`w-full text-left border rounded-lg p-4 transition hover:border-primary ${
-                        selectedShopId === shop.id
-                          ? "border-primary bg-primary/5"
-                          : "border-muted"
-                      }`}>
+                      className={`hover:border-primary w-full rounded-lg border p-4 text-left transition ${
+                        selectedShopId === shop.id ? "border-primary bg-primary/5" : "border-muted"
+                      }`}
+                    >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-start gap-3">
-                          <Store className="h-5 w-5 text-primary mt-1" />
+                          <Store className="text-primary mt-1 h-5 w-5" />
                           <div>
                             <p className="font-semibold">{shop.name}</p>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-muted-foreground text-sm">
                               {shop.address || "Sin dirección"}
                             </p>
                             {shop.phone && (
-                              <p className="text-xs text-muted-foreground">
-                                Tel: {shop.phone}
-                              </p>
+                              <p className="text-muted-foreground text-xs">Tel: {shop.phone}</p>
                             )}
                           </div>
                         </div>
                         {selectedShopId === shop.id && (
-                          <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                          <CheckCircle2 className="text-primary h-5 w-5 shrink-0" />
                         )}
                       </div>
                     </button>
@@ -136,12 +124,13 @@ export function StoreSelector() {
                     setActiveShopId(selectedShopId);
                     setShouldForceStoreSelection(false);
                   }}
-                  disabled={!selectedShopId}>
+                  disabled={!selectedShopId}
+                >
                   Usar tienda seleccionada
                 </Button>
               </div>
             ) : (
-              <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+              <div className="text-muted-foreground rounded-lg border border-dashed p-6 text-center text-sm">
                 Aún no tienes tiendas creadas.
               </div>
             )}
@@ -170,10 +159,9 @@ export function StoreSelector() {
                 />
                 <p
                   className={`text-xs ${
-                    touchedFields.name && errors.name
-                      ? "text-destructive"
-                      : "text-muted-foreground"
-                  }`}>
+                    touchedFields.name && errors.name ? "text-destructive" : "text-muted-foreground"
+                  }`}
+                >
                   {touchedFields.name && errors.name
                     ? errors.name.message
                     : "El nombre debe tener al menos 4 caracteres."}
@@ -205,10 +193,11 @@ export function StoreSelector() {
                   <Label htmlFor="store-country">País</Label>
                   <select
                     id="store-country"
-                    className="h-10 rounded-md border bg-background px-3 text-sm"
+                    className="bg-background h-10 rounded-md border px-3 text-sm"
                     {...register("countryCode", {
                       required: "Selecciona tu país.",
-                    })}>
+                    })}
+                  >
                     <option value="" disabled>
                       Selecciona tu país
                     </option>
@@ -219,9 +208,7 @@ export function StoreSelector() {
                     ))}
                   </select>
                   {touchedFields.countryCode && errors.countryCode && (
-                    <p className="text-xs text-destructive">
-                      {errors.countryCode.message}
-                    </p>
+                    <p className="text-destructive text-xs">{errors.countryCode.message}</p>
                   )}
                 </div>
 
@@ -229,10 +216,11 @@ export function StoreSelector() {
                   <Label htmlFor="store-currency">Moneda</Label>
                   <select
                     id="store-currency"
-                    className="h-10 rounded-md border bg-background px-3 text-sm"
+                    className="bg-background h-10 rounded-md border px-3 text-sm"
                     {...register("currencyCode", {
                       required: "Selecciona tu moneda.",
-                    })}>
+                    })}
+                  >
                     <option value="" disabled>
                       Selecciona tu moneda
                     </option>
@@ -243,17 +231,12 @@ export function StoreSelector() {
                     ))}
                   </select>
                   {touchedFields.currencyCode && errors.currencyCode && (
-                    <p className="text-xs text-destructive">
-                      {errors.currencyCode.message}
-                    </p>
+                    <p className="text-destructive text-xs">{errors.currencyCode.message}</p>
                   )}
                 </div>
               </div>
 
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={!isValid || isPending}>
+              <Button type="submit" className="w-full" disabled={!isValid || isPending}>
                 {isPending ? "Creando..." : "Crear tienda"}
               </Button>
             </form>
@@ -263,4 +246,3 @@ export function StoreSelector() {
     </div>
   );
 }
-

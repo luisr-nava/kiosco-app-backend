@@ -17,20 +17,12 @@ export default function ModalClient({ modals }: ModalCustomerProps) {
   } = modals;
 
   const openModal =
-    createCustomerModal.isOpen ||
-    editCustomerModal.isOpen ||
-    deleteCustomerModal.isOpen;
+    createCustomerModal.isOpen || editCustomerModal.isOpen || deleteCustomerModal.isOpen;
 
-  const {
-    form,
-    isLoadingCreate,
-    isLoadingUpdate,
-    onSubmit,
-    reset,
-    isLoadingDelete,
-  } = useCustomerForm(editCustomer!, deleteCustomer!, isEdit, () => {
-    closeAll();
-  });
+  const { form, isLoadingCreate, isLoadingUpdate, onSubmit, reset, isLoadingDelete } =
+    useCustomerForm(editCustomer!, deleteCustomer!, isEdit, () => {
+      closeAll();
+    });
 
   const handleClose = () => {
     closeAll();
@@ -41,33 +33,27 @@ export default function ModalClient({ modals }: ModalCustomerProps) {
   const title = editCustomerModal.isOpen
     ? "Editar cliente"
     : deleteCustomer
-    ? "Eliminar cliente"
-    : "Crear cliente";
+      ? "Eliminar cliente"
+      : "Crear cliente";
   const description =
-    editCustomerModal.isOpen || createCustomerModal.isOpen
-      ? "Completa los datos del cliente"
-      : "";
+    editCustomerModal.isOpen || createCustomerModal.isOpen ? "Completa los datos del cliente" : "";
   return (
     <Modal
       isOpen={openModal}
       onClose={handleClose}
       title={title}
       description={description}
-      size="lg">
+      size="lg"
+    >
       {deleteCustomerModal.isOpen ? (
         <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             ¿Seguro que deseas eliminar a{" "}
-            <span className="font-semibold">
-              {deleteCustomerModal.data?.fullName}
-            </span>
-            ? Esta acción no se puede deshacer.
+            <span className="font-semibold">{deleteCustomerModal.data?.fullName}</span>? Esta acción
+            no se puede deshacer.
           </p>
           <div className="flex justify-end gap-2">
-            <Button
-              variant="outline"
-              onClick={handleClose}
-              disabled={isLoadingDelete}>
+            <Button variant="outline" onClick={handleClose} disabled={isLoadingDelete}>
               Cancelar
             </Button>
             <Button
@@ -75,7 +61,8 @@ export default function ModalClient({ modals }: ModalCustomerProps) {
               onClick={() => {
                 onSubmit(deleteCustomer!);
               }}
-              disabled={isLoadingDelete}>
+              disabled={isLoadingDelete}
+            >
               {isLoadingDelete ? "Eliminando..." : "¿Eliminar?"}
             </Button>
           </div>
@@ -92,4 +79,3 @@ export default function ModalClient({ modals }: ModalCustomerProps) {
     </Modal>
   );
 }
-

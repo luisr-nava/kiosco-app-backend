@@ -20,9 +20,7 @@ export default function EmployeeExpanded({ employee }: EmployeeExpandedProps) {
         <div>
           <p className="text-muted-foreground">Fecha de contratación</p>
           <p className="font-medium">
-            {employee.hireDate
-              ? new Date(employee.hireDate).toLocaleDateString()
-              : "Sin fecha"}
+            {employee.hireDate ? new Date(employee.hireDate).toLocaleDateString() : "Sin fecha"}
           </p>
         </div>
 
@@ -43,9 +41,7 @@ export default function EmployeeExpanded({ employee }: EmployeeExpandedProps) {
 
         <div>
           <p className="text-muted-foreground">Contacto de emergencia</p>
-          <p className="font-medium">
-            {employee.emergencyContact || "Sin contacto"}
-          </p>
+          <p className="font-medium">{employee.emergencyContact || "Sin contacto"}</p>
         </div>
 
         <div>
@@ -56,4 +52,3 @@ export default function EmployeeExpanded({ employee }: EmployeeExpandedProps) {
     </div>
   );
 }
-

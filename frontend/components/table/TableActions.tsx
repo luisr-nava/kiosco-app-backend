@@ -21,7 +21,8 @@ export function TableActions<T>({ row, actions }: Props<T>) {
               size="icon"
               variant="outline"
               className="text-primary border-primary"
-              onClick={() => action.onClick(row)}>
+              onClick={() => action.onClick(row)}
+            >
               <Edit3 className="h-4 w-4" />
             </Button>
           );
@@ -35,7 +36,8 @@ export function TableActions<T>({ row, actions }: Props<T>) {
               variant="outline"
               className="text-destructive border-destructive hover:bg-destructive"
               disabled={action.disabled}
-              onClick={() => action.onClick(row)}>
+              onClick={() => action.onClick(row)}
+            >
               <Trash2 className="h-4 w-4" />
             </Button>
           );
@@ -46,4 +48,3 @@ export function TableActions<T>({ row, actions }: Props<T>) {
     </div>
   );
 }
-

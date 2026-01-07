@@ -2,10 +2,7 @@
 
 import { useAuth } from "@/features/auth/hooks";
 import { useCashRegisterReports } from "@/features/reports/hooks/useReportsQuery";
-import {
-  ReportsFilters,
-  ReportsResults,
-} from "@/features/reports/components";
+import { ReportsFilters, ReportsResults } from "@/features/reports/components";
 import { useCashRegisterReportFilters } from "@/features/reports/hooks/useCashRegisterReportFilters";
 
 const MIN_REPORT_YEAR = 2020;
@@ -17,16 +14,13 @@ export default function CashRegisterReportsPage() {
 
   const filters = useCashRegisterReportFilters();
 
-  const { reports, message, isFetching, isLoading, isError, error } =
-    useCashRegisterReports(filters.queryParams);
+  const { reports, message, isFetching, isLoading, isError, error } = useCashRegisterReports(
+    filters.queryParams
+  );
 
   return (
     <div className="space-y-4">
-      <ReportsFilters
-        {...filters.ui}
-        minYear={MIN_REPORT_YEAR}
-        isLoading={isLoading}
-      />
+      <ReportsFilters {...filters.ui} minYear={MIN_REPORT_YEAR} isLoading={isLoading} />
 
       <ReportsResults
         reports={reports}
@@ -40,4 +34,3 @@ export default function CashRegisterReportsPage() {
     </div>
   );
 }
-

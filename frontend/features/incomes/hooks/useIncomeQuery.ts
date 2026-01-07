@@ -21,15 +21,7 @@ export const useIncomeQuery = ({
   const { activeShopId } = useShopStore();
 
   const query = useQuery({
-    queryKey: [
-      "incomes",
-      activeShopId,
-      search,
-      page,
-      limit,
-      startDate,
-      endDate,
-    ],
+    queryKey: ["incomes", activeShopId, search, page, limit, startDate, endDate],
     queryFn: () =>
       getIncomesAction(activeShopId!, {
         search,
@@ -42,21 +34,14 @@ export const useIncomeQuery = ({
     staleTime: 1000 * 30,
     placeholderData: (prev) => prev,
   });
-    const incomes = query.data?.incomes || [];
-    const pagination = query.data?.pagination;
+  const incomes = query.data?.incomes || [];
+  const pagination = query.data?.pagination;
 
-    return {
-      incomes,
-      pagination,
-      incomesLoading: query.isLoading,
-      isFetching: query.isFetching,
-      refetch: query.refetch,
-    };
+  return {
+    incomes,
+    pagination,
+    incomesLoading: query.isLoading,
+    isFetching: query.isFetching,
+    refetch: query.refetch,
+  };
 };
-
-
-
-
-
-
-

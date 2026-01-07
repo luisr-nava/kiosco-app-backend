@@ -9,24 +9,23 @@ import {
 } from "../interfaces";
 
 export const createCategoryProductAction = async (
-  payload: Partial<CreateCategoryProductDto>,
+  payload: Partial<CreateCategoryProductDto>
 ): Promise<CategoryProduct> => {
   const { data } = await kioscoApi.post<CreateCategoryProductResponse>(
     "/product-category",
-    payload,
+    payload
   );
 
   return data.data.categoryProduct;
 };
 
 export const createCategorySuppliertAction = async (
-  payload: Partial<CreateCategorySupplierDto>,
+  payload: Partial<CreateCategorySupplierDto>
 ): Promise<CategorySupplier> => {
   const { data } = await kioscoApi.post<CreateCategorySupplierResponse>(
     "/supplier-category",
-    payload,
+    payload
   );
 
   return data.data.categorySupplier;
 };
-

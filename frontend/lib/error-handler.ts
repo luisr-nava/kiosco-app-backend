@@ -28,11 +28,11 @@ const getStatusCode = (error: unknown): number | undefined => {
 
 export const toApiError = (
   error: unknown,
-  fallbackMessage = "Ocurrió un error inesperado",
+  fallbackMessage = "Ocurrió un error inesperado"
 ): ApiError => {
   if (error instanceof AxiosError) {
     const apiError: ApiError = new Error(
-      error.response?.data?.message || error.message || fallbackMessage,
+      error.response?.data?.message || error.message || fallbackMessage
     );
     apiError.statusCode = error.response?.status;
     apiError.response = error.response;
@@ -52,7 +52,7 @@ export const toApiError = (
  */
 export const getErrorMessage = (
   error: unknown,
-  defaultMessage = "Ocurrió un error inesperado",
+  defaultMessage = "Ocurrió un error inesperado"
 ): { title: string; message: string } => {
   const statusCode = getStatusCode(error);
   const messageFromError = (() => {
@@ -145,9 +145,7 @@ export const getAuthErrorMessage = (error: unknown): { title: string; message: s
     case AuthErrorCodes.USER_NOT_FOUND:
       return {
         title: "Usuario no encontrado",
-        message:
-          messageFromError ||
-          "No existe una cuenta con este email. ¿Deseas registrarte?",
+        message: messageFromError || "No existe una cuenta con este email. ¿Deseas registrarte?",
       };
 
     case AuthErrorCodes.EMAIL_ALREADY_EXISTS:

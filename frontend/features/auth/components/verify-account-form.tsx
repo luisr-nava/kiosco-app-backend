@@ -48,19 +48,18 @@ export default function VerifyAccountForm() {
   const isDisabled = isVerifying || isResending;
 
   return (
-    <Card className="shadow-lg w-md">
+    <Card className="w-md shadow-lg">
       <CardContent>
         <form
           onSubmit={(e) => {
             e.preventDefault();
             onSubmit(code.join(""));
           }}
-          className="space-y-6">
+          className="space-y-6"
+        >
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-center block">
-                Código de Verificación
-              </Label>
+              <Label className="block text-center">Código de Verificación</Label>
 
               {/* 8 inputs separados */}
               <div className="flex justify-center gap-2">
@@ -79,26 +78,19 @@ export default function VerifyAccountForm() {
                     onPaste={(e) => handlePaste(index, e)}
                     disabled={isDisabled}
                     autoFocus={index === 0}
-                    className="w-12 h-14 text-center text-2xl font-mono font-bold"
+                    className="h-14 w-12 text-center font-mono text-2xl font-bold"
                   />
                 ))}
               </div>
 
-              {error && (
-                <p className="text-sm text-destructive text-center">{error}</p>
-              )}
-              <p className="text-xs text-muted-foreground text-center">
-                Ingresa el código de 8 caracteres (letras o números) que
-                enviamos a tu email
+              {error && <p className="text-destructive text-center text-sm">{error}</p>}
+              <p className="text-muted-foreground text-center text-xs">
+                Ingresa el código de 8 caracteres (letras o números) que enviamos a tu email
               </p>
             </div>
           </div>
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isDisabled}
-            size="lg">
+          <Button type="submit" className="w-full" disabled={isDisabled} size="lg">
             {isVerifying ? "Verificando..." : "Verificar Cuenta"}
           </Button>
 
@@ -107,9 +99,7 @@ export default function VerifyAccountForm() {
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">
-                ¿No recibiste el código?
-              </span>
+              <span className="bg-card text-muted-foreground px-2">¿No recibiste el código?</span>
             </div>
           </div>
 
@@ -117,16 +107,14 @@ export default function VerifyAccountForm() {
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Mail className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
                 <Input
                   id="email"
                   type="email"
                   placeholder="tu@email.com"
                   className="pl-9"
                   {...register("email", {
-                    required: showEmailInput
-                      ? "El email es requerido para reenviar"
-                      : false,
+                    required: showEmailInput ? "El email es requerido para reenviar" : false,
                     pattern: {
                       value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
                       message: "Ingresa un email válido",
@@ -135,11 +123,7 @@ export default function VerifyAccountForm() {
                   disabled={isDisabled}
                 />
               </div>
-              {errors.email && (
-                <p className="text-sm text-destructive">
-                  {errors.email.message}
-                </p>
-              )}
+              {errors.email && <p className="text-destructive text-sm">{errors.email.message}</p>}
             </div>
           )}
 
@@ -148,20 +132,19 @@ export default function VerifyAccountForm() {
             variant="outline"
             className="w-full"
             onClick={handleResendCode}
-            disabled={isDisabled || cooldown > 0 || (showEmailInput && !email)}>
-            <RefreshCw
-              className={`mr-2 h-4 w-4 ${isResending ? "animate-spin" : ""}`}
-            />
+            disabled={isDisabled || cooldown > 0 || (showEmailInput && !email)}
+          >
+            <RefreshCw className={`mr-2 h-4 w-4 ${isResending ? "animate-spin" : ""}`} />
             {cooldown > 0
               ? `Espera ${cooldown}s para reenviar`
               : isResending
-              ? "Enviando..."
-              : showEmailInput
-              ? "Enviar código"
-              : "Reenviar código"}
+                ? "Enviando..."
+                : showEmailInput
+                  ? "Enviar código"
+                  : "Reenviar código"}
           </Button>
 
-          <div className="text-center text-sm text-muted-foreground">
+          <div className="text-muted-foreground text-center text-sm">
             <p>El código expira en 24 horas</p>
           </div>
         </form>

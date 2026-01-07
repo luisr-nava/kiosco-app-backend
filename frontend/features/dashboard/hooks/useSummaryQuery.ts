@@ -16,4 +16,3 @@ export const useSummaryQuery = () => {
     refetch: query.refetch,
   };
 };
-

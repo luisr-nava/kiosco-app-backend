@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 
 export default function Navbar() {
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur ">
-      <div className=" px-10 flex h-16 items-center justify-between">
+    <nav className="border-border bg-background/95 sticky top-0 z-50 w-full border-b backdrop-blur">
+      <div className="flex h-16 items-center justify-between px-10">
         <Link href="/" className="flex items-center gap-3">
           <Image
             src="/balanzio.png"
@@ -18,7 +18,7 @@ export default function Navbar() {
           />
           <div className="flex flex-col leading-tight">
             <span className="text-lg font-semibold">Balanzio</span>
-            <span className="text-xs text-muted-foreground">Gestión para tu negocio</span>
+            <span className="text-muted-foreground text-xs">Gestión para tu negocio</span>
           </div>
         </Link>
         <Link href="/dashboard/sales">

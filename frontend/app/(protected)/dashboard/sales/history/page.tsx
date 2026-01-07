@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ShopEmpty } from "@/components/shop-emty";
 import { ShopLoading } from "@/components/shop-loading";
 import { useShopStore } from "@/features/shop/shop.store";
@@ -22,12 +16,11 @@ export default function SalesHistoryPage() {
         <CardHeader>
           <CardTitle>Ventas</CardTitle>
           <CardDescription>
-            Consulta el historial y detalles de las ventas realizadas en la
-            tienda activa.
+            Consulta el historial y detalles de las ventas realizadas en la tienda activa.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Próximamente: listado, filtros y detalles de ventas.
           </p>
         </CardContent>
@@ -35,4 +28,3 @@ export default function SalesHistoryPage() {
     </div>
   );
 }
-

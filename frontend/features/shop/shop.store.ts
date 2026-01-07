@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { ShopDetail, ShopState } from "./types";
+import { ShopState } from "./types";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 export const useShopStore = create<ShopState>()(
@@ -9,8 +9,7 @@ export const useShopStore = create<ShopState>()(
       shouldForceStoreSelection: true,
       // Actions
       setActiveShopId: (shopId) => set({ activeShopId: shopId }),
-      setShouldForceStoreSelection: (force) =>
-        set({ shouldForceStoreSelection: force }),
+      setShouldForceStoreSelection: (force) => set({ shouldForceStoreSelection: force }),
     }),
     {
       name: "shop-storage",
@@ -18,7 +17,6 @@ export const useShopStore = create<ShopState>()(
       partialize: (state) => ({
         activeShopId: state.activeShopId,
       }),
-    },
-  ),
+    }
+  )
 );
-

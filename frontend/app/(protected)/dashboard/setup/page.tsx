@@ -45,7 +45,7 @@ export default function SetupStorePage() {
           label: name || code,
         };
       }),
-    [regionDisplay],
+    [regionDisplay]
   );
 
   const currencySymbols = useMemo(() => {
@@ -79,10 +79,7 @@ export default function SetupStorePage() {
       router.push("/dashboard");
     },
     onError: (error: unknown) => {
-      const { message } = getErrorMessage(
-        error,
-        "Error al crear la tienda",
-      );
+      const { message } = getErrorMessage(error, "Error al crear la tienda");
       toast.error("Error", {
         description: message,
       });
@@ -121,7 +118,7 @@ export default function SetupStorePage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-6">
+    <div className="flex min-h-screen items-center justify-center p-6">
       <Card className="w-full max-w-2xl">
         <CardHeader>
           <CardTitle className="text-2xl">Configura tu Tienda</CardTitle>
@@ -145,9 +142,7 @@ export default function SetupStorePage() {
                 minLength={4}
                 maxLength={20}
               />
-              <p className="text-xs text-muted-foreground">
-                Entre 4 y 20 caracteres
-              </p>
+              <p className="text-muted-foreground text-xs">Entre 4 y 20 caracteres</p>
             </div>
 
             <div className="space-y-2">
@@ -161,9 +156,7 @@ export default function SetupStorePage() {
                 minLength={4}
                 maxLength={20}
               />
-              <p className="text-xs text-muted-foreground">
-                Opcional - Entre 4 y 20 caracteres
-              </p>
+              <p className="text-muted-foreground text-xs">Opcional - Entre 4 y 20 caracteres</p>
             </div>
 
             <div className="space-y-2">
@@ -175,7 +168,7 @@ export default function SetupStorePage() {
                 value={formData.phone}
                 onChange={(e) => handleChange("phone", e.target.value)}
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Opcional - Número de contacto de la tienda
               </p>
             </div>
@@ -185,7 +178,7 @@ export default function SetupStorePage() {
                 <Label htmlFor="country">País</Label>
                 <select
                   id="country"
-                  className="h-10 rounded-md border bg-background px-3 text-sm"
+                  className="bg-background h-10 rounded-md border px-3 text-sm"
                   value={formData.countryCode}
                   onChange={(e) => handleChange("countryCode", e.target.value)}
                   required
@@ -199,7 +192,7 @@ export default function SetupStorePage() {
                     </option>
                   ))}
                 </select>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   Usa el código ISO del país (ej. AR, ES, MX).
                 </p>
               </div>
@@ -208,7 +201,7 @@ export default function SetupStorePage() {
                 <Label htmlFor="currency">Moneda</Label>
                 <select
                   id="currency"
-                  className="h-10 rounded-md border bg-background px-3 text-sm"
+                  className="bg-background h-10 rounded-md border px-3 text-sm"
                   value={formData.currencyCode}
                   onChange={(e) => handleChange("currencyCode", e.target.value)}
                   required
@@ -222,17 +215,13 @@ export default function SetupStorePage() {
                     </option>
                   ))}
                 </select>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   Monedas más usadas primero: USD, EUR y ARS.
                 </p>
               </div>
             </div>
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={createShopMutation.isPending}
-            >
+            <Button type="submit" className="w-full" disabled={createShopMutation.isPending}>
               {createShopMutation.isPending ? "Creando..." : "Crear Tienda"}
             </Button>
           </form>

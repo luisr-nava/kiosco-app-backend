@@ -2,7 +2,7 @@ import { kioscoApi } from "@/lib/kioscoApi";
 import { GetAllProductResponse, Product, ProductQueryParams } from "../types";
 
 export const GetAllProductAction = async (
-  params: ProductQueryParams,
+  params: ProductQueryParams
 ): Promise<{
   products: Product[];
   pagination: GetAllProductResponse["pagination"];
@@ -20,6 +20,3 @@ export const GetAllProductAction = async (
     pagination: data.pagination,
   };
 };
-
-
-

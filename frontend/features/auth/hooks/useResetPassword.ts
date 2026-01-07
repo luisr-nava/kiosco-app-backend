@@ -29,12 +29,11 @@ export const useResetPassword = ({ token }: { token: string }) => {
         },
         onError: () => {
           toast.error("Error al restablecer contraseña", {
-            description:
-              "No se pudo restablecer la contraseña. Por favor intenta de nuevo.",
+            description: "No se pudo restablecer la contraseña. Por favor intenta de nuevo.",
             duration: 5000,
           });
         },
-      },
+      }
     );
     localStorage.removeItem("remember-email");
   };
@@ -44,5 +43,3 @@ export const useResetPassword = ({ token }: { token: string }) => {
     isPending,
   };
 };
-
-

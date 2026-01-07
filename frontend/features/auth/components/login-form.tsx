@@ -13,8 +13,7 @@ import { useEffect, useState } from "react";
 export default function LoginForm() {
   const [mounted, setMounted] = useState(false);
 
-  const { onSubmit, isLoading, rememberMe, setRememberMe, savedEmail } =
-    useLogin();
+  const { onSubmit, isLoading, rememberMe, setRememberMe, savedEmail } = useLogin();
 
   const {
     register,
@@ -33,7 +32,7 @@ export default function LoginForm() {
 
   if (!mounted) return null;
   return (
-    <Card className=" shadow-lg w-md ">
+    <Card className="w-md shadow-lg">
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
@@ -52,11 +51,7 @@ export default function LoginForm() {
                 })}
                 disabled={isLoading}
               />
-              {errors.email && (
-                <p className="text-sm text-destructive">
-                  {errors.email.message}
-                </p>
-              )}
+              {errors.email && <p className="text-destructive text-sm">{errors.email.message}</p>}
             </div>
 
             <div className="space-y-2">
@@ -64,7 +59,8 @@ export default function LoginForm() {
                 <Label htmlFor="password">Contraseña</Label>
                 <a
                   href="/forgot-password"
-                  className="text-sm text-primary font-semibold transition-all duration-300 hover:text-primary/80">
+                  className="text-primary hover:text-primary/80 text-sm font-semibold transition-all duration-300"
+                >
                   ¿Olvidaste tu contraseña?
                 </a>
               </div>
@@ -81,9 +77,7 @@ export default function LoginForm() {
                 disabled={isLoading}
               />
               {errors.password && (
-                <p className="text-sm text-destructive">
-                  {errors.password.message}
-                </p>
+                <p className="text-destructive text-sm">{errors.password.message}</p>
               )}
             </div>
           </div>
@@ -97,7 +91,8 @@ export default function LoginForm() {
             />
             <label
               htmlFor="remember"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer">
+              className="cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
               Recordarme
             </label>
           </div>
@@ -110,4 +105,3 @@ export default function LoginForm() {
     </Card>
   );
 }
-

@@ -4,4 +4,3 @@ export interface Pagination {
   limit: number;
   totalPages: number;
 }
-

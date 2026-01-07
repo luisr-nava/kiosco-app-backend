@@ -23,11 +23,11 @@ export interface Expense {
 
 export interface CreateExpenseDto {
   description: string;
-  amount: number;
+  amount?: number;
   paymentMethodId: string;
   cashRegisterId: string;
-  date: string;
   shopId: string;
+  date: string | null;
 }
 
 export interface GetExpensesResponse {
@@ -41,5 +41,3 @@ export interface GetExpensesResponse {
     totalAmount?: number;
   };
 }
-
-

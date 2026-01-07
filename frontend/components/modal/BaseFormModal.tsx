@@ -29,9 +29,9 @@ export function BaseFormModal({
       onClose={() => {
         if (isSubmitting) return; // 👈 bloqueo simple
         onClose();
-      }}>
+      }}
+    >
       {children}
     </Modal>
   );
 }
-

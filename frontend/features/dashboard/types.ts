@@ -57,7 +57,6 @@ export interface Summary {
   totalExpenses: number;
   totalIncomes: number;
   balance: number;
-
 }
 export interface SummaryResponse {
   message: string;

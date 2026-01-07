@@ -36,8 +36,7 @@ export default function UserMenu() {
   };
 
   if (!user) return redirect("/login");
-  const canAddStores =
-    plan === SubscriptionPlanType.PREMIUM || plan === SubscriptionPlanType.PRO;
+  const canAddStores = plan === SubscriptionPlanType.PREMIUM || plan === SubscriptionPlanType.PRO;
 
   return (
     <DropdownMenu>
@@ -51,25 +50,24 @@ export default function UserMenu() {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user.fullName}</p>
-            <p className="text-xs leading-none text-muted-foreground">
-              {user.email}
-            </p>
-            <p className="text-xs leading-none text-muted-foreground mt-1">
+            <p className="text-sm leading-none font-medium">{user.fullName}</p>
+            <p className="text-muted-foreground text-xs leading-none">{user.email}</p>
+            <p className="text-muted-foreground mt-1 text-xs leading-none">
               <span className="font-semibold">Rol:</span> {user.role}
             </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuLabel className="text-xs uppercase text-muted-foreground">
+        <DropdownMenuLabel className="text-muted-foreground text-xs uppercase">
           Tus tiendas
         </DropdownMenuLabel>
         {canAddStores && (
           <DropdownMenuItem
             onClick={() => {
               window.dispatchEvent(new CustomEvent("open-store-selector"));
-            }}>
-            <div className="flex items-center gap-2 text-primary">
+            }}
+          >
+            <div className="text-primary flex items-center gap-2">
               <PlusCircle className="h-4 w-4" />
               <span>Crear tienda</span>
             </div>
@@ -87,12 +85,13 @@ export default function UserMenu() {
               <DropdownMenuItem
                 key={shop.id}
                 onClick={() => setActiveShopId(shop.id)}
-                className="flex items-center justify-between">
+                className="flex items-center justify-between"
+              >
                 <div className="flex items-center gap-2">
                   <Store className="h-4 w-4" />
                   <span className="truncate">{shop.name}</span>
                 </div>
-                {isActive && <Check className="h-4 w-4 text-primary" />}
+                {isActive && <Check className="text-primary h-4 w-4" />}
               </DropdownMenuItem>
             );
           })
@@ -107,22 +106,19 @@ export default function UserMenu() {
           <span>Configuración</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuLabel className="text-xs uppercase text-muted-foreground">
+        <DropdownMenuLabel className="text-muted-foreground text-xs uppercase">
           Tema
         </DropdownMenuLabel>
-        <div className="px-3 pb-2 grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-2 px-3 pb-2">
           {["light", "dark", "system"].map((option) => (
             <Button
               key={option}
               variant={theme === option ? "default" : "ghost"}
               size="sm"
               className="text-xs"
-              onClick={() => setTheme(option)}>
-              {option === "light"
-                ? "Claro"
-                : option === "dark"
-                ? "Oscuro"
-                : "Sistema"}
+              onClick={() => setTheme(option)}
+            >
+              {option === "light" ? "Claro" : option === "dark" ? "Oscuro" : "Sistema"}
             </Button>
           ))}
         </div>
@@ -135,4 +131,3 @@ export default function UserMenu() {
     </DropdownMenu>
   );
 }
-

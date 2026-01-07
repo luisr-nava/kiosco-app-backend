@@ -9,10 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
-import {
-  DateRangePicker,
-  type DateRangeValue,
-} from "@/components/ui/date-range-picker";
+import { DateRangePicker, type DateRangeValue } from "@/components/ui/date-range-picker";
 import { PeriodFilter } from "../type";
 
 const periodOptions: Array<{ value: PeriodFilter; label: string }> = [
@@ -84,35 +81,34 @@ export default function ReportsFilters({
 }: ReportsFiltersProps) {
   const monthOptions = MONTHS.filter(
     (month) =>
-      period !== "month" ||
-      month.value <= (monthYearValue === currentYear ? currentMonth : 12),
+      period !== "month" || month.value <= (monthYearValue === currentYear ? currentMonth : 12)
   );
 
   const yearOptions = buildYears(minYear, currentYear);
-  const hasWeekRange =
-    Boolean(weekRangeValue?.from) && Boolean(weekRangeValue?.to);
+  const hasWeekRange = Boolean(weekRangeValue?.from) && Boolean(weekRangeValue?.to);
   return (
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         {/* Label izquierda */}
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-between">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
-            <Label className="text-xl text-muted-foreground whitespace-nowrap">
+        <div className="flex w-full items-center justify-between gap-2 sm:w-auto">
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+            <Label className="text-muted-foreground text-xl whitespace-nowrap">
               Filtrar período
             </Label>
           </div>
         </div>
 
         {/* Controles */}
-        <div className="grid gap-4 sm:grid-cols-[250px_minmax(350px,1fr)] w-full sm:w-auto">
+        <div className="grid w-full gap-4 sm:w-auto sm:grid-cols-[250px_minmax(350px,1fr)]">
           {/* Período */}
-          <div className="space-y-2 min-h-[72px]">
+          <div className="min-h-[72px] space-y-2">
             <Label>Período</Label>
             <Select
               value={period}
               onValueChange={(value) => onPeriodChange(value as PeriodFilter)}
               aria-label="Seleccionar período"
-              disabled={isLoading}>
+              disabled={isLoading}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Selecciona un período" />
               </SelectTrigger>
@@ -128,7 +124,7 @@ export default function ReportsFilters({
 
           {/* Día */}
           {period === "day" && (
-            <div className="space-y-2 min-h-[72px]">
+            <div className="min-h-[72px] space-y-2">
               <Label>
                 Día <span className="text-destructive">*</span>
               </Label>
@@ -144,7 +140,7 @@ export default function ReportsFilters({
 
           {/* Semana */}
           {period === "week" && (
-            <div className="space-y-2 min-h-[72px]">
+            <div className="min-h-[72px] space-y-2">
               <Label>Semana</Label>
               <DateRangePicker
                 value={weekRangeValue}
@@ -158,14 +154,15 @@ export default function ReportsFilters({
 
           {/* Mes */}
           {period === "month" && (
-            <div className="grid gap-4 sm:grid-cols-2 min-h-[72px]">
+            <div className="grid min-h-[72px] gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label>Mes</Label>
                 <Select
                   value={String(monthValue)}
                   onValueChange={(value) => onMonthChange(Number(value))}
                   aria-label="Seleccionar mes"
-                  disabled={isLoading}>
+                  disabled={isLoading}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Mes" />
                   </SelectTrigger>
@@ -185,7 +182,8 @@ export default function ReportsFilters({
                   value={String(monthYearValue)}
                   onValueChange={(value) => onMonthYearChange(Number(value))}
                   aria-label="Seleccionar año"
-                  disabled={isLoading}>
+                  disabled={isLoading}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Año" />
                   </SelectTrigger>
@@ -203,13 +201,14 @@ export default function ReportsFilters({
 
           {/* Año */}
           {period === "year" && (
-            <div className="space-y-2 min-h-[72px]">
+            <div className="min-h-[72px] space-y-2">
               <Label>Año</Label>
               <Select
                 value={String(yearValue)}
                 onValueChange={(value) => onYearChange(Number(value))}
                 aria-label="Seleccionar año"
-                disabled={isLoading}>
+                disabled={isLoading}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Año" />
                 </SelectTrigger>
@@ -228,4 +227,3 @@ export default function ReportsFilters({
     </div>
   );
 }
-

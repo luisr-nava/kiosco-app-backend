@@ -12,13 +12,7 @@ export const useCustomerQuery = (params: UseCustomerQueryParams) => {
   const { activeShopId } = useShopStore();
 
   const query = useQuery({
-    queryKey: [
-      "customers",
-      activeShopId,
-      params.page,
-      params.limit,
-      params.search ?? "",
-    ],
+    queryKey: ["customers", activeShopId, params.page, params.limit, params.search ?? ""],
     queryFn: () =>
       getAllCustomerAction(activeShopId!, {
         ...params,
@@ -38,4 +32,3 @@ export const useCustomerQuery = (params: UseCustomerQueryParams) => {
     refetch: query.refetch,
   };
 };
-

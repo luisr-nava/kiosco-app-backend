@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import type { DateRangeValue } from "@/components/ui/date-range-picker";
-import { formatIsoDate } from "@/lib/date-utils";
 import { CashRegisterReportsQueryParams, PeriodFilter } from "../type";
+import { formatDate } from "@/utils";
 
 const DEFAULT_PERIOD: PeriodFilter = "day";
 
@@ -11,9 +11,7 @@ export function useCashRegisterReportFilters() {
   const currentMonth = today.getMonth() + 1;
 
   const [period, setPeriod] = useState<PeriodFilter>(DEFAULT_PERIOD);
-  const [selectedDay, setSelectedDay] = useState<Date | undefined>(
-    () => new Date(),
-  );
+  const [selectedDay, setSelectedDay] = useState<Date | undefined>(() => new Date());
   const [weekRange, setWeekRange] = useState<DateRangeValue>({});
   const [monthSelection, setMonthSelection] = useState({
     month: currentMonth,
@@ -33,15 +31,15 @@ export function useCashRegisterReportFilters() {
     const params: CashRegisterReportsQueryParams = { period };
 
     if (period === "day" && selectedDay) {
-      params.date = formatIsoDate(selectedDay);
+      params.date = formatDate(selectedDay);
     }
 
     if (period === "week") {
       if (normalizedRange.from) {
-        params.dateFrom = formatIsoDate(normalizedRange.from);
+        params.dateFrom = formatDate(normalizedRange.from);
       }
       if (normalizedRange.to) {
-        params.dateTo = formatIsoDate(normalizedRange.to);
+        params.dateTo = formatDate(normalizedRange.to);
       }
     }
 
@@ -67,15 +65,11 @@ export function useCashRegisterReportFilters() {
       weekRangeValue: normalizedRange,
       onWeekRangeChange: setWeekRange,
       monthValue: monthSelection.month,
-      onMonthChange: (month: number) =>
-        setMonthSelection((prev) => ({ ...prev, month })),
+      onMonthChange: (month: number) => setMonthSelection((prev) => ({ ...prev, month })),
       monthYearValue: monthSelection.year,
       onMonthYearChange: (year: number) =>
         setMonthSelection((prev) => ({
-          month:
-            year === currentYear
-              ? Math.min(prev.month, currentMonth)
-              : prev.month,
+          month: year === currentYear ? Math.min(prev.month, currentMonth) : prev.month,
           year,
         })),
       yearValue: selectedYear,
@@ -85,4 +79,3 @@ export function useCashRegisterReportFilters() {
     },
   };
 }
-

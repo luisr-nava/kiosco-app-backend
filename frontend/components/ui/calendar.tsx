@@ -7,14 +7,22 @@ import { cn } from "@/lib/utils";
 
 import "react-day-picker/dist/style.css";
 
-const Calendar = React.forwardRef<HTMLDivElement, DayPickerProps>(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("rounded-2xl border border-border bg-popover text-popover-foreground shadow-sm", className)}>
-    <ReactDayPicker
-      className="w-full rounded-2xl bg-popover text-popover-foreground"
-      {...props}
-    />
-  </div>
-));
+const Calendar = React.forwardRef<HTMLDivElement, DayPickerProps>(
+  ({ className, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        "border-border bg-popover text-popover-foreground rounded-2xl border shadow-sm",
+        className
+      )}
+    >
+      <ReactDayPicker
+        className="bg-popover text-popover-foreground w-full rounded-2xl"
+        {...props}
+      />
+    </div>
+  )
+);
 
 Calendar.displayName = "Calendar";
 

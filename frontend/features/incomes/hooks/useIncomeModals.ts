@@ -43,7 +43,3 @@ export const useIncomeModals = () => {
     closeAll,
   };
 };
-
-
-
-

@@ -8,7 +8,7 @@ export const getExpensesAction = async (
     search?: string;
     limit?: number;
     page?: number;
-  },
+  }
 ): Promise<{ expenses: Expense[]; pagination: Pagination }> => {
   const { data } = await kioscoApi.get<GetExpensesResponse>("/expense", {
     params: {
@@ -24,4 +24,3 @@ export const getExpensesAction = async (
     pagination: data.meta,
   };
 };
-

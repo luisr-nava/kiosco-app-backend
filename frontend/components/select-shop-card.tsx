@@ -1,10 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Props {
   title?: string;
@@ -23,8 +17,7 @@ export const SelectShopCard = ({
       <CardDescription>{description}</CardDescription>
     </CardHeader>
     <CardContent>
-      <p className="text-sm text-muted-foreground">{helperText}</p>
+      <p className="text-muted-foreground text-sm">{helperText}</p>
     </CardContent>
   </Card>
 );
-

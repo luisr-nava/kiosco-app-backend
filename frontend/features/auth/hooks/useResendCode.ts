@@ -20,19 +20,17 @@ export const useResendCode = ({ email }: { email: string }) => {
       {
         onSuccess: () => {
           toast.success("Código enviado", {
-            description:
-              "Te hemos enviado un nuevo código de verificación. Revisa tu email.",
+            description: "Te hemos enviado un nuevo código de verificación. Revisa tu email.",
             duration: 5000,
           });
         },
         onError: () => {
           toast.error("Error al enviar código", {
-            description:
-              "No se pudo enviar el código. Por favor intenta de nuevo.",
+            description: "No se pudo enviar el código. Por favor intenta de nuevo.",
             duration: 5000,
           });
         },
-      },
+      }
     );
 
     setCooldown(60);
@@ -53,4 +51,3 @@ export const useResendCode = ({ email }: { email: string }) => {
     isLoading: isPending,
   };
 };
-

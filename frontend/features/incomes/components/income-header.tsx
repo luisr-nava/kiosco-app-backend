@@ -10,11 +10,7 @@ interface Props {
   handleOpenCreate: () => void;
 }
 
-export default function IncomeHeader({
-  handleOpenCreate,
-  search,
-  setSearch,
-}: Props) {
+export default function IncomeHeader({ handleOpenCreate, search, setSearch }: Props) {
   const [localSearch, setLocalSearch] = useState(search);
   const debouncedSearch = useDebounce(localSearch, 400);
   useEffect(() => {
@@ -29,11 +25,9 @@ export default function IncomeHeader({
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Label className="text-sm text-muted-foreground whitespace-nowrap">
-            Buscar
-          </Label>
+      <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+        <div className="flex w-full items-center gap-2 sm:w-auto">
+          <Label className="text-muted-foreground text-sm whitespace-nowrap">Buscar</Label>
           <Input
             className="w-full sm:w-56"
             placeholder="Nombre"
@@ -48,4 +42,3 @@ export default function IncomeHeader({
     </div>
   );
 }
-

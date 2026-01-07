@@ -5,4 +5,3 @@ export {
   useIncomeUpdateMutation,
 } from "./useIncomeMutations";
 export { useIncomeModals } from "./useIncomeModals";
-

@@ -20,10 +20,10 @@ export default function IncomesPage() {
   const { incomes, incomesLoading, pagination, isFetching } = useIncomes(
     debouncedSearch,
     page,
-    limit,
+    limit
   );
   const { paymentMethods } = usePaymentMethods();
-  
+
   const { data } = useCashRegisterStateQuery(activeShopId!);
   const hasOpenCashRegister = data?.hasOpenCashRegister === true;
   const [openCashModal, setOpenCashRegisterModal] = useState(false);
@@ -38,15 +38,11 @@ export default function IncomesPage() {
 
   return (
     <div className="space-y-4">
-      <IncomeHeader
-        handleOpenCreate={handleCreateExpense}
-        search={search}
-        setSearch={setSearch}
-      />
+      <IncomeHeader handleOpenCreate={handleCreateExpense} search={search} setSearch={setSearch} />
       {incomesLoading ? (
         <Loading />
       ) : (
-        <div className="p-5 space-y-4">
+        <div className="space-y-4 p-5">
           <TableIncome
             incomes={incomes}
             handleEdit={openEdit}
@@ -70,4 +66,3 @@ export default function IncomesPage() {
     </div>
   );
 }
-

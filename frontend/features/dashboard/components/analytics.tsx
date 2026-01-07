@@ -30,10 +30,8 @@ export default function Analytics() {
   return (
     <Card className="">
       <CardHeader className="flex w-full justify-end">
-        <CardTitle className="text-base font-semibold w-1/2 md:w-1/10">
-          <Select
-            value={period}
-            onValueChange={(value) => setPeriod(value as Period)}>
+        <CardTitle className="w-1/2 text-base font-semibold md:w-1/10">
+          <Select value={period} onValueChange={(value) => setPeriod(value as Period)}>
             <SelectTrigger className="h-9">
               <SelectValue />
             </SelectTrigger>
@@ -62,4 +60,3 @@ export default function Analytics() {
     </Card>
   );
 }
-

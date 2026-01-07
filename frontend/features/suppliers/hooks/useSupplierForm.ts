@@ -22,7 +22,7 @@ const initialForm: CreateSupplierDto = {
 export const useSupplierForm = (
   editSupplier?: Supplier,
   deleteSupplier?: Supplier,
-  onClose?: () => void,
+  onClose?: () => void
 ) => {
   const { activeShopId } = useShopStore();
 
@@ -59,7 +59,7 @@ export const useSupplierForm = (
           onError: () => {
             toast.error("No se pudo actualizar el cliente");
           },
-        },
+        }
       );
     } else if (deleteSupplier) {
       deleteMutation.mutate(
@@ -73,7 +73,7 @@ export const useSupplierForm = (
           onError: () => {
             toast.error("No se pudo eliminar el gasto");
           },
-        },
+        }
       );
     } else {
       createMutation.mutate(basePayload, {
@@ -107,4 +107,3 @@ export const useSupplierForm = (
     errors,
   };
 };
-

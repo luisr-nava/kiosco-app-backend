@@ -3,11 +3,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { Shop } from "@/lib/types/shop";
 import { Supplier } from "../types";
 
@@ -67,7 +63,7 @@ export default function SupplierForm({
   const RequiredMark = () => (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span className="ml-1 text-destructive" aria-label="Requerido">
+        <span className="text-destructive ml-1" aria-label="Requerido">
           *
         </span>
       </TooltipTrigger>
@@ -87,11 +83,7 @@ export default function SupplierForm({
         categoryId: editingSupplier.categoryId || "",
         shopIds:
           editingSupplier.shopIds ||
-          (editingSupplier.shopId
-            ? [editingSupplier.shopId]
-            : activeShopId
-            ? [activeShopId]
-            : []),
+          (editingSupplier.shopId ? [editingSupplier.shopId] : activeShopId ? [activeShopId] : []),
       });
     } else {
       form.reset({
@@ -110,12 +102,8 @@ export default function SupplierForm({
       address: values.address?.trim() || null,
       notes: values.notes?.trim() || null,
       categoryId: values.categoryId?.trim() || null,
-      shopIds: values.shopIds.length
-        ? values.shopIds
-        : activeShopId
-        ? [activeShopId]
-        : [],
-    }),
+      shopIds: values.shopIds.length ? values.shopIds : activeShopId ? [activeShopId] : [],
+    })
   );
 
   return (
@@ -135,19 +123,11 @@ export default function SupplierForm({
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="contactName">Persona de contacto</Label>
-          <Input
-            id="contactName"
-            placeholder="Nombre contacto"
-            {...form.register("contactName")}
-          />
+          <Input id="contactName" placeholder="Nombre contacto" {...form.register("contactName")} />
         </div>
         <div className="space-y-2">
           <Label htmlFor="phone">Teléfono</Label>
-          <Input
-            id="phone"
-            placeholder="+54 9 11 1234 5678"
-            {...form.register("phone")}
-          />
+          <Input id="phone" placeholder="+54 9 11 1234 5678" {...form.register("phone")} />
         </div>
       </div>
 
@@ -164,19 +144,11 @@ export default function SupplierForm({
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="address">Dirección</Label>
-          <Input
-            id="address"
-            placeholder="Calle 123"
-            {...form.register("address")}
-          />
+          <Input id="address" placeholder="Calle 123" {...form.register("address")} />
         </div>
         <div className="space-y-2">
           <Label htmlFor="notes">Notas</Label>
-          <Input
-            id="notes"
-            placeholder="Notas internas"
-            {...form.register("notes")}
-          />
+          <Input id="notes" placeholder="Notas internas" {...form.register("notes")} />
         </div>
       </div>
 
@@ -185,8 +157,9 @@ export default function SupplierForm({
         <div className="space-y-2">
           <select
             id="categoryId"
-            className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            {...form.register("categoryId")}>
+            className="border-input focus-visible:ring-ring w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:ring-2 focus-visible:outline-none"
+            {...form.register("categoryId")}
+          >
             <option value="">Sin categoría</option>
             {categories.map((cat) => (
               <option key={cat.id} value={cat.id}>
@@ -200,7 +173,8 @@ export default function SupplierForm({
               variant="outline"
               size="sm"
               onClick={loadMoreCategories}
-              disabled={isLoadingCategories}>
+              disabled={isLoadingCategories}
+            >
               {isLoadingCategories ? "Cargando..." : "Cargar más categorías"}
             </Button>
           )}
@@ -212,18 +186,14 @@ export default function SupplierForm({
           Tiendas
           <RequiredMark />
         </Label>
-        <div className="max-h-40 overflow-y-auto space-y-2 rounded-md border p-3">
+        <div className="max-h-40 space-y-2 overflow-y-auto rounded-md border p-3">
           {shops.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No hay tiendas disponibles.
-            </p>
+            <p className="text-muted-foreground text-sm">No hay tiendas disponibles.</p>
           ) : (
             shops.map((shop) => {
               const checked = form.watch("shopIds").includes(shop.id);
               return (
-                <label
-                  key={shop.id}
-                  className="flex items-center gap-2 text-sm">
+                <label key={shop.id} className="flex items-center gap-2 text-sm">
                   <input
                     type="checkbox"
                     checked={checked}
@@ -250,15 +220,11 @@ export default function SupplierForm({
               ? "Guardando..."
               : "Creando..."
             : editingSupplier
-            ? "Actualizar proveedor"
-            : "Crear proveedor"}
+              ? "Actualizar proveedor"
+              : "Crear proveedor"}
         </Button>
         {editingSupplier && (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancelEdit}
-            disabled={isSubmitting}>
+          <Button type="button" variant="outline" onClick={onCancelEdit} disabled={isSubmitting}>
             Cancelar edición
           </Button>
         )}
@@ -266,4 +232,3 @@ export default function SupplierForm({
     </form>
   );
 }
-

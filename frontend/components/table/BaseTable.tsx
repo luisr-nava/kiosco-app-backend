@@ -48,19 +48,27 @@ export function BaseTable<T>({
             return (
               <TableHead
                 key={col.header}
-                className={`select-none ${
-                  col.align === "right" ? "text-right" : ""
-                } ${col.sortable ? "cursor-pointer" : ""}`}
-                onClick={col.sortable ? () => toggleSort(index) : undefined}>
-                <div className="flex items-center gap-1">
-                  {col.header}
-                  {col.sortable &&
-                    isSorted &&
-                    (sortBy.direction === "asc" ? (
-                      <ChevronUp className="h-4 w-4" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4" />
-                    ))}
+                className={`select-none ${col.align === "right" ? "text-right" : ""} ${col.sortable ? "group hover:bg-muted/50 cursor-pointer" : ""}`}
+                onClick={col.sortable ? () => toggleSort(index) : undefined}
+              >
+                <div className="inline-flex items-center gap-1">
+                  <span>{col.header}</span>
+
+                  {col.sortable && (
+                    <span
+                      className={`text-muted-foreground w-4 justify-center transition-opacity ${isSorted ? "opacity-100" : "opacity-40 group-hover:opacity-70"} flex`}
+                    >
+                      {isSorted ? (
+                        sortBy.direction === "asc" ? (
+                          <ChevronUp className="h-4 w-4" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4" />
+                        )
+                      ) : (
+                        <ChevronUp className="h-4 w-4 opacity-50" />
+                      )}
+                    </span>
+                  )}
                 </div>
               </TableHead>
             );
@@ -73,7 +81,7 @@ export function BaseTable<T>({
       {/* BODY */}
       <TableBody>
         {sortedData.length === 0 ? (
-          <EmptyTable colSpan={7} title="No datos cargados"/>
+          <EmptyTable colSpan={7} title="No datos cargados" />
         ) : (
           sortedData.map((row) => {
             const id = getRowId(row);
@@ -83,23 +91,19 @@ export function BaseTable<T>({
               <React.Fragment key={id}>
                 <TableRow
                   className={isExpandable ? "cursor-pointer" : undefined}
-                  onClick={
-                    isExpandable
-                      ? () => setExpandedRow(isOpen ? null : id)
-                      : undefined
-                  }>
+                  onClick={isExpandable ? () => setExpandedRow(isOpen ? null : id) : undefined}
+                >
                   {columns.map((col) => (
                     <TableCell
                       key={col.header}
-                      className={col.align === "right" ? "text-right" : ""}>
+                      className={col.align === "right" ? "text-right" : ""}
+                    >
                       {col.cell(row)}
                     </TableCell>
                   ))}
 
                   {actions && (
-                    <TableCell
-                      align="right"
-                      onClick={(e) => e.stopPropagation()}>
+                    <TableCell align="right" onClick={(e) => e.stopPropagation()}>
                       <TableActions
                         row={row}
                         actions={actions(row).map((a) => ({
@@ -113,9 +117,7 @@ export function BaseTable<T>({
 
                 {isExpandable && isOpen && (
                   <TableRow className="bg-muted/40">
-                    <TableCell
-                      colSpan={columns.length + (actions ? 1 : 0)}
-                      className="p-0">
+                    <TableCell colSpan={columns.length + (actions ? 1 : 0)} className="p-0">
                       {renderExpandedContent!(row)}
                     </TableCell>
                   </TableRow>
@@ -132,7 +134,8 @@ export function BaseTable<T>({
           <TableRow>
             <TableCell
               colSpan={columns.length + (actions ? 1 : 0)}
-              className="text-center text-sm text-muted-foreground">
+              className="text-muted-foreground text-center text-sm"
+            >
               <Pagination
                 page={pagination.page}
                 limit={pagination.limit}
@@ -152,4 +155,3 @@ export function BaseTable<T>({
     </Table>
   );
 }
-

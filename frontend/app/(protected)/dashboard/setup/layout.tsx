@@ -15,13 +15,12 @@ export default function SetupLayout({ children }: { children: ReactNode }) {
   const isOnSales = pathname.startsWith("/dashboard/sales");
   const sellButtonClasses = cn(
     "transition shadow-sm",
-    !isOnSales &&
-      "animate-pulse ring-2 ring-primary/50 ring-offset-2 ring-offset-background",
+    !isOnSales && "animate-pulse ring-2 ring-primary/50 ring-offset-2 ring-offset-background"
   );
 
   return (
     <div className="min-h-screen">
-      <header className="border-b bg-card">
+      <header className="bg-card border-b">
         <div className="flex items-center justify-between gap-4 p-4">
           <Link href="/dashboard" className="flex items-center gap-3">
             <Image

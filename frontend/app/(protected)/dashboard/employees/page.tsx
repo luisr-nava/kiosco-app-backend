@@ -3,10 +3,7 @@
 import { BaseHeader } from "@/components/header/BaseHeader";
 import { Loading } from "@/components/loading";
 import { BaseTable } from "@/components/table/BaseTable";
-import {
-  EmployeeExpanded,
-  ModalEmployee,
-} from "@/features/employees/components";
+import { EmployeeExpanded, ModalEmployee } from "@/features/employees/components";
 import { employeeColumns } from "@/features/employees/employee.columns";
 import { useEmployeeModals, useEmployees } from "@/features/employees/hooks";
 import { Employee } from "@/features/employees/types";
@@ -15,15 +12,8 @@ import { useState } from "react";
 
 export default function EmployeesPage() {
   const employeeModals = useEmployeeModals();
-  const {
-    searchInput,
-    setSearch,
-    debouncedSearch,
-    page,
-    limit,
-    setPage,
-    setLimit,
-  } = usePaginationParams(300);
+  const { searchInput, setSearch, debouncedSearch, page, limit, setPage, setLimit } =
+    usePaginationParams(300);
   const [filters, setFilters] = useState<{
     categoryId?: string;
     supplierId?: string;
@@ -73,5 +63,3 @@ export default function EmployeesPage() {
     </div>
   );
 }
-
-

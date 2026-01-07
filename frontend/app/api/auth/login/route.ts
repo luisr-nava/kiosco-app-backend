@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     if (!email || !password) {
       return NextResponse.json(
         { message: "El email y la contraseña son obligatorios." },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -26,10 +26,8 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "No se pudo iniciar sesión.";
+    const message = error instanceof Error ? error.message : "No se pudo iniciar sesión.";
 
     return NextResponse.json({ message }, { status: 401 });
   }
 }
-

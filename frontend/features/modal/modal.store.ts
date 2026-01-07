@@ -1,4 +1,3 @@
-
 import { create } from "zustand";
 import { ModalStore } from "./modal.types";
 
@@ -18,4 +17,3 @@ export const useModalStore = create<ModalStore>((set) => ({
       data: null,
     }),
 }));
-

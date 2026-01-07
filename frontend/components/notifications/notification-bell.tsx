@@ -30,14 +30,10 @@ export const NotificationBell = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="relative"
-          aria-label="Abrir notificaciones">
+        <Button variant="ghost" size="icon" className="relative" aria-label="Abrir notificaciones">
           <Bell className="h-5 w-5" />
           {/* {unreadCount > 0 && ( */}
-          <span className="absolute -right-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
+          <span className="bg-primary text-primary-foreground absolute -top-0.5 -right-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-semibold">
             {/* {unreadCount > 9 ? "9+" : unreadCount} */}
           </span>
           {/* )} */}
@@ -113,7 +109,8 @@ export const NotificationBell = () => {
             variant="link"
             size="sm"
             className="text-xs"
-            onClick={() => router.push("/dashboard/notifications")}>
+            onClick={() => router.push("/dashboard/notifications")}
+          >
             Ver todas
           </Button>
         </div>
@@ -121,4 +118,3 @@ export const NotificationBell = () => {
     </DropdownMenu>
   );
 };
-

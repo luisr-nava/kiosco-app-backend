@@ -4,7 +4,11 @@ import { useExpenseForm, useExpenseModals } from "../hooks";
 import ExpenseForm from "./expense-form";
 import { usePaymentMethods } from "@/app/(protected)/settings/payment-method/hooks";
 
-export default function ModalExpense() {
+interface ExpenseModalProps {
+  cashRegisterId?: string;
+  modals: ReturnType<typeof useExpenseModals>;
+}
+export default function ExpenseModal({ cashRegisterId, modals }: ExpenseModalProps) {
   const {
     createExpenseModal,
     editExpense,
@@ -13,65 +17,40 @@ export default function ModalExpense() {
     deleteExpenseModal,
     isEdit,
     closeAll,
-  } = useExpenseModals();
+  } = modals;
   const openModal = createExpenseModal.isOpen || editExpenseModal.isOpen;
 
-  const {
-    initialForm,
-    reset,
-    isLoadingCreate,
-    isLoadingUpdate,
-    isLoadingDelete,
-    register,
-    isValid,
-    control,
-    errors,
-    onSubmit,
-  } = useExpenseForm(editExpense!, deleteExpense!, () => {
-    closeAll();
-    reset({ ...initialForm });
-  });
+  const { form, onSubmit, isLoadingCreate, isLoadingUpdate, reset, isLoadingDelete } =
+    useExpenseForm(cashRegisterId!, editExpense!, deleteExpense!, isEdit, () => {
+      closeAll();
+    });
 
   const handleClose = () => {
     closeAll();
-    reset({ ...initialForm });
+    reset();
   };
 
   const isSubmitting = isLoadingCreate || isLoadingUpdate || isLoadingDelete;
   const { paymentMethods } = usePaymentMethods();
-  useEffect(() => {
-    if (!editExpense) return;
-    reset({
-      description: editExpense.description || "",
-      amount: editExpense.amount || 0,
-      paymentMethodId: editExpense.paymentMethodId || "",
-      date: editExpense.date || "",
-    });
-  }, [editExpense, reset]);
 
   return (
     <Modal
       isOpen={openModal}
       onClose={handleClose}
-      title={editExpenseModal.isOpen ? "Editar gasto" : "Crear gasto"}
+      title={editExpenseModal.isOpen ? "Editar egreso" : "Crear egreso"}
       description={
-        editExpenseModal.isOpen || createExpenseModal.isOpen
-          ? "Completa los datos del gasto"
-          : ""
+        editExpenseModal.isOpen || createExpenseModal.isOpen ? "Completa los datos del egreso" : ""
       }
-      size="lg">
+      size="lg"
+    >
       <ExpenseForm
-        register={register}
+        form={form}
         onSubmit={onSubmit}
-        control={control}
-        errors={errors}
         onCancel={handleClose}
         isEdit={isEdit}
         isSubmitting={isSubmitting}
         paymentMethods={paymentMethods}
-        isValid={isValid}
       />
     </Modal>
   );
 }
-

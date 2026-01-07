@@ -4,8 +4,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const kioscoApi = axios.create({
-  baseURL:
-    process.env.NEXT_PUBLIC_KIOSCO_API_URL || process.env.NEXT_PUBLIC_API_URL,
+  baseURL: process.env.NEXT_PUBLIC_KIOSCO_API_URL || process.env.NEXT_PUBLIC_API_URL,
 });
 
 kioscoApi.interceptors.request.use((config) => {
@@ -30,8 +29,7 @@ kioscoApi.interceptors.response.use(
       window.location.href = "/login";
     }
     return Promise.reject(error);
-  },
+  }
 );
 
 export { kioscoApi };
-

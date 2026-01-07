@@ -1,10 +1,5 @@
 import { PaymentMethod } from "@/app/(protected)/settings/payment-method/interfaces";
-import {
-  Control,
-  Controller,
-  FieldErrors,
-  UseFormRegister,
-} from "react-hook-form";
+import { Control, Controller, FieldErrors, UseFormRegister } from "react-hook-form";
 import { CreateIncomeDto } from "../types";
 import { Label } from "@/components/ui/label";
 import {
@@ -58,9 +53,7 @@ export default function IncomeForm({
             cols={3}
           />
           {errors.description && (
-            <p className="text-xs text-destructive">
-              {errors.description.message?.toString()}
-            </p>
+            <p className="text-destructive text-xs">{errors.description.message?.toString()}</p>
           )}
         </div>
 
@@ -78,9 +71,7 @@ export default function IncomeForm({
           />
         </div>
         {errors.amount && (
-          <p className="text-xs text-destructive">
-            {errors.amount.message?.toString()}
-          </p>
+          <p className="text-destructive text-xs">{errors.amount.message?.toString()}</p>
         )}
         <div className="grid gap-1">
           <Label>
@@ -107,9 +98,7 @@ export default function IncomeForm({
             )}
           />
           {errors.paymentMethodId && (
-            <p className="text-xs text-destructive">
-              {errors.paymentMethodId.message?.toString()}
-            </p>
+            <p className="text-destructive text-xs">{errors.paymentMethodId.message?.toString()}</p>
           )}
         </div>
       </div>
@@ -117,18 +106,10 @@ export default function IncomeForm({
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancelar
         </Button>
-        <Button
-          type="submit"
-          disabled={!isValid || isSubmitting}
-          variant="default">
-          {isSubmitting
-            ? "Guardando..."
-            : isEdit
-            ? "Actualizar ingreso"
-            : "Crear ingreso"}
+        <Button type="submit" disabled={!isValid || isSubmitting} variant="default">
+          {isSubmitting ? "Guardando..." : isEdit ? "Actualizar ingreso" : "Crear ingreso"}
         </Button>
       </ModalFooter>
     </form>
   );
 }
-

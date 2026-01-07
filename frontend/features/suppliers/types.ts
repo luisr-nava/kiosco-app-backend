@@ -35,5 +35,4 @@ export interface GetSuppliersResponse {
     totalPages: number;
     totalAmount?: number;
   };
-
 }

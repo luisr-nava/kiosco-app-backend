@@ -17,25 +17,22 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const isOnSales = pathname.startsWith("/dashboard/sales");
   const sellButtonClasses = cn(
     "transition shadow-sm",
-    !isOnSales &&
-      "animate-pulse ring-2 ring-primary/50 ring-offset-2 ring-offset-background",
+    !isOnSales && "animate-pulse ring-2 ring-primary/50 ring-offset-2 ring-offset-background"
   );
   const currentMenu =
     menuItems.reduce<(typeof menuItems)[number] | null>((best, item) => {
-      const matches =
-        pathname === item.href || pathname.startsWith(`${item.href}/`);
+      const matches = pathname === item.href || pathname.startsWith(`${item.href}/`);
       if (!matches) return best;
       if (!best) return item;
       return item.href.length > best.href.length ? item : best;
     }, null) || null;
-  const pageDescription =
-    currentMenu?.description || "Panel de administración.";
+  const pageDescription = currentMenu?.description || "Panel de administración.";
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="bg-background flex min-h-screen">
       <Sidebar />
-      <div className="flex-1 md:ml-16 flex flex-col h-screen">
-        <header className="sticky top-0 z-20 border-b bg-card">
+      <div className="flex h-screen flex-1 flex-col md:ml-16">
+        <header className="bg-card sticky top-0 z-20 border-b">
           <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <Link href="/dashboard" className="flex items-center gap-3">
@@ -48,10 +45,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 />
               </Link>
               <div className="flex flex-col">
-                <h1 className="text-2xl font-bold leading-tight">
+                <h1 className="text-2xl leading-tight font-bold">
                   {currentMenu?.label || "Panel"}
                 </h1>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   {pageDescription || "Panel de administración."}
                 </p>
               </div>
@@ -68,9 +65,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </div>
           </div>
         </header>
-        <main className="flex-1 overflow-y-auto p-6 space-y-6">{children}</main>
+        <main className="flex-1 space-y-6 overflow-y-auto p-6">{children}</main>
       </div>
     </div>
   );
 }
-

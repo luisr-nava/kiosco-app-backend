@@ -45,4 +45,3 @@ export function useTableSort<T>(data: T[], columns: TableColumn<T>[]) {
     toggleSort,
   };
 }
-

@@ -1,14 +1,8 @@
 "use client";
 
-import { usePaymentMethods } from "@/app/(protected)/settings/payment-method/hooks";
 import { useShopStore } from "@/features/shop/shop.store";
 import { useCashRegisterStateQuery } from "@/features/cash-register/hooks/useCashRegisterStateQuery";
-import {
-  expenseColumns,
-  ExpenseHeader,
-  ModalExpense,
-  TableExpense,
-} from "@/features/expenses/components";
+import { useExpenseColumns, ExpenseModal } from "@/features/expenses/components";
 import { useExpenseModals, useExpenses } from "@/features/expenses/hooks";
 import { usePaginationParams } from "@/src/hooks/usePaginationParams";
 import { Loading } from "@/components/loading";
@@ -20,25 +14,19 @@ import { BaseTable } from "@/components/table/BaseTable";
 
 export default function ExpensesPage() {
   const expenseModals = useExpenseModals();
-  const {
-    searchInput,
-    debouncedSearch,
-    page,
-    limit,
-    setSearch,
-    setPage,
-    setLimit,
-    reset,
-  } = usePaginationParams(500);
+  const { searchInput, debouncedSearch, page, limit, setSearch, setPage, setLimit, reset } =
+    usePaginationParams(500);
   const { expenses, expensesLoading, pagination, isFetching } = useExpenses(
     debouncedSearch,
     page,
-    limit,
+    limit
   );
 
   const { activeShopId } = useShopStore();
   const { data } = useCashRegisterStateQuery(activeShopId!);
+
   const hasOpenCashRegister = data?.hasOpenCashRegister === true;
+  const cashRegisterId = data?.cashRegisterId;
   const [openCashModal, setOpenCashRegisterModal] = useState(false);
 
   const handleCreateExpense = () => {
@@ -46,21 +34,21 @@ export default function ExpensesPage() {
       setOpenCashRegisterModal(true);
       return;
     }
-
     expenseModals.openCreate();
   };
 
-  const { paymentMethods } = usePaymentMethods();
+  const columns = useExpenseColumns();
+
   return (
     <div className="space-y-4">
       <BaseHeader
         search={searchInput}
         setSearch={setSearch}
         onCreate={handleCreateExpense}
-        createLabel="Nuevo cliente"
+        createLabel="Nuevo egreso"
         showClearFilters={Boolean(searchInput)}
         onClearFilters={() => {
-          // reset();
+          reset();
           setSearch("");
         }}
       />
@@ -70,7 +58,7 @@ export default function ExpensesPage() {
         <BaseTable<Expense>
           data={expenses}
           getRowId={(e) => e.id}
-          columns={expenseColumns}
+          columns={columns}
           actions={(e) => [
             {
               type: "edit",
@@ -81,7 +69,6 @@ export default function ExpensesPage() {
               onClick: expenseModals.openDelete,
             },
           ]}
-          // renderExpandedContent={(e) => <CustomerExpanded customer={e} />}
           pagination={{
             page,
             limit,
@@ -92,26 +79,9 @@ export default function ExpensesPage() {
             onLimitChange: setLimit,
           }}
         />
-        // <TableExpense
-        //   expenses={expenses}
-        //   handleEdit={openEdit}
-        //   limit={limit}
-        //   page={page}
-        //   setLimit={setLimit}
-        //   setPage={setPage}
-        //   pagination={pagination!}
-        //   isFetching={isFetching}
-        //   paymentMethods={paymentMethods}
-        //   handleDelete={openDelete}
-        // />
       )}
-      <ModalExpense />
-      <OpenCashRegisterModal
-        open={openCashModal}
-        onOpenChange={setOpenCashRegisterModal}
-        shopId={activeShopId!}
-      />
+      <ExpenseModal cashRegisterId={cashRegisterId!} modals={expenseModals} />
+      <OpenCashRegisterModal open={openCashModal} onOpenChange={setOpenCashRegisterModal} />
     </div>
   );
 }
-

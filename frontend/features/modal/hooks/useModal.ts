@@ -1,9 +1,7 @@
 import { useModalStore } from "../modal.store";
 import { ModalType } from "../modal.types";
 
-export const useModal = <TData = unknown>(
-  modalType: Exclude<ModalType, null>,
-) => {
+export const useModal = <TData = unknown>(modalType: Exclude<ModalType, null>) => {
   const type = useModalStore((state) => state.type);
   const data = useModalStore((state) => state.data);
   const openModal = useModalStore((state) => state.openModal);
@@ -19,4 +17,3 @@ export const useModal = <TData = unknown>(
     close: closeModal,
   };
 };
-

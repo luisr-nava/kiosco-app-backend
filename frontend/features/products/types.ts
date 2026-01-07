@@ -85,7 +85,6 @@ export interface ProductMeasurementUnit {
   isDefault: boolean;
 }
 
-
 export interface ProductQueryParams {
   shopId?: string;
   search?: string;

@@ -78,10 +78,7 @@ export function Modal({
             initial="hidden"
             animate="visible"
             exit="exit"
-            className={cn(
-              "relative w-full rounded-lg bg-background shadow-xl",
-              sizeClasses[size]
-            )}
+            className={cn("bg-background relative w-full rounded-lg shadow-xl", sizeClasses[size])}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
@@ -90,19 +87,12 @@ export function Modal({
                 <div className="flex-1">
                   {title && <h2 className="text-xl font-semibold">{title}</h2>}
                   {description && (
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {description}
-                    </p>
+                    <p className="text-muted-foreground mt-1 text-sm">{description}</p>
                   )}
                 </div>
                 {showCloseButton && (
                   <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={onClose}
-                      className="shrink-0"
-                    >
+                    <Button variant="ghost" size="icon" onClick={onClose} className="shrink-0">
                       <X className="h-4 w-4" />
                     </Button>
                   </motion.div>
@@ -128,7 +118,7 @@ export function ModalFooter({ children, className }: ModalFooterProps) {
   return (
     <div
       className={cn(
-        "flex items-center justify-end gap-3 border-t px-6 py-4 -mx-6 -mb-6 mt-6",
+        "-mx-6 mt-6 -mb-6 flex items-center justify-end gap-3 border-t px-6 py-4",
         className
       )}
     >

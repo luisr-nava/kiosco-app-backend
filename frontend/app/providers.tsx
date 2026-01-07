@@ -22,7 +22,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             refetchOnReconnect: false,
           },
         },
-      }),
+      })
   );
 
   return (
@@ -31,7 +31,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
         attribute="class"
         defaultTheme="system"
         enableSystem
-        disableTransitionOnChange>
+        disableTransitionOnChange
+      >
         <PublicRouteGuard>{children}</PublicRouteGuard>
         <Toaster position="top-right" richColors closeButton />
       </NextThemesProvider>

@@ -7,20 +7,33 @@ import {
 } from "./useExpenseMutations";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 const initialForm: CreateExpenseDto = {
   description: "",
-  amount: 0,
+  amount: undefined,
   paymentMethodId: "",
   cashRegisterId: "",
-  date: "",
+  date: null,
   shopId: "",
 };
 
+function mapExpenseToForm(expense: Expense, initialForm: CreateExpenseDto): CreateExpenseDto {
+  return {
+    ...initialForm,
+    amount: expense.amount,
+    paymentMethodId: expense.cashRegisterId ?? "",
+    date: expense.date,
+    description: expense.description,
+  };
+}
+
 export const useExpenseForm = (
+  cashRegisterId: string,
   editExpense?: Expense,
   deleteExpense?: Expense,
-  onClose?: () => void,
+  isEdit?: boolean,
+  onClose?: () => void
 ) => {
   const { activeShopId } = useShopStore();
 
@@ -28,23 +41,15 @@ export const useExpenseForm = (
   const updateMutation = useExpenseUpdateMutation();
   const deleteMutation = useExpenseDeleteMutation();
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    getValues,
-    control,
-    formState: { errors, isValid },
-  } = useForm<CreateExpenseDto>({
+  const form = useForm<CreateExpenseDto>({
     defaultValues: initialForm,
-    mode: "onChange",
   });
-
-  const onSubmit = handleSubmit((values) => {
+  const onSubmit = async (values: CreateExpenseDto) => {
     const basePayload: CreateExpenseDto = {
       ...values,
       shopId: activeShopId!,
+      cashRegisterId: cashRegisterId,
+      amount: +values.amount!,
     };
     if (editExpense) {
       updateMutation.mutate(
@@ -55,11 +60,13 @@ export const useExpenseForm = (
         {
           onSuccess: () => {
             toast.success("Gasto actualizado");
+            onClose?.();
+            form.reset({ ...initialForm });
           },
           onError: () => {
             toast.error("No se pudo actualizar el cliente");
           },
-        },
+        }
       );
     } else if (deleteExpense) {
       deleteMutation.mutate(
@@ -69,43 +76,46 @@ export const useExpenseForm = (
         {
           onSuccess: () => {
             toast.success("Gasto eliminado correctamente");
+            onClose?.();
+            form.reset({ ...initialForm });
           },
           onError: () => {
             toast.error("No se pudo eliminar el gasto");
           },
-        },
+        }
       );
     } else {
       createMutation.mutate(basePayload, {
         onSuccess: () => {
           toast.success("Gasto creado");
+          onClose?.();
+          form.reset({ ...initialForm });
         },
         onError: () => {
           toast.error("No se pudo crear el gasto");
         },
       });
     }
-    onClose?.();
-    reset();
-  });
+  };
+
+  useEffect(() => {
+    if (!isEdit) {
+      form.reset(initialForm);
+      return;
+    }
+
+    if (editExpense) {
+      form.reset(mapExpenseToForm(editExpense, initialForm));
+    }
+  }, [isEdit, editExpense]);
 
   return {
-    activeShopId,
-    createMutation,
-    updateMutation,
-    deleteMutation,
+    form,
+    onSubmit,
+    initialForm,
+    reset: form.reset,
     isLoadingCreate: createMutation.isPending,
     isLoadingUpdate: updateMutation.isPending,
     isLoadingDelete: deleteMutation.isPending,
-    register,
-    reset,
-    onSubmit,
-    initialForm,
-    setValue,
-    isValid,
-    control,
-    getValues,
-    errors,
   };
 };
-

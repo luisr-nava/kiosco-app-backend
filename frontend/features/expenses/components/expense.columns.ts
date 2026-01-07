@@ -1,24 +1,35 @@
 import { TableColumn } from "@/components/table/types";
 import { Expense } from "../types";
+import { useCurrencyFormatter } from "@/src/hooks/useCurrencyFormatter";
+import { formatDate } from "@/utils";
 
-export const expenseColumns: TableColumn<Expense>[] = [
-  {
-    header: "Descripcion",
-    cell: (e) => e.description,
-    sortable: true,
-    sortKey: (e) => e.description,
-  },
-  {
-    header: "Monto",
-    cell: (e) => e.amount,
-    sortable: true,
-    sortKey: (e) => e.amount,
-  },
-  {
-    header: "Fecha",
-    cell: (e) => e.date,
-    sortable: true,
-    sortKey: (e) => e.date,
-  },
-];
+export function useExpenseColumns(): TableColumn<Expense>[] {
+  const formatCurrency = useCurrencyFormatter(0);
 
+  return [
+    {
+      header: "Descripción",
+      cell: (e) => e.description,
+      sortable: true,
+      sortKey: (e) => e.description,
+    },
+    {
+      header: "Monto",
+      cell: (e) => formatCurrency(e.amount),
+      sortable: true,
+      sortKey: (e) => e.amount,
+    },
+    {
+      header: "Fecha",
+      cell: (e) => formatDate(e.date),
+      sortable: true,
+      sortKey: (e) => e.date,
+    },
+    {
+      header: "Método de pago",
+      cell: (e) => e.paymentMethod?.name ?? "Sin método",
+      sortable: true,
+      sortKey: (e) => e.paymentMethod?.name ?? "",
+    },
+  ];
+}

@@ -14,10 +14,10 @@ export function FormGrid({ children, cols = 2, className }: FormGridProps) {
         "grid gap-4",
         cols === 2 && "md:grid-cols-2",
         cols === 3 && "md:grid-cols-3",
-        className,
-      )}>
+        className
+      )}
+    >
       {children}
     </div>
   );
 }
-

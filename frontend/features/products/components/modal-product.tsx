@@ -10,24 +10,18 @@ interface ModalProductProps {
   measurementUnits: MeasurementUnit[];
   modals: ReturnType<typeof useProductModals>;
 }
-export default function ModalProduct({
-  suppliers,
-  measurementUnits,
-  modals,
-}: ModalProductProps) {
-  const {
-    createProductModal,
-    editProductModal,
-    editProduct,
-    isEdit,
-    closeAll,
-  } = modals;
+export default function ModalProduct({ suppliers, measurementUnits, modals }: ModalProductProps) {
+  const { createProductModal, editProductModal, editProduct, isEdit, closeAll } = modals;
 
-  const { form, isLoadingCreate, isLoadingUpdate, onSubmit, reset } =
-    useProductForm(editProduct!, isEdit, measurementUnits, () => {
+  const { form, isLoadingCreate, isLoadingUpdate, onSubmit, reset } = useProductForm(
+    editProduct!,
+    isEdit,
+    measurementUnits,
+    () => {
       closeAll();
       reset();
-    });
+    }
+  );
   const isSubmitting = isLoadingCreate || isLoadingUpdate;
 
   const handleClose = () => {
@@ -41,7 +35,8 @@ export default function ModalProduct({
       onClose={handleClose}
       title={isEdit ? "Editar producto" : "Crear producto"}
       description="Completa los datos del producto"
-      size="lg">
+      size="lg"
+    >
       <ProductForm
         form={form}
         onSubmit={onSubmit}
@@ -55,4 +50,3 @@ export default function ModalProduct({
     </Modal>
   );
 }
-

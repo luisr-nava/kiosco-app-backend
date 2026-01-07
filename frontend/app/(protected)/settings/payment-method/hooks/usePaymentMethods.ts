@@ -20,4 +20,3 @@ export const usePaymentMethods = () => {
     isFetching: query.isFetching,
   };
 };
-

@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="from-background to-muted/20 min-h-screen bg-gradient-to-b">
+      <div className="container mx-auto max-w-4xl px-4 py-8">
         <Link href="/">
           <Button variant="ghost" className="mb-6">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -18,12 +18,12 @@ export default function PrivacyPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Shield className="h-6 w-6 text-primary" />
+              <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-lg">
+                <Shield className="text-primary h-6 w-6" />
               </div>
               <div>
                 <CardTitle className="text-3xl">Política de Privacidad</CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-muted-foreground mt-1 text-sm">
                   Última actualización: Noviembre 2025
                 </p>
               </div>
@@ -33,26 +33,26 @@ export default function PrivacyPage() {
             <Separator className="my-6" />
 
             <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">Introducción</h2>
+              <h2 className="mb-4 text-2xl font-semibold">Introducción</h2>
               <p className="text-muted-foreground mb-4">
-                En Balanzio, nos comprometemos a proteger su privacidad y la seguridad de sus
-                datos personales. Esta Política de Privacidad explica cómo recopilamos, usamos,
+                En Balanzio, nos comprometemos a proteger su privacidad y la seguridad de sus datos
+                personales. Esta Política de Privacidad explica cómo recopilamos, usamos,
                 compartimos y protegemos su información cuando utiliza nuestra aplicación.
               </p>
               <p className="text-muted-foreground">
-                Al utilizar Balanzio, usted acepta las prácticas descritas en esta política.
-                Si no está de acuerdo con esta política, por favor no utilice nuestra aplicación.
+                Al utilizar Balanzio, usted acepta las prácticas descritas en esta política. Si no
+                está de acuerdo con esta política, por favor no utilice nuestra aplicación.
               </p>
             </section>
 
             <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">1. Información que Recopilamos</h2>
+              <h2 className="mb-4 text-2xl font-semibold">1. Información que Recopilamos</h2>
 
-              <h3 className="text-xl font-semibold mb-3 mt-4">1.1 Información que Proporciona</h3>
+              <h3 className="mt-4 mb-3 text-xl font-semibold">1.1 Información que Proporciona</h3>
               <p className="text-muted-foreground mb-4">
                 Recopilamos información que usted nos proporciona directamente cuando:
               </p>
-              <ul className="list-disc list-inside text-muted-foreground space-y-2 ml-4">
+              <ul className="text-muted-foreground ml-4 list-inside list-disc space-y-2">
                 <li>Crea una cuenta (nombre, email, contraseña)</li>
                 <li>Completa su perfil de usuario</li>
                 <li>Registra información de su negocio (nombre de tienda, dirección, etc.)</li>
@@ -61,11 +61,13 @@ export default function PrivacyPage() {
                 <li>Se comunica con nuestro equipo de soporte</li>
               </ul>
 
-              <h3 className="text-xl font-semibold mb-3 mt-6">1.2 Información Recopilada Automáticamente</h3>
+              <h3 className="mt-6 mb-3 text-xl font-semibold">
+                1.2 Información Recopilada Automáticamente
+              </h3>
               <p className="text-muted-foreground mb-4">
                 Cuando utiliza nuestra aplicación, recopilamos automáticamente:
               </p>
-              <ul className="list-disc list-inside text-muted-foreground space-y-2 ml-4">
+              <ul className="text-muted-foreground ml-4 list-inside list-disc space-y-2">
                 <li>Información del dispositivo (tipo, sistema operativo, navegador)</li>
                 <li>Dirección IP y ubicación aproximada</li>
                 <li>Datos de uso (páginas visitadas, tiempo de uso, acciones realizadas)</li>
@@ -73,11 +75,11 @@ export default function PrivacyPage() {
                 <li>Registros de errores y diagnóstico</li>
               </ul>
 
-              <h3 className="text-xl font-semibold mb-3 mt-6">1.3 Datos de Negocio</h3>
+              <h3 className="mt-6 mb-3 text-xl font-semibold">1.3 Datos de Negocio</h3>
               <p className="text-muted-foreground mb-4">
                 Los datos operativos que ingresa en el sistema, incluyendo:
               </p>
-              <ul className="list-disc list-inside text-muted-foreground space-y-2 ml-4">
+              <ul className="text-muted-foreground ml-4 list-inside list-disc space-y-2">
                 <li>Información de inventario y productos</li>
                 <li>Registros de ventas y compras</li>
                 <li>Datos de clientes y proveedores</li>
@@ -87,17 +89,19 @@ export default function PrivacyPage() {
             </section>
 
             <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">2. Cómo Utilizamos su Información</h2>
+              <h2 className="mb-4 text-2xl font-semibold">2. Cómo Utilizamos su Información</h2>
               <p className="text-muted-foreground mb-4">
                 Utilizamos la información recopilada para:
               </p>
-              <ul className="list-disc list-inside text-muted-foreground space-y-2 ml-4">
+              <ul className="text-muted-foreground ml-4 list-inside list-disc space-y-2">
                 <li>Proporcionar, operar y mantener nuestros servicios</li>
                 <li>Procesar sus transacciones y gestionar su cuenta</li>
                 <li>Mejorar, personalizar y expandir nuestros servicios</li>
                 <li>Entender y analizar cómo utiliza nuestra aplicación</li>
                 <li>Desarrollar nuevos productos, servicios y funcionalidades</li>
-                <li>Comunicarnos con usted para servicio al cliente, actualizaciones y marketing</li>
+                <li>
+                  Comunicarnos con usted para servicio al cliente, actualizaciones y marketing
+                </li>
                 <li>Enviar información técnica, actualizaciones y notificaciones de seguridad</li>
                 <li>Prevenir fraude y actividades ilegales</li>
                 <li>Cumplir con obligaciones legales</li>
@@ -105,17 +109,17 @@ export default function PrivacyPage() {
             </section>
 
             <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">3. Compartir su Información</h2>
+              <h2 className="mb-4 text-2xl font-semibold">3. Compartir su Información</h2>
               <p className="text-muted-foreground mb-4">
                 No vendemos su información personal. Podemos compartir su información en las
                 siguientes circunstancias:
               </p>
 
-              <h3 className="text-xl font-semibold mb-3 mt-4">3.1 Proveedores de Servicios</h3>
+              <h3 className="mt-4 mb-3 text-xl font-semibold">3.1 Proveedores de Servicios</h3>
               <p className="text-muted-foreground mb-4">
                 Compartimos información con terceros que nos ayudan a operar nuestra aplicación:
               </p>
-              <ul className="list-disc list-inside text-muted-foreground space-y-2 ml-4">
+              <ul className="text-muted-foreground ml-4 list-inside list-disc space-y-2">
                 <li>Servicios de hosting y almacenamiento en la nube</li>
                 <li>Procesadores de pago</li>
                 <li>Servicios de análisis y métricas</li>
@@ -123,18 +127,18 @@ export default function PrivacyPage() {
                 <li>Servicios de seguridad y prevención de fraude</li>
               </ul>
 
-              <h3 className="text-xl font-semibold mb-3 mt-6">3.2 Requisitos Legales</h3>
+              <h3 className="mt-6 mb-3 text-xl font-semibold">3.2 Requisitos Legales</h3>
               <p className="text-muted-foreground mb-4">
                 Podemos divulgar su información si es requerido por ley o en respuesta a:
               </p>
-              <ul className="list-disc list-inside text-muted-foreground space-y-2 ml-4">
+              <ul className="text-muted-foreground ml-4 list-inside list-disc space-y-2">
                 <li>Órdenes judiciales o solicitudes gubernamentales</li>
                 <li>Cumplimiento de regulaciones legales</li>
                 <li>Protección de nuestros derechos, privacidad, seguridad o propiedad</li>
                 <li>Situaciones de emergencia que involucren peligro de muerte o lesiones</li>
               </ul>
 
-              <h3 className="text-xl font-semibold mb-3 mt-6">3.3 Transferencias de Negocio</h3>
+              <h3 className="mt-6 mb-3 text-xl font-semibold">3.3 Transferencias de Negocio</h3>
               <p className="text-muted-foreground">
                 En caso de fusión, adquisición o venta de activos, su información puede ser
                 transferida al nuevo propietario.
@@ -142,12 +146,12 @@ export default function PrivacyPage() {
             </section>
 
             <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">4. Seguridad de los Datos</h2>
+              <h2 className="mb-4 text-2xl font-semibold">4. Seguridad de los Datos</h2>
               <p className="text-muted-foreground mb-4">
                 Implementamos medidas de seguridad técnicas y organizativas para proteger su
                 información:
               </p>
-              <ul className="list-disc list-inside text-muted-foreground space-y-2 ml-4">
+              <ul className="text-muted-foreground ml-4 list-inside list-disc space-y-2">
                 <li>Cifrado de datos en tránsito y en reposo (SSL/TLS)</li>
                 <li>Autenticación de dos factores (2FA)</li>
                 <li>Controles de acceso basados en roles</li>
@@ -157,18 +161,18 @@ export default function PrivacyPage() {
                 <li>Protección contra ataques DDoS</li>
               </ul>
               <p className="text-muted-foreground mt-4">
-                Sin embargo, ningún método de transmisión por Internet o almacenamiento
-                electrónico es 100% seguro. No podemos garantizar la seguridad absoluta.
+                Sin embargo, ningún método de transmisión por Internet o almacenamiento electrónico
+                es 100% seguro. No podemos garantizar la seguridad absoluta.
               </p>
             </section>
 
             <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">5. Retención de Datos</h2>
+              <h2 className="mb-4 text-2xl font-semibold">5. Retención de Datos</h2>
               <p className="text-muted-foreground mb-4">
                 Retenemos su información personal durante el tiempo que su cuenta esté activa o
                 según sea necesario para:
               </p>
-              <ul className="list-disc list-inside text-muted-foreground space-y-2 ml-4">
+              <ul className="text-muted-foreground ml-4 list-inside list-disc space-y-2">
                 <li>Proporcionar nuestros servicios</li>
                 <li>Cumplir con obligaciones legales</li>
                 <li>Resolver disputas</li>
@@ -176,24 +180,39 @@ export default function PrivacyPage() {
               </ul>
               <p className="text-muted-foreground mt-4">
                 Cuando solicite la eliminación de su cuenta, eliminaremos o anonimizaremos su
-                información personal dentro de un plazo razonable, excepto cuando debamos
-                retenerla por requisitos legales.
+                información personal dentro de un plazo razonable, excepto cuando debamos retenerla
+                por requisitos legales.
               </p>
             </section>
 
             <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">6. Sus Derechos de Privacidad</h2>
+              <h2 className="mb-4 text-2xl font-semibold">6. Sus Derechos de Privacidad</h2>
               <p className="text-muted-foreground mb-4">
                 Dependiendo de su ubicación, puede tener los siguientes derechos:
               </p>
-              <ul className="list-disc list-inside text-muted-foreground space-y-2 ml-4">
-                <li><strong>Acceso:</strong> Solicitar una copia de sus datos personales</li>
-                <li><strong>Rectificación:</strong> Corregir información inexacta o incompleta</li>
-                <li><strong>Eliminación:</strong> Solicitar la eliminación de sus datos (derecho al olvido)</li>
-                <li><strong>Portabilidad:</strong> Recibir sus datos en un formato estructurado</li>
-                <li><strong>Restricción:</strong> Limitar el procesamiento de sus datos</li>
-                <li><strong>Oposición:</strong> Oponerse al procesamiento de sus datos</li>
-                <li><strong>Retirar consentimiento:</strong> En cualquier momento</li>
+              <ul className="text-muted-foreground ml-4 list-inside list-disc space-y-2">
+                <li>
+                  <strong>Acceso:</strong> Solicitar una copia de sus datos personales
+                </li>
+                <li>
+                  <strong>Rectificación:</strong> Corregir información inexacta o incompleta
+                </li>
+                <li>
+                  <strong>Eliminación:</strong> Solicitar la eliminación de sus datos (derecho al
+                  olvido)
+                </li>
+                <li>
+                  <strong>Portabilidad:</strong> Recibir sus datos en un formato estructurado
+                </li>
+                <li>
+                  <strong>Restricción:</strong> Limitar el procesamiento de sus datos
+                </li>
+                <li>
+                  <strong>Oposición:</strong> Oponerse al procesamiento de sus datos
+                </li>
+                <li>
+                  <strong>Retirar consentimiento:</strong> En cualquier momento
+                </li>
               </ul>
               <p className="text-muted-foreground mt-4">
                 Para ejercer estos derechos, puede acceder a la configuración de su cuenta o
@@ -202,11 +221,11 @@ export default function PrivacyPage() {
             </section>
 
             <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">7. Cookies y Tecnologías de Rastreo</h2>
+              <h2 className="mb-4 text-2xl font-semibold">7. Cookies y Tecnologías de Rastreo</h2>
               <p className="text-muted-foreground mb-4">
                 Utilizamos cookies y tecnologías similares para:
               </p>
-              <ul className="list-disc list-inside text-muted-foreground space-y-2 ml-4">
+              <ul className="text-muted-foreground ml-4 list-inside list-disc space-y-2">
                 <li>Recordar sus preferencias y configuración</li>
                 <li>Mantener su sesión activa</li>
                 <li>Analizar el uso y rendimiento de la aplicación</li>
@@ -220,48 +239,48 @@ export default function PrivacyPage() {
             </section>
 
             <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">8. Transferencias Internacionales</h2>
+              <h2 className="mb-4 text-2xl font-semibold">8. Transferencias Internacionales</h2>
               <p className="text-muted-foreground">
                 Sus datos pueden ser transferidos y procesados en países diferentes al suyo. Nos
-                aseguramos de que dichas transferencias cumplan con las leyes de protección de
-                datos aplicables mediante el uso de mecanismos de transferencia adecuados como
-                cláusulas contractuales estándar.
+                aseguramos de que dichas transferencias cumplan con las leyes de protección de datos
+                aplicables mediante el uso de mecanismos de transferencia adecuados como cláusulas
+                contractuales estándar.
               </p>
             </section>
 
             <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">9. Privacidad de Menores</h2>
+              <h2 className="mb-4 text-2xl font-semibold">9. Privacidad de Menores</h2>
               <p className="text-muted-foreground">
                 Nuestros servicios no están dirigidos a menores de 18 años. No recopilamos
                 intencionalmente información personal de menores. Si descubrimos que hemos
-                recopilado datos de un menor sin el consentimiento parental adecuado,
-                eliminaremos dicha información de inmediato.
+                recopilado datos de un menor sin el consentimiento parental adecuado, eliminaremos
+                dicha información de inmediato.
               </p>
             </section>
 
             <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">10. Cambios a esta Política</h2>
+              <h2 className="mb-4 text-2xl font-semibold">10. Cambios a esta Política</h2>
               <p className="text-muted-foreground mb-4">
                 Podemos actualizar esta Política de Privacidad periódicamente. Le notificaremos
                 sobre cambios significativos mediante:
               </p>
-              <ul className="list-disc list-inside text-muted-foreground space-y-2 ml-4">
+              <ul className="text-muted-foreground ml-4 list-inside list-disc space-y-2">
                 <li>Notificación por email</li>
                 <li>Aviso destacado en nuestra aplicación</li>
                 <li>Actualización de la fecha de &quot;última actualización&quot;</li>
               </ul>
               <p className="text-muted-foreground mt-4">
-                Le recomendamos revisar esta política periódicamente para mantenerse informado
-                sobre cómo protegemos su información.
+                Le recomendamos revisar esta política periódicamente para mantenerse informado sobre
+                cómo protegemos su información.
               </p>
             </section>
 
             <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">11. Cumplimiento Normativo</h2>
+              <h2 className="mb-4 text-2xl font-semibold">11. Cumplimiento Normativo</h2>
               <p className="text-muted-foreground mb-4">
                 Cumplimos con las siguientes regulaciones de privacidad:
               </p>
-              <ul className="list-disc list-inside text-muted-foreground space-y-2 ml-4">
+              <ul className="text-muted-foreground ml-4 list-inside list-disc space-y-2">
                 <li>GDPR (Reglamento General de Protección de Datos - UE)</li>
                 <li>CCPA (Ley de Privacidad del Consumidor de California)</li>
                 <li>LGPD (Lei Geral de Proteção de Dados - Brasil)</li>
@@ -270,16 +289,24 @@ export default function PrivacyPage() {
             </section>
 
             <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">12. Contacto</h2>
+              <h2 className="mb-4 text-2xl font-semibold">12. Contacto</h2>
               <p className="text-muted-foreground mb-4">
                 Si tiene preguntas, inquietudes o solicitudes relacionadas con esta Política de
                 Privacidad, puede contactarnos:
               </p>
-              <ul className="list-none text-muted-foreground space-y-2">
-                <li><strong>Oficial de Privacidad:</strong> privacy@balanzio.net</li>
-                <li><strong>Email general:</strong> soporte@balanzio.net</li>
-                <li><strong>Teléfono:</strong> +1 (555) 123-4567</li>
-                <li><strong>Dirección:</strong> Calle Principal 123, Ciudad, País</li>
+              <ul className="text-muted-foreground list-none space-y-2">
+                <li>
+                  <strong>Oficial de Privacidad:</strong> privacy@balanzio.net
+                </li>
+                <li>
+                  <strong>Email general:</strong> soporte@balanzio.net
+                </li>
+                <li>
+                  <strong>Teléfono:</strong> +1 (555) 123-4567
+                </li>
+                <li>
+                  <strong>Dirección:</strong> Calle Principal 123, Ciudad, País
+                </li>
               </ul>
               <p className="text-muted-foreground mt-4">
                 Responderemos a su solicitud dentro de los 30 días siguientes a su recepción.
@@ -288,10 +315,10 @@ export default function PrivacyPage() {
 
             <Separator className="my-6" />
 
-            <div className="text-center text-sm text-muted-foreground">
+            <div className="text-muted-foreground text-center text-sm">
               <p className="mb-4">
-                Su privacidad es fundamental para nosotros. Al utilizar Balanzio, usted
-                reconoce que ha leído y comprendido esta Política de Privacidad.
+                Su privacidad es fundamental para nosotros. Al utilizar Balanzio, usted reconoce que
+                ha leído y comprendido esta Política de Privacidad.
               </p>
               <p>
                 Para más información sobre cómo utilizamos sus datos, consulte nuestros{" "}

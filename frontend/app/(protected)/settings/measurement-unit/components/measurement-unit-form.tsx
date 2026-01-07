@@ -3,11 +3,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type {
-  MeasurementUnit,
-  MeasurementUnitCategory,
-  MeasurementBaseUnit,
-} from "../interfaces";
+import type { MeasurementUnit, MeasurementUnitCategory, MeasurementBaseUnit } from "../interfaces";
 
 export interface MeasurementUnitFormValues {
   name: string;
@@ -37,10 +33,7 @@ const CATEGORY_LABELS: Record<MeasurementUnitCategory, string> = {
   VOLUME: "Volumen",
 };
 
-const BASE_UNIT_BY_CATEGORY: Record<
-  MeasurementUnitCategory,
-  MeasurementBaseUnit
-> = {
+const BASE_UNIT_BY_CATEGORY: Record<MeasurementUnitCategory, MeasurementBaseUnit> = {
   UNIT: "UNIT",
   WEIGHT: "KG",
   VOLUME: "L",
@@ -110,9 +103,10 @@ export const MeasurementUnitForm = ({
           <Label htmlFor="category">Categoría *</Label>
           <select
             id="category"
-            className="h-10 rounded-md border bg-background px-3 text-sm"
+            className="bg-background h-10 rounded-md border px-3 text-sm"
             disabled={disabled}
-            {...form.register("category", { required: true })}>
+            {...form.register("category", { required: true })}
+          >
             {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
               <option key={value} value={value}>
                 {label}
@@ -140,9 +134,9 @@ export const MeasurementUnitForm = ({
             setValueAs: (value) => (value === "" ? 0 : Number(value)),
           })}
         />
-        <p className="text-xs text-muted-foreground">
-          Usa 1 para unidades base; para múltiplos usa el equivalente a la
-          unidad base (ej: gramos = 0.001 KG).
+        <p className="text-muted-foreground text-xs">
+          Usa 1 para unidades base; para múltiplos usa el equivalente a la unidad base (ej: gramos =
+          0.001 KG).
         </p>
       </div>
 
@@ -153,15 +147,11 @@ export const MeasurementUnitForm = ({
               ? "Guardando..."
               : "Creando..."
             : editing
-            ? "Actualizar unidad"
-            : "Crear unidad"}
+              ? "Actualizar unidad"
+              : "Crear unidad"}
         </Button>
         {editing && onCancelEdit && (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancelEdit}
-            disabled={isSubmitting}>
+          <Button type="button" variant="outline" onClick={onCancelEdit} disabled={isSubmitting}>
             Cancelar edición
           </Button>
         )}

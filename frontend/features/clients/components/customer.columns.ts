@@ -21,4 +21,3 @@ export const customersColumns: TableColumn<Customer>[] = [
     sortKey: (e) => e.phone,
   },
 ];
-

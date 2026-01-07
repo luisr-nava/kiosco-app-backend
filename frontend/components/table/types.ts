@@ -33,5 +33,4 @@ export type TableAction<T> =
     })
   | (BaseTableAction<T> & {
       type: "delete";
-
     });

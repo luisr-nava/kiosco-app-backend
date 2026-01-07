@@ -33,7 +33,7 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   const password = watch("password");
 
   return (
-    <Card className="shadow-lg w-md">
+    <Card className="w-md shadow-lg">
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-2">
@@ -51,9 +51,7 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
               disabled={isPending}
             />
             {errors.password && (
-              <p className="text-sm text-destructive">
-                {errors.password.message}
-              </p>
+              <p className="text-destructive text-sm">{errors.password.message}</p>
             )}
           </div>
 
@@ -64,15 +62,12 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
               placeholder="••••••••"
               {...register("confirmPassword", {
                 required: "Debes confirmar la contraseña",
-                validate: (value) =>
-                  value === password || "Las contraseñas no coinciden",
+                validate: (value) => value === password || "Las contraseñas no coinciden",
               })}
               disabled={isPending}
             />
             {errors.confirmPassword && (
-              <p className="text-sm text-destructive">
-                {errors.confirmPassword.message}
-              </p>
+              <p className="text-destructive text-sm">{errors.confirmPassword.message}</p>
             )}
           </div>
 
@@ -84,4 +79,3 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
     </Card>
   );
 }
-

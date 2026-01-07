@@ -22,16 +22,8 @@ export default function ProductsPage() {
 
   const productsModals = useProductModals();
 
-  const {
-    searchInput,
-    debouncedSearch,
-    page,
-    limit,
-    setSearch,
-    setPage,
-    setLimit,
-    reset,
-  } = usePaginationParams(500);
+  const { searchInput, debouncedSearch, page, limit, setSearch, setPage, setLimit, reset } =
+    usePaginationParams(500);
 
   const [filters, setFilters] = useState<{
     categoryId?: string;
@@ -52,12 +44,9 @@ export default function ProductsPage() {
     enabled: Boolean(activeShopId),
     staleTime: 1000 * 30,
   });
-  const { measurementUnits, isLoading: measurementUnitsLoading } =
-    useMeasurementUnits();
+  const { measurementUnits, isLoading: measurementUnitsLoading } = useMeasurementUnits();
 
-  const hasActiveFilters = Boolean(
-    searchInput || filters.categoryId || filters.supplierId,
-  );
+  const hasActiveFilters = Boolean(searchInput || filters.categoryId || filters.supplierId);
 
   return (
     <div className="space-y-4">
@@ -121,4 +110,3 @@ export default function ProductsPage() {
     </div>
   );
 }
-

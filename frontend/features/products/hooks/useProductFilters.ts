@@ -29,4 +29,3 @@ export const useProductFilters = () => {
 
   return { setFilter };
 };
-

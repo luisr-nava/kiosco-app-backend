@@ -9,8 +9,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Política de Privacidad | Balanzio",
-    description:
-      "Información transparente sobre el tratamiento de datos en Balanzio.",
+    description: "Información transparente sobre el tratamiento de datos en Balanzio.",
     url: "/privacy",
   },
 };

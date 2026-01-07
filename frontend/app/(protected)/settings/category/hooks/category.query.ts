@@ -1,8 +1,5 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import {
-  GetAllCategoryProductAction,
-  GetAllCategorySupplierAction,
-} from "../actions";
+import { GetAllCategoryProductAction, GetAllCategorySupplierAction } from "../actions";
 
 const DEFAULT_LIMIT = 10;
 
@@ -24,8 +21,7 @@ export const useCategoryProductsQuery = () => {
     retry: 1,
   });
 
-  const categoryProducts =
-    query.data?.pages.flatMap((page) => page.categoryProducts) || [];
+  const categoryProducts = query.data?.pages.flatMap((page) => page.categoryProducts) || [];
   const pagination = query.data?.pages.at(-1)?.pagination;
 
   return {
@@ -56,8 +52,7 @@ export const useCategorySuppliersQuery = () => {
     retry: 1,
   });
 
-  const categorySuppliers =
-    query.data?.pages.flatMap((page) => page.categorySuppliers) || [];
+  const categorySuppliers = query.data?.pages.flatMap((page) => page.categorySuppliers) || [];
   const pagination = query.data?.pages.at(-1)?.pagination;
 
   return {
@@ -69,4 +64,3 @@ export const useCategorySuppliersQuery = () => {
     isFetchingNextSupplierCategories: query.isFetchingNextPage,
   };
 };
-

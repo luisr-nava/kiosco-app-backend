@@ -1,12 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { useSummary } from "../hooks/useSummary";
-import {
-  CalendarClock,
-  Package,
-  ShoppingCart,
-  Tags,
-  Users,
-} from "lucide-react";
+import { CalendarClock, Package, ShoppingCart, Tags, Users } from "lucide-react";
 
 export default function Stats() {
   const { summary, summaryLoading } = useSummary();
@@ -32,11 +26,9 @@ export default function Stats() {
       {stats.map((stat) => (
         <Card className="py-2" key={stat.label}>
           <CardContent className="flex items-center gap-4">
-            <stat.icon className="h-6 w-6 text-primary/80 stroke-2" />
+            <stat.icon className="text-primary/80 h-6 w-6 stroke-2" />
             <div className="">
-              <h3 className="text-sm text-muted-foreground py-2">
-                {stat.label}
-              </h3>
+              <h3 className="text-muted-foreground py-2 text-sm">{stat.label}</h3>
               <p className="text-3xl font-bold">{stat.value}</p>
             </div>
           </CardContent>
@@ -45,4 +37,3 @@ export default function Stats() {
     </div>
   );
 }
-

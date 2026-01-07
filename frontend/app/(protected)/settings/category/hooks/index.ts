@@ -2,10 +2,7 @@ export { useCategoryForm } from "./useCategoryForm";
 
 export { useCategory } from "./useCategory";
 
-export {
-  useCategoryProductsQuery,
-  useCategorySuppliersQuery,
-} from "./category.query";
+export { useCategoryProductsQuery, useCategorySuppliersQuery } from "./category.query";
 
 export {
   useCategoryProductUpdateMutation,
@@ -13,4 +10,3 @@ export {
   useCategorySupplierUpdateMutation,
   useCategoryProductCreateMutation,
 } from "./category.mutation";
-

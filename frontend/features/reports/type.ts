@@ -52,4 +52,3 @@ export interface UseCashRegisterReportsResult {
 }
 
 export type CashRegisterExportType = "pdf" | "excel";
-

@@ -19,10 +19,7 @@ const initialForm: CreateCustomerDto = {
   notes: "",
   shopId: "",
 };
-function mapCustomerToForm(
-  customer: Customer,
-  initialForm: CreateCustomerDto,
-): CreateCustomerDto {
+function mapCustomerToForm(customer: Customer, initialForm: CreateCustomerDto): CreateCustomerDto {
   return {
     ...initialForm,
     fullName: customer.fullName,
@@ -38,7 +35,7 @@ export const useCustomerForm = (
   editCustomer?: Customer,
   deleteCustomer?: Customer,
   isEdit?: boolean,
-  onClose?: () => void,
+  onClose?: () => void
 ) => {
   const { activeShopId } = useShopStore();
 
@@ -71,7 +68,7 @@ export const useCustomerForm = (
           onError: () => {
             toast.error("No se pudo actualizar el cliente");
           },
-        },
+        }
       );
     } else if (deleteCustomer) {
       deleteMutation.mutate(
@@ -87,7 +84,7 @@ export const useCustomerForm = (
           onError: () => {
             toast.error("No se pudo eliminar el cliente");
           },
-        },
+        }
       );
     } else {
       createMutation.mutate(basePayload, {
@@ -129,5 +126,3 @@ export const useCustomerForm = (
     reset: form.reset,
   };
 };
-
-

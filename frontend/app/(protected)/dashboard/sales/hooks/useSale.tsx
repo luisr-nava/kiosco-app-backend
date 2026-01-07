@@ -28,10 +28,7 @@ export const useSale = () => {
       setItems([]);
     },
     onError: (error: unknown) => {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "No se pudo registrar la venta";
+      const message = error instanceof Error ? error.message : "No se pudo registrar la venta";
       toast.error("Error", { description: message });
     },
   });
@@ -40,7 +37,7 @@ export const useSale = () => {
 
   const total = useMemo(
     () => items.reduce((acc, item) => acc + Number(item.subtotal || 0), 0),
-    [items],
+    [items]
   );
 
   const resolveShopProductId = (product: Product) =>
@@ -57,12 +54,9 @@ export const useSale = () => {
       toast.error("Producto sin stock disponible");
       return;
     }
-    const baseUnitPrice =
-      product.finalSalePrice || product.salePrice || product.price || 0;
+    const baseUnitPrice = product.finalSalePrice || product.salePrice || product.price || 0;
     setItems((prev) => {
-      const idx = prev.findIndex(
-        (item) => item.shopProductId === shopProductId,
-      );
+      const idx = prev.findIndex((item) => item.shopProductId === shopProductId);
       if (idx >= 0) {
         const next = [...prev];
         const current = next[idx];
@@ -90,9 +84,7 @@ export const useSale = () => {
   const incrementProductById = (productId: string) => {
     const product = products.find(
       (p) =>
-        resolveShopProductId(p) === productId ||
-        p.id === productId ||
-        p.productId === productId,
+        resolveShopProductId(p) === productId || p.id === productId || p.productId === productId
     );
     if (product) {
       incrementProduct(product);
@@ -131,10 +123,7 @@ export const useSale = () => {
       return;
     }
     const hasInvalid = items.some(
-      (item) =>
-        !item.shopProductId ||
-        Number(item.quantity) <= 0 ||
-        Number(item.unitPrice) <= 0,
+      (item) => !item.shopProductId || Number(item.quantity) <= 0 || Number(item.unitPrice) <= 0
     );
     if (hasInvalid) {
       toast.error("Completa los datos de cada ítem");
@@ -157,7 +146,7 @@ export const useSale = () => {
 
   const totalItems = useMemo(
     () => items.reduce((acc, item) => acc + Number(item.quantity || 0), 0),
-    [items],
+    [items]
   );
 
   const isSubmitting = createMutation.isPending;
@@ -182,4 +171,3 @@ export const useSale = () => {
     productsLoading,
   };
 };
-

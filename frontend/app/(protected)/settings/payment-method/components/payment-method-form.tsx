@@ -24,12 +24,7 @@ const DEFAULT_VALUES: PaymentMethodFormValues = {
   description: "",
 };
 
-export const PaymentMethodForm = ({
-  onSubmit,
-  isSubmitting,
-  editing,
-  onCancelEdit,
-}: Props) => {
+export const PaymentMethodForm = ({ onSubmit, isSubmitting, editing, onCancelEdit }: Props) => {
   const form = useForm<PaymentMethodFormValues>({
     defaultValues: DEFAULT_VALUES,
   });
@@ -59,28 +54,16 @@ export const PaymentMethodForm = ({
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="name">Nombre *</Label>
-          <Input
-            id="name"
-            placeholder="Efectivo"
-            {...form.register("name", { required: true })}
-          />
+          <Input id="name" placeholder="Efectivo" {...form.register("name", { required: true })} />
         </div>
         <div className="space-y-2">
           <Label htmlFor="code">Código *</Label>
-          <Input
-            id="code"
-            placeholder="CASH"
-            {...form.register("code", { required: true })}
-          />
+          <Input id="code" placeholder="CASH" {...form.register("code", { required: true })} />
         </div>
       </div>
       <div className="space-y-2">
         <Label htmlFor="description">Descripción</Label>
-        <Input
-          id="description"
-          placeholder="Pago en efectivo"
-          {...form.register("description")}
-        />
+        <Input id="description" placeholder="Pago en efectivo" {...form.register("description")} />
       </div>
       <div className="flex flex-wrap gap-2">
         <Button type="submit" disabled={isSubmitting}>
@@ -89,15 +72,11 @@ export const PaymentMethodForm = ({
               ? "Guardando..."
               : "Creando..."
             : editing
-            ? "Actualizar método"
-            : "Crear método"}
+              ? "Actualizar método"
+              : "Crear método"}
         </Button>
         {editing && onCancelEdit && (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancelEdit}
-            disabled={isSubmitting}>
+          <Button type="button" variant="outline" onClick={onCancelEdit} disabled={isSubmitting}>
             Cancelar edición
           </Button>
         )}

@@ -14,21 +14,21 @@ export default function CustomerExpanded({ customer }: CustomerExpandedProps) {
       <div className="space-y-2">
         <div>
           <p className="text-muted-foreground">Direccion:</p>
-          <p className="font-medium text-right sm:text-left">
+          <p className="text-right font-medium sm:text-left">
             {customer.address || "Sin Direccion"}
           </p>
         </div>
 
         <div>
           <p className="text-muted-foreground">Limite de Crédito:</p>
-          <p className="font-medium text-right sm:text-left">
+          <p className="text-right font-medium sm:text-left">
             {formatCurrency(customer.creditLimit)}
           </p>
         </div>
 
         <div>
           <p className="text-muted-foreground">Estado actual:</p>
-          <p className="font-medium text-right sm:text-left">
+          <p className="text-right font-medium sm:text-left">
             {formatCurrency(customer.currentBalance)}
           </p>
         </div>
@@ -38,12 +38,9 @@ export default function CustomerExpanded({ customer }: CustomerExpandedProps) {
       <div className="space-y-2">
         <div>
           <p className="text-muted-foreground">Notas:</p>
-          <p className="font-medium text-right sm:text-left">
-            {customer.notes || "Sin notas"}
-          </p>
+          <p className="text-right font-medium sm:text-left">{customer.notes || "Sin notas"}</p>
         </div>
       </div>
     </div>
   );
 }
-

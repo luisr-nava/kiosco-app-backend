@@ -8,20 +8,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { purchaseApi } from "@/lib/api/purchase.api";
 import { productApi } from "@/lib/api/product.api";
 import { supplierApi } from "@/lib/api/supplier.api";
-import type {
-  CreatePurchaseDto,
-  Purchase,
-  PurchaseItem,
-} from "@/lib/types/purchase";
+import type { CreatePurchaseDto, Purchase, PurchaseItem } from "@/lib/types/purchase";
 import type { Product } from "@/app/(protected)/dashboard/products/interfaces";
 import type { Supplier } from "@/lib/types/supplier";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -54,9 +44,7 @@ export default function ComprasPage() {
   const [supplierId, setSupplierId] = useState("");
   const [items, setItems] = useState<PurchaseItem[]>([buildItem()]);
   const [productSearch, setProductSearch] = useState<string[]>([""]);
-  const [activeSearchIndex, setActiveSearchIndex] = useState<number | null>(
-    null,
-  );
+  const [activeSearchIndex, setActiveSearchIndex] = useState<number | null>(null);
   const [dropdownRect, setDropdownRect] = useState<{
     top: number;
     left: number;
@@ -65,23 +53,16 @@ export default function ComprasPage() {
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const hasIncompleteItem = items.some(
-    (item) =>
-      !item.shopProductId ||
-      Number(item.quantity) <= 0 ||
-      Number(item.unitCost) <= 0,
+    (item) => !item.shopProductId || Number(item.quantity) <= 0 || Number(item.unitCost) <= 0
   );
 
-  const { data: purchasesResponse, isLoading: purchasesLoading } = useQuery<
-    Purchase[]
-  >({
+  const { data: purchasesResponse, isLoading: purchasesLoading } = useQuery<Purchase[]>({
     queryKey: ["purchases", "all"],
     queryFn: () => purchaseApi.listAll(),
     staleTime: 1000 * 30,
   });
 
-  const { data: productsResponse, isLoading: productsLoading } = useQuery<
-    Product[]
-  >({
+  const { data: productsResponse, isLoading: productsLoading } = useQuery<Product[]>({
     queryKey: ["products", activeShopId, "for-purchases"],
     queryFn: () =>
       productApi.listByShop(activeShopId || "", {
@@ -91,9 +72,7 @@ export default function ComprasPage() {
     staleTime: 1000 * 30,
   });
 
-  const { data: suppliersResponse, isLoading: suppliersLoading } = useQuery<
-    Supplier[]
-  >({
+  const { data: suppliersResponse, isLoading: suppliersLoading } = useQuery<Supplier[]>({
     queryKey: ["suppliers", activeShopId, "for-purchases"],
     queryFn: () => supplierApi.listByShop(activeShopId || ""),
     enabled: Boolean(activeShopId),
@@ -112,27 +91,15 @@ export default function ComprasPage() {
       setCreateOpen(false);
     },
     onError: (error: unknown) => {
-      const { message } = getErrorMessage(
-        error,
-        "No se pudo registrar la compra",
-      );
+      const { message } = getErrorMessage(error, "No se pudo registrar la compra");
       toast.error("Error", { description: message });
     },
   });
 
-  const purchases = useMemo(
-    () => normalize<Purchase>(purchasesResponse),
-    [purchasesResponse],
-  );
+  const purchases = useMemo(() => normalize<Purchase>(purchasesResponse), [purchasesResponse]);
 
-  const products = useMemo(
-    () => normalize<Product>(productsResponse),
-    [productsResponse],
-  );
-  const suppliers = useMemo(
-    () => normalize<Supplier>(suppliersResponse),
-    [suppliersResponse],
-  );
+  const products = useMemo(() => normalize<Product>(productsResponse), [productsResponse]);
+  const suppliers = useMemo(() => normalize<Supplier>(suppliersResponse), [suppliersResponse]);
   const getProductName = (productId: string | undefined) =>
     products.find((p) => p.id === productId)?.name || "";
   const setSearchValue = (index: number, value: string) => {
@@ -160,7 +127,7 @@ export default function ComprasPage() {
 
   const total = useMemo(
     () => items.reduce((acc, item) => acc + Number(item.subtotal || 0), 0),
-    [items],
+    [items]
   );
 
   const updateItem = (index: number, next: Partial<PurchaseItem>) => {
@@ -168,10 +135,9 @@ export default function ComprasPage() {
       prev.map((item, i) => {
         if (i !== index) return item;
         const merged = { ...item, ...next };
-        const subtotal =
-          Number(merged.quantity || 0) * Number(merged.unitCost || 0);
+        const subtotal = Number(merged.quantity || 0) * Number(merged.unitCost || 0);
         return { ...merged, subtotal };
-      }),
+      })
     );
   };
 
@@ -187,10 +153,7 @@ export default function ComprasPage() {
   const handleSubmit = () => {
     if (!activeShopId) return;
     const hasInvalid = items.some(
-      (item) =>
-        !item.shopProductId ||
-        Number(item.quantity) <= 0 ||
-        Number(item.unitCost) <= 0,
+      (item) => !item.shopProductId || Number(item.quantity) <= 0 || Number(item.unitCost) <= 0
     );
     if (hasInvalid) {
       toast.error("Completa los datos de cada ítem");
@@ -218,15 +181,14 @@ export default function ComprasPage() {
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold">Compras</h1>
-          <p className="text-muted-foreground">
-            Revisa todas las compras y registra nuevas.
-          </p>
+          <p className="text-muted-foreground">Revisa todas las compras y registra nuevas.</p>
         </div>
         <Button
           onClick={() => {
             setCreateOpen(true);
           }}
-          disabled={!activeShopId}>
+          disabled={!activeShopId}
+        >
           Registrar compra
         </Button>
       </div>
@@ -235,29 +197,24 @@ export default function ComprasPage() {
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle>Historial de compras</CardTitle>
-            <CardDescription>
-              Listado de compras registradas en todas tus tiendas.
-            </CardDescription>
+            <CardDescription>Listado de compras registradas en todas tus tiendas.</CardDescription>
           </div>
           <Button
             variant="outline"
             size="sm"
-            onClick={() =>
-              queryClient.invalidateQueries({ queryKey: ["purchases", "all"] })
-            }>
+            onClick={() => queryClient.invalidateQueries({ queryKey: ["purchases", "all"] })}
+          >
             Actualizar
           </Button>
         </CardHeader>
         <CardContent>
           {purchasesLoading ? (
-            <p className="text-sm text-muted-foreground">Cargando compras...</p>
+            <p className="text-muted-foreground text-sm">Cargando compras...</p>
           ) : purchases.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Aún no registraste compras.
-            </p>
+            <p className="text-muted-foreground text-sm">Aún no registraste compras.</p>
           ) : (
             <div className="overflow-hidden rounded-md border">
-              <div className="grid grid-cols-6 bg-muted px-4 py-2 text-sm font-semibold">
+              <div className="bg-muted grid grid-cols-6 px-4 py-2 text-sm font-semibold">
                 <span>Fecha</span>
                 <span>Tienda</span>
                 <span>Proveedor</span>
@@ -268,49 +225,33 @@ export default function ComprasPage() {
               <div className="divide-y">
                 {purchases.map((purchase) => {
                   const isOpen = expandedRow === purchase.id;
-                  const supplier = suppliers.find(
-                    (s) => s.id === purchase.supplierId,
-                  );
+                  const supplier = suppliers.find((s) => s.id === purchase.supplierId);
                   const dateValue =
-                    purchase.purchaseDate ||
-                    purchase.createdAt ||
-                    purchase.updatedAt;
-                  const totalValue =
-                    purchase.totalAmount ?? purchase.total ?? 0;
-                  const itemsCount =
-                    purchase.itemsCount ?? purchase.items?.length ?? 0;
+                    purchase.purchaseDate || purchase.createdAt || purchase.updatedAt;
+                  const totalValue = purchase.totalAmount ?? purchase.total ?? 0;
+                  const itemsCount = purchase.itemsCount ?? purchase.items?.length ?? 0;
                   return (
                     <div key={purchase.id}>
                       <motion.button
                         whileHover={{ backgroundColor: "rgba(0, 0, 0, 0.03)" }}
                         whileTap={{ scale: 0.995 }}
                         className="grid w-full grid-cols-6 items-center px-4 py-3 text-left transition-colors"
-                        onClick={() =>
-                          setExpandedRow(isOpen ? null : purchase.id)
-                        }>
-                        <span className="text-sm text-muted-foreground">
-                          {dateValue
-                            ? new Date(dateValue).toLocaleString()
-                            : "Sin fecha"}
+                        onClick={() => setExpandedRow(isOpen ? null : purchase.id)}
+                      >
+                        <span className="text-muted-foreground text-sm">
+                          {dateValue ? new Date(dateValue).toLocaleString() : "Sin fecha"}
                         </span>
-                        <span className="text-sm">
-                          {purchase.shopName || "N/D"}
+                        <span className="text-sm">{purchase.shopName || "N/D"}</span>
+                        <span className="text-muted-foreground text-sm">
+                          {supplier?.name || purchase.supplierId || "Sin proveedor"}
                         </span>
-                        <span className="text-sm text-muted-foreground">
-                          {supplier?.name ||
-                            purchase.supplierId ||
-                            "Sin proveedor"}
-                        </span>
-                        <span className="text-sm text-muted-foreground">
-                          {itemsCount} ítems
-                        </span>
-                        <span className="font-semibold">
-                          ${totalValue.toLocaleString("es-AR")}
-                        </span>
-                        <span className="flex justify-end text-sm text-primary">
+                        <span className="text-muted-foreground text-sm">{itemsCount} ítems</span>
+                        <span className="font-semibold">${totalValue.toLocaleString("es-AR")}</span>
+                        <span className="text-primary flex justify-end text-sm">
                           <motion.div
                             animate={{ rotate: isOpen ? 180 : 0 }}
-                            transition={{ duration: 0.3 }}>
+                            transition={{ duration: 0.3 }}
+                          >
                             <ChevronDown className="h-4 w-4" />
                           </motion.div>
                         </span>
@@ -322,60 +263,42 @@ export default function ComprasPage() {
                             animate="expanded"
                             exit="collapsed"
                             variants={expandableRowVariants}
-                            className="overflow-hidden">
-                            <div className="space-y-3 bg-muted/40 px-4 py-3 text-sm">
+                            className="overflow-hidden"
+                          >
+                            <div className="bg-muted/40 space-y-3 px-4 py-3 text-sm">
                               <div className="grid gap-2 md:grid-cols-2">
                                 <div>
-                                  <span className="text-muted-foreground">
-                                    Proveedor:
-                                  </span>
-                                  <p className="font-medium">
-                                    {supplier?.name || "Sin proveedor"}
-                                  </p>
+                                  <span className="text-muted-foreground">Proveedor:</span>
+                                  <p className="font-medium">{supplier?.name || "Sin proveedor"}</p>
                                 </div>
                                 {purchase.notes && (
                                   <div>
-                                    <span className="text-muted-foreground">
-                                      Notas:
-                                    </span>
-                                    <p className="font-medium">
-                                      {purchase.notes}
-                                    </p>
+                                    <span className="text-muted-foreground">Notas:</span>
+                                    <p className="font-medium">{purchase.notes}</p>
                                   </div>
                                 )}
                               </div>
                               <Separator />
                               <div className="space-y-2">
-                                <p className="font-semibold">
-                                  Ítems de la compra:
-                                </p>
+                                <p className="font-semibold">Ítems de la compra:</p>
                                 {purchase.items?.map((item, idx) => {
-                                  const product = products.find(
-                                    (p) => p.id === item.shopProductId,
-                                  );
+                                  const product = products.find((p) => p.id === item.shopProductId);
                                   return (
                                     <motion.div
                                       key={item.id || idx}
                                       initial={{ opacity: 0, x: -10 }}
                                       animate={{ opacity: 1, x: 0 }}
                                       transition={{ delay: idx * 0.05 }}
-                                      className="rounded-md border bg-background px-3 py-2">
+                                      className="bg-background rounded-md border px-3 py-2"
+                                    >
                                       <p className="font-medium">
-                                        {product?.name ||
-                                          item.productName ||
-                                          item.shopProductId}
+                                        {product?.name || item.productName || item.shopProductId}
                                       </p>
-                                      <div className="flex flex-wrap gap-4 text-xs text-muted-foreground mt-1">
+                                      <div className="text-muted-foreground mt-1 flex flex-wrap gap-4 text-xs">
                                         <span>Cantidad: {item.quantity}</span>
-                                        <span>
-                                          Costo unitario: ${item.unitCost}
-                                        </span>
+                                        <span>Costo unitario: ${item.unitCost}</span>
                                         <span>Subtotal: ${item.subtotal}</span>
-                                        <span>
-                                          {item.includesTax
-                                            ? "Con IVA"
-                                            : "Sin IVA"}
-                                        </span>
+                                        <span>{item.includesTax ? "Con IVA" : "Sin IVA"}</span>
                                       </div>
                                     </motion.div>
                                   );
@@ -407,16 +330,18 @@ export default function ComprasPage() {
             : "Selecciona una tienda para registrar compras."
         }
         size="lg"
-        closeOnOverlayClick={!createMutation.isPending}>
+        closeOnOverlayClick={!createMutation.isPending}
+      >
         <div className="space-y-4">
           <div className="grid gap-3 md:grid-cols-2">
             <div className="grid gap-1.5">
               <Label>Proveedor (opcional)</Label>
               <select
-                className="h-10 rounded-md border bg-background px-3 text-sm"
+                className="bg-background h-10 rounded-md border px-3 text-sm"
                 value={supplierId}
                 onChange={(e) => setSupplierId(e.target.value)}
-                disabled={suppliersLoading || !activeShopId}>
+                disabled={suppliersLoading || !activeShopId}
+              >
                 <option value="">Sin proveedor</option>
                 {suppliers.map((supplier) => (
                   <option key={supplier.id} value={supplier.id}>
@@ -445,22 +370,24 @@ export default function ComprasPage() {
                 variant="outline"
                 size="sm"
                 onClick={addItem}
-                disabled={!activeShopId || hasIncompleteItem}>
+                disabled={!activeShopId || hasIncompleteItem}
+              >
                 Agregar ítem
               </Button>
             </div>
 
-            <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
+            <div className="max-h-96 space-y-2 overflow-y-auto pr-1">
               {items.map((item, index) => (
                 <div
                   key={index}
-                  className="grid gap-2 rounded-md border bg-muted/40 p-3 md:grid-cols-6 md:items-end">
+                  className="bg-muted/40 grid gap-2 rounded-md border p-3 md:grid-cols-6 md:items-end"
+                >
                   <div className="grid gap-1 md:col-span-2">
                     <Label>Producto *</Label>
                     <div className="relative z-50">
                       <button
                         type="button"
-                        className="flex h-10 w-full items-center justify-between rounded-md border bg-background px-3 text-left text-sm hover:bg-accent/50"
+                        className="bg-background hover:bg-accent/50 flex h-10 w-full items-center justify-between rounded-md border px-3 text-left text-sm"
                         onClick={(e) => {
                           const rect = e.currentTarget.getBoundingClientRect();
                           setDropdownRect({
@@ -468,18 +395,15 @@ export default function ComprasPage() {
                             left: rect.left,
                             width: rect.width,
                           });
-                          setSearchValue(
-                            index,
-                            getProductName(item.shopProductId),
-                          );
+                          setSearchValue(index, getProductName(item.shopProductId));
                           setActiveSearchIndex(index);
                         }}
-                        disabled={productsLoading || !activeShopId}>
+                        disabled={productsLoading || !activeShopId}
+                      >
                         <span className="truncate">
-                          {getProductName(item.shopProductId) ||
-                            "Seleccionar producto"}
+                          {getProductName(item.shopProductId) || "Seleccionar producto"}
                         </span>
-                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                        <ChevronDown className="text-muted-foreground h-4 w-4" />
                       </button>
 
                       {activeSearchIndex === index &&
@@ -487,16 +411,17 @@ export default function ComprasPage() {
                         typeof document !== "undefined" &&
                         createPortal(
                           <div
-                            className="z-9999 rounded-md border bg-card shadow-lg"
+                            className="bg-card z-9999 rounded-md border shadow-lg"
                             style={{
                               position: "fixed",
                               top: dropdownRect.top,
                               left: dropdownRect.left,
                               width: dropdownRect.width,
-                            }}>
+                            }}
+                          >
                             <div className="border-b px-3 py-2">
                               <input
-                                className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                                className="bg-background h-9 w-full rounded-md border px-3 text-sm"
                                 autoFocus
                                 value={productSearch[index] ?? ""}
                                 onChange={(e) => {
@@ -515,35 +440,30 @@ export default function ComprasPage() {
                                 .filter((product) =>
                                   product.name
                                     .toLowerCase()
-                                    .includes(
-                                      (
-                                        productSearch[index] ?? ""
-                                      ).toLowerCase(),
-                                    ),
+                                    .includes((productSearch[index] ?? "").toLowerCase())
                                 )
                                 .slice(0, 20)
                                 .map((product) => (
                                   <button
                                     key={product.id}
                                     type="button"
-                                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-accent"
+                                    className="hover:bg-accent flex w-full items-center gap-2 px-3 py-2 text-left text-sm"
                                     onMouseDown={(e) => e.preventDefault()}
                                     onClick={() => {
                                       handleSelectProduct(index, product);
-                                    }}>
-                                    <span className="truncate">
-                                      {product.name}
-                                    </span>
+                                    }}
+                                  >
+                                    <span className="truncate">{product.name}</span>
                                   </button>
                                 ))}
                               {products.length === 0 && (
-                                <div className="px-3 py-2 text-sm text-muted-foreground">
+                                <div className="text-muted-foreground px-3 py-2 text-sm">
                                   Sin productos
                                 </div>
                               )}
                             </div>
                           </div>,
-                          document.body,
+                          document.body
                         )}
                     </div>
                   </div>
@@ -554,9 +474,7 @@ export default function ComprasPage() {
                       type="number"
                       value={item.quantity}
                       min={0}
-                      onChange={(e) =>
-                        updateItem(index, { quantity: Number(e.target.value) })
-                      }
+                      onChange={(e) => updateItem(index, { quantity: Number(e.target.value) })}
                       disabled={!activeShopId}
                     />
                   </div>
@@ -567,9 +485,7 @@ export default function ComprasPage() {
                       type="number"
                       value={item.unitCost}
                       min={0}
-                      onChange={(e) =>
-                        updateItem(index, { unitCost: Number(e.target.value) })
-                      }
+                      onChange={(e) => updateItem(index, { unitCost: Number(e.target.value) })}
                       disabled={!activeShopId}
                     />
                   </div>
@@ -582,14 +498,15 @@ export default function ComprasPage() {
                   <div className="grid gap-1">
                     <Label>Impuesto incluido</Label>
                     <select
-                      className="h-10 rounded-md border bg-background px-3 text-sm"
+                      className="bg-background h-10 rounded-md border px-3 text-sm"
                       value={item.includesTax ? "yes" : "no"}
                       onChange={(e) =>
                         updateItem(index, {
                           includesTax: e.target.value === "yes",
                         })
                       }
-                      disabled={!activeShopId}>
+                      disabled={!activeShopId}
+                    >
                       <option value="yes">Sí</option>
                       <option value="no">No</option>
                     </select>
@@ -601,7 +518,8 @@ export default function ComprasPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => removeItem(index)}
-                        disabled={!activeShopId}>
+                        disabled={!activeShopId}
+                      >
                         Quitar
                       </Button>
                     )}
@@ -610,21 +528,16 @@ export default function ComprasPage() {
               ))}
             </div>
 
-            <div className="flex items-center justify-between rounded-md border bg-background px-4 py-3">
-              <p className="text-sm text-muted-foreground">Total estimado</p>
-              <p className="text-xl font-semibold">
-                ${total.toLocaleString("es-AR")}
-              </p>
+            <div className="bg-background flex items-center justify-between rounded-md border px-4 py-3">
+              <p className="text-muted-foreground text-sm">Total estimado</p>
+              <p className="text-xl font-semibold">${total.toLocaleString("es-AR")}</p>
             </div>
 
             <div className="flex justify-end">
               <Button
                 onClick={handleSubmit}
-                disabled={
-                  createMutation.isPending ||
-                  items.length === 0 ||
-                  !activeShopId
-                }>
+                disabled={createMutation.isPending || items.length === 0 || !activeShopId}
+              >
                 {createMutation.isPending ? "Guardando..." : "Registrar compra"}
               </Button>
             </div>
@@ -634,4 +547,3 @@ export default function ComprasPage() {
     </div>
   );
 }
-

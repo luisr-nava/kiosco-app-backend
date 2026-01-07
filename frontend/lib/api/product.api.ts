@@ -6,7 +6,7 @@ const PRODUCT_BASE_PATH = "/product";
 export const productApi = {
   listByShop: async (
     shopId: string,
-    params?: { limit?: number; page?: number; search?: string },
+    params?: { limit?: number; page?: number; search?: string }
   ): Promise<Product[]> => {
     const { data } = await kioscoApi.get<Product[]>(PRODUCT_BASE_PATH, {
       params: {
@@ -19,4 +19,3 @@ export const productApi = {
     return data;
   },
 };
-

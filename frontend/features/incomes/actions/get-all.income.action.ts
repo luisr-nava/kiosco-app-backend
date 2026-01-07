@@ -12,7 +12,7 @@ type GetIncomesParams = {
 
 export const getIncomesAction = async (
   shopId: string,
-  params: GetIncomesParams = {},
+  params: GetIncomesParams = {}
 ): Promise<{ incomes: Income[]; pagination: Pagination }> => {
   const { data } = await kioscoApi.get<GetIncomesResponse>("/income", {
     params: {
@@ -30,4 +30,3 @@ export const getIncomesAction = async (
     pagination: data.meta,
   };
 };
-

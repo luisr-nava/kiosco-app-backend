@@ -43,5 +43,3 @@ export const useSupplierModals = () => {
     closeAll,
   };
 };
-
-

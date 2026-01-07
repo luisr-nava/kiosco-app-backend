@@ -35,4 +35,3 @@ export const useProductQuery = (params: Omit<ProductQueryParams, "shopId">) => {
     refetch: query.refetch,
   };
 };
-

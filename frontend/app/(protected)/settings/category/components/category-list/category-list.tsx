@@ -42,37 +42,35 @@ export const CategoryList = <T extends Item>({
   const handleScroll = (event: UIEvent<HTMLDivElement>) => {
     if (!hasNextPage || !fetchNextPage || isFetchingNextPage || loading) return;
     const target = event.currentTarget;
-    const distanceToBottom =
-      target.scrollHeight - target.scrollTop - target.clientHeight;
+    const distanceToBottom = target.scrollHeight - target.scrollTop - target.clientHeight;
     if (distanceToBottom < 60) {
       fetchNextPage();
     }
   };
 
   return (
-    <div className="rounded-lg border bg-muted/40 p-4">
-      <div className="flex items-center gap-2 mb-3">
+    <div className="bg-muted/40 rounded-lg border p-4">
+      <div className="mb-3 flex items-center gap-2">
         {icon}
         <p className="font-semibold">{title}</p>
       </div>
       <Separator className="my-3" />
-      <div
-        className="min-h-40 max-h-40 overflow-y-auto pr-1 space-y-2"
-        onScroll={handleScroll}>
+      <div className="max-h-40 min-h-40 space-y-2 overflow-y-auto pr-1" onScroll={handleScroll}>
         {loading ? (
           <Loading />
         ) : items.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{emptyText}</p>
+          <p className="text-muted-foreground text-sm">{emptyText}</p>
         ) : (
           <ul className="space-y-2">
             {items.map((category) => (
               <li
                 key={category.id}
-                className="rounded-md border bg-background px-3 py-2 flex items-center gap-3">
+                className="bg-background flex items-center gap-3 rounded-md border px-3 py-2"
+              >
                 <div className="min-w-0">
-                  <p className="font-medium truncate">{category.name}</p>
+                  <p className="truncate font-medium">{category.name}</p>
                   {isOwner && (
-                    <p className="text-xs text-muted-foreground truncate">
+                    <p className="text-muted-foreground truncate text-xs">
                       {(category.shopNames && category.shopNames.length > 0
                         ? category.shopNames
                         : [category.shopName || category.shopId]
@@ -87,7 +85,8 @@ export const CategoryList = <T extends Item>({
                         <Badge
                           key={`${category.id}-${shop}-${idx}`}
                           variant="secondary"
-                          className="whitespace-nowrap">
+                          className="whitespace-nowrap"
+                        >
                           {shop}
                         </Badge>
                       ))
@@ -96,10 +95,7 @@ export const CategoryList = <T extends Item>({
                         {category.shopName || category.shopId}
                       </Badge>
                     ))}
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => onEdit(category)}>
+                  <Button variant="outline" size="icon" onClick={() => onEdit(category)}>
                     <Edit3 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -108,8 +104,8 @@ export const CategoryList = <T extends Item>({
           </ul>
         )}
         {isFetchingNextPage && (
-          <div className="flex items-center justify-center gap-2 py-2 text-xs text-muted-foreground">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <div className="text-muted-foreground flex items-center justify-center gap-2 py-2 text-xs">
+            <div className="border-primary h-4 w-4 animate-spin rounded-full border-2 border-t-transparent" />
             <span>Cargando más categorías...</span>
           </div>
         )}
@@ -117,4 +113,3 @@ export const CategoryList = <T extends Item>({
     </div>
   );
 };
-

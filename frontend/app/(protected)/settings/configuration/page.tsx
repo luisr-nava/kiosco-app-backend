@@ -1,35 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
 import { ShopLoading } from "@/components/shop-loading";
 import { useShallow } from "zustand/react/shallow";
 import { Package, Truck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CategoryForm, CategoryList } from "../category/components";
 import { useCategory, useCategoryForm } from "../category/hooks";
-import {
-  PaymentMethodForm,
-  PaymentMethodTable,
-} from "../payment-method/components";
-import {
-  usePaymentMethodMutations,
-  usePaymentMethods,
-} from "../payment-method/hooks";
+import { PaymentMethodForm, PaymentMethodTable } from "../payment-method/components";
+import { usePaymentMethodMutations, usePaymentMethods } from "../payment-method/hooks";
 import type { PaymentMethod } from "../payment-method/interfaces";
-import {
-  MeasurementUnitForm,
-  MeasurementUnitTable,
-} from "../measurement-unit/components";
-import {
-  useMeasurementUnitMutations,
-  useMeasurementUnits,
-} from "../measurement-unit/hooks";
+import { MeasurementUnitForm, MeasurementUnitTable } from "../measurement-unit/components";
+import { useMeasurementUnitMutations, useMeasurementUnits } from "../measurement-unit/hooks";
 import type {
   MeasurementBaseUnit,
   MeasurementUnit,
@@ -37,10 +20,7 @@ import type {
 } from "../measurement-unit/interfaces";
 import { useShopStore } from "@/features/shop/shop.store";
 
-const BASE_UNIT_BY_CATEGORY: Record<
-  MeasurementUnitCategory,
-  MeasurementBaseUnit
-> = {
+const BASE_UNIT_BY_CATEGORY: Record<MeasurementUnitCategory, MeasurementBaseUnit> = {
   UNIT: "UNIT",
   WEIGHT: "KG",
   VOLUME: "L",
@@ -85,7 +65,7 @@ export default function ConfigurationPage() {
   const { activeShopId } = useShopStore(
     useShallow((state) => ({
       activeShopId: state.activeShopId,
-    })),
+    }))
   );
 
   const {
@@ -110,19 +90,15 @@ export default function ConfigurationPage() {
     deleteMutation: deleteMeasurementUnit,
   } = useMeasurementUnitMutations();
 
-  const [panel, setPanel] = useState<
-    "categories" | "payment-methods" | "measurement-units"
-  >("categories");
-  const [editingPaymentMethod, setEditingPaymentMethod] =
-    useState<PaymentMethod | null>(null);
-  const [deletingPaymentMethodId, setDeletingPaymentMethodId] = useState<
-    string | null
-  >(null);
-  const [editingMeasurementUnit, setEditingMeasurementUnit] =
-    useState<MeasurementUnit | null>(null);
-  const [deletingMeasurementUnitId, setDeletingMeasurementUnitId] = useState<
-    string | null
-  >(null);
+  const [panel, setPanel] = useState<"categories" | "payment-methods" | "measurement-units">(
+    "categories"
+  );
+  const [editingPaymentMethod, setEditingPaymentMethod] = useState<PaymentMethod | null>(null);
+  const [deletingPaymentMethodId, setDeletingPaymentMethodId] = useState<string | null>(null);
+  const [editingMeasurementUnit, setEditingMeasurementUnit] = useState<MeasurementUnit | null>(
+    null
+  );
+  const [deletingMeasurementUnitId, setDeletingMeasurementUnitId] = useState<string | null>(null);
 
   const categoriesView = (
     <div className="space-y-6">
@@ -151,7 +127,7 @@ export default function ConfigurationPage() {
 
           <CategoryList
             title="Listado de categorías"
-            icon={<Package className="h-5 w-5 text-primary" />}
+            icon={<Package className="text-primary h-5 w-5" />}
             items={categoryProducts}
             loading={categoryProductsLoading}
             emptyText="Aún no tienes categorías para productos."
@@ -188,7 +164,7 @@ export default function ConfigurationPage() {
           </div>
           <CategoryList
             title="Listado de categorías"
-            icon={<Truck className="h-5 w-5 text-primary" />}
+            icon={<Truck className="text-primary h-5 w-5" />}
             items={categorySuppliers}
             loading={categorySuppliersLoading}
             emptyText="Aún no tienes categorías para proveedores."
@@ -228,7 +204,7 @@ export default function ConfigurationPage() {
                   { id: editingPaymentMethod.id, payload },
                   {
                     onSuccess: () => setEditingPaymentMethod(null),
-                  },
+                  }
                 );
                 return;
               }
@@ -237,13 +213,11 @@ export default function ConfigurationPage() {
                 { shopId: activeShopId, ...payload },
                 {
                   onSuccess: () => setEditingPaymentMethod(null),
-                },
+                }
               );
             }}
             isSubmitting={
-              editingPaymentMethod
-                ? updatePaymentMethod.isPending
-                : createPaymentMethod.isPending
+              editingPaymentMethod ? updatePaymentMethod.isPending : createPaymentMethod.isPending
             }
             editing={editingPaymentMethod}
             onCancelEdit={() => setEditingPaymentMethod(null)}
@@ -292,7 +266,7 @@ export default function ConfigurationPage() {
               if (editingMeasurementUnit) {
                 updateMeasurementUnit.mutate(
                   { id: editingMeasurementUnit.id, payload },
-                  { onSuccess: () => setEditingMeasurementUnit(null) },
+                  { onSuccess: () => setEditingMeasurementUnit(null) }
                 );
                 return;
               }
@@ -301,7 +275,7 @@ export default function ConfigurationPage() {
                 { ...payload, shopIds: [activeShopId] },
                 {
                   onSuccess: () => setEditingMeasurementUnit(null),
-                },
+                }
               );
             }}
             isSubmitting={
@@ -345,9 +319,10 @@ export default function ConfigurationPage() {
             "w-full rounded-md px-3 py-2 text-sm font-medium transition-colors",
             panel === "categories"
               ? "bg-white text-black shadow-sm"
-              : "bg-muted text-muted-foreground hover:text-foreground",
+              : "bg-muted text-muted-foreground hover:text-foreground"
           )}
-          onClick={() => setPanel("categories")}>
+          onClick={() => setPanel("categories")}
+        >
           Categorías
         </button>
         <button
@@ -356,9 +331,10 @@ export default function ConfigurationPage() {
             "w-full rounded-md px-3 py-2 text-sm font-medium transition-colors",
             panel === "payment-methods"
               ? "bg-white text-black shadow-sm"
-              : "bg-muted text-muted-foreground hover:text-foreground",
+              : "bg-muted text-muted-foreground hover:text-foreground"
           )}
-          onClick={() => setPanel("payment-methods")}>
+          onClick={() => setPanel("payment-methods")}
+        >
           Métodos de pago
         </button>
         <button
@@ -367,9 +343,10 @@ export default function ConfigurationPage() {
             "w-full rounded-md px-3 py-2 text-sm font-medium transition-colors",
             panel === "measurement-units"
               ? "bg-white text-black shadow-sm"
-              : "bg-muted text-muted-foreground hover:text-foreground",
+              : "bg-muted text-muted-foreground hover:text-foreground"
           )}
-          onClick={() => setPanel("measurement-units")}>
+          onClick={() => setPanel("measurement-units")}
+        >
           Unidades de medida
         </button>
       </div>
@@ -378,12 +355,11 @@ export default function ConfigurationPage() {
         {panel === "categories"
           ? categoriesView
           : panel === "payment-methods"
-          ? paymentMethodsView
-          : measurementUnitsView}
+            ? paymentMethodsView
+            : measurementUnitsView}
       </div>
     </div>
   );
 
   return configurationView;
 }
-
