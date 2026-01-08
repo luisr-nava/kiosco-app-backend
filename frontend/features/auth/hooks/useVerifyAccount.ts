@@ -13,7 +13,9 @@ export const useVerifyAccount = () => {
   const CODE_LENGTH = 8;
   const [error, setError] = useState<string>("");
   const router = useRouter();
-  const [code, setCode] = useState<string[]>(Array.from({ length: CODE_LENGTH }, () => ""));
+  const [code, setCode] = useState<string[]>(
+    Array.from({ length: CODE_LENGTH }, () => "")
+  );
   const [showEmailInput, setShowEmailInput] = useState(false);
   const { mutate, isPending } = useVerifyCodeMutation();
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -26,7 +28,8 @@ export const useVerifyAccount = () => {
     mutate(code, {
       onSuccess: () => {
         toast.success("¡Cuenta verificada!", {
-          description: "Tu cuenta ha sido verificada correctamente. Ahora puedes iniciar sesión.",
+          description:
+            "Tu cuenta ha sido verificada correctamente. Ahora puedes iniciar sesión.",
           duration: 5000,
         });
 
@@ -37,7 +40,8 @@ export const useVerifyAccount = () => {
       },
       onError: (error: unknown) => {
         let errorTitle = "Error en la verificación";
-        let errorMessage = "No se pudo verificar tu cuenta. Por favor intenta de nuevo.";
+        let errorMessage =
+          "No se pudo verificar tu cuenta. Por favor intenta de nuevo.";
 
         toast.error(errorTitle, {
           description: errorMessage,

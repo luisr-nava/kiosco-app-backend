@@ -1,11 +1,16 @@
 import { kioscoApi } from "@/lib/kioscoApi";
-import type { NotificationEvent, NotificationPreferences } from "@/lib/types/notification";
+import type {
+  NotificationEvent,
+  NotificationPreferences,
+} from "@/lib/types/notification";
 
 const NOTIFICATION_BASE_PATH = "/notifications";
 
 export const notificationApi = {
   list: async (): Promise<NotificationEvent[]> => {
-    const { data } = await kioscoApi.get<NotificationEvent[]>(NOTIFICATION_BASE_PATH);
+    const { data } = await kioscoApi.get<NotificationEvent[]>(
+      NOTIFICATION_BASE_PATH
+    );
     return data;
   },
 

@@ -10,7 +10,8 @@ interface UseProductsParams {
 }
 
 export const useProducts = ({ ...params }: UseProductsParams) => {
-  const { products, pagination, productsLoading, isFetching, refetch } = useProductQuery(params);
+  const { products, pagination, productsLoading, isFetching, refetch } =
+    useProductQuery(params);
 
   return {
     products,

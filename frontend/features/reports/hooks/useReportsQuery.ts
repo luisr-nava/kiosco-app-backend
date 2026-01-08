@@ -2,7 +2,10 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { cashRegisterApi } from "@/lib/api/cash-register.api";
-import { CashRegisterReportsQueryParams, UseCashRegisterReportsResult } from "../type";
+import {
+  CashRegisterReportsQueryParams,
+  UseCashRegisterReportsResult,
+} from "../type";
 import { getReportsAction } from "../actions/get-reports";
 
 export function useCashRegisterReports({

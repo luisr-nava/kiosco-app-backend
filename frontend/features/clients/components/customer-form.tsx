@@ -3,7 +3,13 @@ import { Input } from "@/components/ui/input";
 import { CreateCustomerDto, Customer } from "../types";
 import { BaseForm } from "@/components/form/BaseForm";
 import { FormGrid } from "@/components/form/FormGrid";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 type Props = {
   form: UseFormReturn<CreateCustomerDto>;
@@ -13,7 +19,13 @@ type Props = {
   isSubmitting: boolean;
 };
 
-export default function CustomerForm({ form, onSubmit, onCancel, isEdit, isSubmitting }: Props) {
+export default function CustomerForm({
+  form,
+  onSubmit,
+  onCancel,
+  isEdit,
+  isSubmitting,
+}: Props) {
   return (
     <>
       <BaseForm
@@ -47,7 +59,11 @@ export default function CustomerForm({ form, onSubmit, onCancel, isEdit, isSubmi
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input {...field} value={field.value ?? ""} placeholder="cliente@email.com" />
+                  <Input
+                    {...field}
+                    value={field.value ?? ""}
+                    placeholder="cliente@email.com"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -62,7 +78,11 @@ export default function CustomerForm({ form, onSubmit, onCancel, isEdit, isSubmi
               <FormItem>
                 <FormLabel>Teléfono</FormLabel>
                 <FormControl>
-                  <Input {...field} value={field.value ?? ""} placeholder="+54 9 11 1234-5678" />
+                  <Input
+                    {...field}
+                    value={field.value ?? ""}
+                    placeholder="+54 9 11 1234-5678"
+                  />
                 </FormControl>
               </FormItem>
             )}
@@ -74,7 +94,11 @@ export default function CustomerForm({ form, onSubmit, onCancel, isEdit, isSubmi
               <FormItem>
                 <FormLabel>Direccion</FormLabel>
                 <FormControl>
-                  <Input {...field} value={field.value ?? ""} placeholder="Av. Corrientes N°1000" />
+                  <Input
+                    {...field}
+                    value={field.value ?? ""}
+                    placeholder="Av. Corrientes N°1000"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -89,7 +113,11 @@ export default function CustomerForm({ form, onSubmit, onCancel, isEdit, isSubmi
               <FormItem>
                 <FormLabel>Documento de Identidad</FormLabel>
                 <FormControl>
-                  <Input {...field} value={field.value ?? ""} placeholder="3344556677" />
+                  <Input
+                    {...field}
+                    value={field.value ?? ""}
+                    placeholder="3344556677"
+                  />
                 </FormControl>
               </FormItem>
             )}
@@ -120,7 +148,12 @@ export default function CustomerForm({ form, onSubmit, onCancel, isEdit, isSubmi
               <FormItem>
                 <FormLabel>Limite de credito</FormLabel>
                 <FormControl>
-                  <Input {...field} type="number" value={field.value ?? 0} placeholder="10000" />
+                  <Input
+                    {...field}
+                    type="number"
+                    value={field.value ?? 0}
+                    placeholder="10000"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

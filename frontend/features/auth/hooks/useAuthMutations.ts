@@ -18,7 +18,13 @@ export const useForgotPasswordMutation = () => {
 
 export const useLoginMutation = () => {
   return useMutation({
-    mutationFn: async ({ email, password }: { email: string; password: string }) => {
+    mutationFn: async ({
+      email,
+      password,
+    }: {
+      email: string;
+      password: string;
+    }) => {
       return await loginActions(email, password);
     },
   });
@@ -57,7 +63,13 @@ export const useVerifyCodeMutation = () => {
 
 export const useResetPasswordMutation = () => {
   return useMutation({
-    mutationFn: async ({ token, newPassword }: { token: string; newPassword: string }) => {
+    mutationFn: async ({
+      token,
+      newPassword,
+    }: {
+      token: string;
+      newPassword: string;
+    }) => {
       return await resetPasswordAction({ token, newPassword });
     },
   });

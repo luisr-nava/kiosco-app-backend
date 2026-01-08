@@ -22,9 +22,12 @@ export const useAnalytics = () => {
   const bestSales = analytics?.insights.bestSale ?? null;
   const hasAnyValue = useMemo(
     () =>
-      [...salesSeries, ...purchasesSeries, ...incomesSeries, ...expensesSeries].some(
-        (p) => p.value > 0
-      ),
+      [
+        ...salesSeries,
+        ...purchasesSeries,
+        ...incomesSeries,
+        ...expensesSeries,
+      ].some((p) => p.value > 0),
     [salesSeries, purchasesSeries, incomesSeries, expensesSeries]
   );
 

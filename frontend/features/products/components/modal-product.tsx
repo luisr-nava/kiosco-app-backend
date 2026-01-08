@@ -10,18 +10,24 @@ interface ModalProductProps {
   measurementUnits: MeasurementUnit[];
   modals: ReturnType<typeof useProductModals>;
 }
-export default function ModalProduct({ suppliers, measurementUnits, modals }: ModalProductProps) {
-  const { createProductModal, editProductModal, editProduct, isEdit, closeAll } = modals;
-
-  const { form, isLoadingCreate, isLoadingUpdate, onSubmit, reset } = useProductForm(
-    editProduct!,
+export default function ModalProduct({
+  suppliers,
+  measurementUnits,
+  modals,
+}: ModalProductProps) {
+  const {
+    createProductModal,
+    editProductModal,
+    editProduct,
     isEdit,
-    measurementUnits,
-    () => {
+    closeAll,
+  } = modals;
+
+  const { form, isLoadingCreate, isLoadingUpdate, onSubmit, reset } =
+    useProductForm(editProduct!, isEdit, measurementUnits, () => {
       closeAll();
       reset();
-    }
-  );
+    });
   const isSubmitting = isLoadingCreate || isLoadingUpdate;
 
   const handleClose = () => {

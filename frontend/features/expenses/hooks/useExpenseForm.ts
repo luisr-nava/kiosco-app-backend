@@ -18,12 +18,17 @@ const initialForm: CreateExpenseDto = {
   shopId: "",
 };
 
-function mapExpenseToForm(expense: Expense, initialForm: CreateExpenseDto): CreateExpenseDto {
+function mapExpenseToForm(
+  expense: Expense,
+  initialForm: CreateExpenseDto
+): CreateExpenseDto {
   return {
     ...initialForm,
     amount: expense.amount,
-    paymentMethodId: expense.cashRegisterId ?? "",
-    date: expense.date,
+    paymentMethodId: expense.paymentMethodId
+      ? String(expense.paymentMethodId)
+      : "",
+    date: expense.date ? expense.date.split("T")[0] : "",
     description: expense.description,
   };
 }
@@ -44,6 +49,7 @@ export const useExpenseForm = (
   const form = useForm<CreateExpenseDto>({
     defaultValues: initialForm,
   });
+
   const onSubmit = async (values: CreateExpenseDto) => {
     const basePayload: CreateExpenseDto = {
       ...values,

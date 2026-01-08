@@ -64,7 +64,9 @@ export default function SupplierTable({
 
             return (
               <React.Fragment key={expense.id}>
-                <TableRow onClick={() => setExpandedRow(isOpen ? null : expense.id)}>
+                <TableRow
+                  onClick={() => setExpandedRow(isOpen ? null : expense.id)}
+                >
                   <TableCell align="right">
                     <div className="flex justify-end gap-2">
                       <Button
@@ -99,7 +101,10 @@ export default function SupplierTable({
       </TableBody>
       <TableFooter>
         <TableRow>
-          <TableCell colSpan={7} className="text-muted-foreground text-center text-sm">
+          <TableCell
+            colSpan={7}
+            className="text-muted-foreground text-center text-sm"
+          >
             <Pagination
               page={page}
               totalPages={pagination?.totalPages ?? 1}

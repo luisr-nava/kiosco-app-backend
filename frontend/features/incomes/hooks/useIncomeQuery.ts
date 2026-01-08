@@ -7,28 +7,22 @@ interface UseIncomesQueryParams {
   page: number;
   limit?: number;
   enabled?: boolean;
-  startDate?: string;
-  endDate?: string;
 }
 export const useIncomeQuery = ({
   search,
   page,
   limit = 10,
   enabled = true,
-  startDate,
-  endDate,
 }: UseIncomesQueryParams) => {
   const { activeShopId } = useShopStore();
 
   const query = useQuery({
-    queryKey: ["incomes", activeShopId, search, page, limit, startDate, endDate],
+    queryKey: ["incomes", activeShopId, search, page, limit],
     queryFn: () =>
       getIncomesAction(activeShopId!, {
         search,
         page,
         limit,
-        startDate,
-        endDate,
       }),
     enabled: enabled && Boolean(activeShopId),
     staleTime: 1000 * 30,

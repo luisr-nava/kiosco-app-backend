@@ -31,7 +31,11 @@ const PopoverArrow = React.forwardRef<
   React.ElementRef<typeof PopoverPrimitive.Arrow>,
   PopoverPrimitive.PopoverArrowProps
 >(({ className, ...props }, ref) => (
-  <PopoverPrimitive.Arrow ref={ref} className={cn("fill-popover", className)} {...props} />
+  <PopoverPrimitive.Arrow
+    ref={ref}
+    className={cn("fill-popover", className)}
+    {...props}
+  />
 ));
 PopoverArrow.displayName = "PopoverArrow";
 

@@ -30,7 +30,10 @@ const extensionMap: Record<ReportFileType, string> = {
   excel: "xlsx",
 };
 
-const apiBaseUrl = process.env.NEXT_PUBLIC_KIOSCO_API_URL || process.env.NEXT_PUBLIC_API_URL || "";
+const apiBaseUrl =
+  process.env.NEXT_PUBLIC_KIOSCO_API_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "";
 
 const buildFileName = ({
   shopName,
@@ -57,11 +60,19 @@ const buildFileName = ({
   return `arqueo-${slugifiedShop || "tienda"}-${datePart}.${extensionMap[type]}`;
 };
 
-export default function DownloadReportButton({ cashRegisterId, shopName, closedAt, type }: Props) {
+export default function DownloadReportButton({
+  cashRegisterId,
+  shopName,
+  closedAt,
+  type,
+}: Props) {
   const [isDownloading, setIsDownloading] = useState(false);
   const Icon = iconMap[type];
 
-  const downloadReport = async (fileType: ReportFileType, id: string): Promise<void> => {
+  const downloadReport = async (
+    fileType: ReportFileType,
+    id: string
+  ): Promise<void> => {
     if (!id) {
       return;
     }
@@ -101,7 +112,8 @@ export default function DownloadReportButton({ cashRegisterId, shopName, closedA
       const startDownload = type === "pdf" ? downloadPdf : downloadExcel;
       await startDownload(cashRegisterId);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Error desconocido";
+      const message =
+        error instanceof Error ? error.message : "Error desconocido";
       toast.error("No pudimos generar el archivo", {
         description: message,
       });

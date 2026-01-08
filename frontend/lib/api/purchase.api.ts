@@ -15,7 +15,10 @@ export const purchaseApi = {
     return data;
   },
   create: async (payload: CreatePurchaseDto): Promise<Purchase> => {
-    const { data } = await kioscoApi.post<Purchase>(PURCHASE_BASE_PATH, payload);
+    const { data } = await kioscoApi.post<Purchase>(
+      PURCHASE_BASE_PATH,
+      payload
+    );
     return data;
   },
 };

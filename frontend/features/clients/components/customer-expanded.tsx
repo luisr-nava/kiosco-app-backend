@@ -38,7 +38,9 @@ export default function CustomerExpanded({ customer }: CustomerExpandedProps) {
       <div className="space-y-2">
         <div>
           <p className="text-muted-foreground">Notas:</p>
-          <p className="text-right font-medium sm:text-left">{customer.notes || "Sin notas"}</p>
+          <p className="text-right font-medium sm:text-left">
+            {customer.notes || "Sin notas"}
+          </p>
         </div>
       </div>
     </div>

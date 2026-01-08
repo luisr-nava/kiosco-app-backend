@@ -37,20 +37,31 @@ export const CategoryForm = ({
     <form className="space-y-4" onSubmit={onSubmit}>
       <div className="grid gap-1">
         <Label>Nombre *</Label>
-        <Input {...registerName("name", { required: true })} placeholder={titlePlaceholder} />
+        <Input
+          {...registerName("name", { required: true })}
+          placeholder={titlePlaceholder}
+        />
       </div>
       {isOwner && (
         <div className="space-y-2">
           <Label>Tiendas</Label>
           {shops.length === 0 ? (
-            <p className="text-muted-foreground text-sm">No hay tiendas disponibles.</p>
+            <p className="text-muted-foreground text-sm">
+              No hay tiendas disponibles.
+            </p>
           ) : (
             <div className="flex flex-wrap gap-3">
               {shops.map((shop) => {
                 const selected = selectedShopIds.includes(shop.id);
                 return (
-                  <label key={shop.id} className="flex items-center gap-2 text-sm">
-                    <Checkbox checked={selected} onCheckedChange={() => onToggleShop(shop.id)} />
+                  <label
+                    key={shop.id}
+                    className="flex items-center gap-2 text-sm"
+                  >
+                    <Checkbox
+                      checked={selected}
+                      onCheckedChange={() => onToggleShop(shop.id)}
+                    />
                     <span>{shop.name}</span>
                   </label>
                 );

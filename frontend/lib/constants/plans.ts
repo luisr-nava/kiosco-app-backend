@@ -3,7 +3,10 @@ import { SubscriptionPlan, SubscriptionPlanType } from "../types/subscription";
 /**
  * Definición completa de todos los planes de suscripción
  */
-export const SUBSCRIPTION_PLANS: Record<SubscriptionPlanType, SubscriptionPlan> = {
+export const SUBSCRIPTION_PLANS: Record<
+  SubscriptionPlanType,
+  SubscriptionPlan
+> = {
   [SubscriptionPlanType.FREE]: {
     id: "plan_free",
     name: "Free",
@@ -117,6 +120,8 @@ export const PLANS_ARRAY = [
 /**
  * Obtiene un plan por su tipo
  */
-export function getPlanByType(planType: SubscriptionPlanType): SubscriptionPlan {
+export function getPlanByType(
+  planType: SubscriptionPlanType
+): SubscriptionPlan {
   return SUBSCRIPTION_PLANS[planType];
 }

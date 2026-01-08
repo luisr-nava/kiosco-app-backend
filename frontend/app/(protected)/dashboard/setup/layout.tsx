@@ -15,7 +15,8 @@ export default function SetupLayout({ children }: { children: ReactNode }) {
   const isOnSales = pathname.startsWith("/dashboard/sales");
   const sellButtonClasses = cn(
     "transition shadow-sm",
-    !isOnSales && "animate-pulse ring-2 ring-primary/50 ring-offset-2 ring-offset-background"
+    !isOnSales &&
+      "animate-pulse ring-2 ring-primary/50 ring-offset-2 ring-offset-background"
   );
 
   return (

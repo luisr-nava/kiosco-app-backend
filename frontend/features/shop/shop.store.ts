@@ -9,7 +9,8 @@ export const useShopStore = create<ShopState>()(
       shouldForceStoreSelection: true,
       // Actions
       setActiveShopId: (shopId) => set({ activeShopId: shopId }),
-      setShouldForceStoreSelection: (force) => set({ shouldForceStoreSelection: force }),
+      setShouldForceStoreSelection: (force) =>
+        set({ shouldForceStoreSelection: force }),
     }),
     {
       name: "shop-storage",

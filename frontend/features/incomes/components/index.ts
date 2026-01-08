@@ -1,3 +1,3 @@
-export { default as IncomeHeader } from "./income-header";
-export { default as IncomeTable } from "./table-income";
 export { default as IncomeForm } from "./income-form";
+export { default as ModalIncome } from "./income-modal";
+export { useIncomeColumns } from "./expense.columns";

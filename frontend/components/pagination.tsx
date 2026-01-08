@@ -30,7 +30,8 @@ export function Pagination({
   const prevDisabled = page <= 1 || isLoading;
   const nextDisabled = page >= safeTotalPages || isLoading;
   const disableLimitSelect =
-    isLoading || (totalItems !== undefined ? totalItems <= limit : safeTotalPages <= 1);
+    isLoading ||
+    (totalItems !== undefined ? totalItems <= limit : safeTotalPages <= 1);
 
   const pagesToRender = useMemo(() => {
     if (safeTotalPages <= 7) {
@@ -81,7 +82,10 @@ export function Pagination({
           {pagesToRender.map((item, idx) => {
             if (item === "...") {
               return (
-                <span key={`ellipsis-${idx}`} className="text-primary/80 px-2 font-semibold">
+                <span
+                  key={`ellipsis-${idx}`}
+                  className="text-primary/80 px-2 font-semibold"
+                >
                   ...
                 </span>
               );

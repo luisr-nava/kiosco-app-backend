@@ -13,7 +13,11 @@ export default function formatCurrency(
     maximumFractionDigits?: number;
   }
 ) {
-  const localeCandidates = [`es-${countryCode}`, `en-${countryCode}`, FALLBACK_LOCALE];
+  const localeCandidates = [
+    `es-${countryCode}`,
+    `en-${countryCode}`,
+    FALLBACK_LOCALE,
+  ];
 
   let formatter: Intl.NumberFormat | null = null;
 

@@ -11,7 +11,9 @@ export function useCashRegisterReportFilters() {
   const currentMonth = today.getMonth() + 1;
 
   const [period, setPeriod] = useState<PeriodFilter>(DEFAULT_PERIOD);
-  const [selectedDay, setSelectedDay] = useState<Date | undefined>(() => new Date());
+  const [selectedDay, setSelectedDay] = useState<Date | undefined>(
+    () => new Date()
+  );
   const [weekRange, setWeekRange] = useState<DateRangeValue>({});
   const [monthSelection, setMonthSelection] = useState({
     month: currentMonth,
@@ -65,11 +67,15 @@ export function useCashRegisterReportFilters() {
       weekRangeValue: normalizedRange,
       onWeekRangeChange: setWeekRange,
       monthValue: monthSelection.month,
-      onMonthChange: (month: number) => setMonthSelection((prev) => ({ ...prev, month })),
+      onMonthChange: (month: number) =>
+        setMonthSelection((prev) => ({ ...prev, month })),
       monthYearValue: monthSelection.year,
       onMonthYearChange: (year: number) =>
         setMonthSelection((prev) => ({
-          month: year === currentYear ? Math.min(prev.month, currentMonth) : prev.month,
+          month:
+            year === currentYear
+              ? Math.min(prev.month, currentMonth)
+              : prev.month,
           year,
         })),
       yearValue: selectedYear,

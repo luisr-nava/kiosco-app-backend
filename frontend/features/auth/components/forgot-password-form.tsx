@@ -40,7 +40,9 @@ export default function ForgotPasswordForm() {
               })}
               disabled={isLoading}
             />
-            {errors.email && <p className="text-destructive text-sm">{errors.email.message}</p>}
+            {errors.email && (
+              <p className="text-destructive text-sm">{errors.email.message}</p>
+            )}
           </div>
 
           <Button type="submit" className="w-full" disabled={isLoading}>

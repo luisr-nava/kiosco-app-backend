@@ -11,12 +11,14 @@ export const useForgotPassword = () => {
       {
         onSuccess: () => {
           toast.success("Email enviado", {
-            description: "Te enviamos instrucciones para restablecer tu contraseña.",
+            description:
+              "Te enviamos instrucciones para restablecer tu contraseña.",
           });
         },
         onError: () => {
           toast.error("Error al enviar email", {
-            description: "No se pudo enviar el email de recuperación. Intenta nuevamente.",
+            description:
+              "No se pudo enviar el email de recuperación. Intenta nuevamente.",
           });
         },
       }

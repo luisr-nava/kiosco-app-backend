@@ -1,6 +1,12 @@
 import { BaseForm } from "@/components/form/BaseForm";
 import { FormGrid } from "@/components/form/FormGrid";
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { UseFormReturn } from "react-hook-form";
@@ -74,7 +80,11 @@ export default function EmployeeForm({
                   Contraseña <span className="text-destructive">*</span>
                 </FormLabel>
                 <FormControl>
-                  <PasswordInput id="password" placeholder="Mínimo 8 caracteres" {...field} />
+                  <PasswordInput
+                    id="password"
+                    placeholder="Mínimo 8 caracteres"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -103,7 +113,11 @@ export default function EmployeeForm({
             <FormItem>
               <FormLabel>Teléfono</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="+54 9 11 1234 5678" value={field.value ?? ""} />
+                <Input
+                  {...field}
+                  placeholder="+54 9 11 1234 5678"
+                  value={field.value ?? ""}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -151,7 +165,11 @@ export default function EmployeeForm({
             <FormItem>
               <FormLabel>Contacto de emergencia</FormLabel>
               <FormControl>
-                <Input placeholder="Nombre / teléfono" {...field} value={field.value ?? ""} />
+                <Input
+                  placeholder="Nombre / teléfono"
+                  {...field}
+                  value={field.value ?? ""}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -186,7 +204,11 @@ export default function EmployeeForm({
             <FormItem>
               <FormLabel>Foto de perfil (URL)</FormLabel>
               <FormControl>
-                <Input placeholder="https://..." {...field} value={field.value ?? ""} />
+                <Input
+                  placeholder="https://..."
+                  {...field}
+                  value={field.value ?? ""}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -201,7 +223,11 @@ export default function EmployeeForm({
             <FormItem>
               <FormLabel>Notas</FormLabel>
               <FormControl>
-                <Input placeholder="Notas internas" {...field} value={field.value ?? ""} />
+                <Input
+                  placeholder="Notas internas"
+                  {...field}
+                  value={field.value ?? ""}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

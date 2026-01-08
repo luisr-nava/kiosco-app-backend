@@ -1,4 +1,7 @@
-import { usePoductCreateMutation, useProductUpdateMutation } from "./useProductMutation";
+import {
+  usePoductCreateMutation,
+  useProductUpdateMutation,
+} from "./useProductMutation";
 import { CreateProductDto, Product } from "../types";
 import { useForm } from "react-hook-form";
 import { useShopStore } from "@/features/shop/shop.store";
@@ -18,7 +21,10 @@ const initialForm: CreateProductDto = {
   measurementUnitId: "",
 };
 
-function mapProductToForm(product: Product, initialForm: CreateProductDto): CreateProductDto {
+function mapProductToForm(
+  product: Product,
+  initialForm: CreateProductDto
+): CreateProductDto {
   return {
     ...initialForm,
     name: product.name,
@@ -29,7 +35,9 @@ function mapProductToForm(product: Product, initialForm: CreateProductDto): Crea
     stock: product.stock,
     supplierId: product.supplierId || "",
     isActive: product.isActive,
-    measurementUnitId: product.measurementUnit?.id ? String(product.measurementUnit.id) : "",
+    measurementUnitId: product.measurementUnit?.id
+      ? String(product.measurementUnit.id)
+      : "",
   };
 }
 export const useProductForm = (

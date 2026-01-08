@@ -12,13 +12,20 @@ interface Props {
  * Contenedor de tabs para Ajustes con las vistas de Configuración y Preferencias.
  * Maneja el estado internamente (no cambia la URL).
  */
-export const SettingsTabs = ({ configurationContent, preferencesContent }: Props) => {
-  const [tab, setTab] = useState<"configuration" | "preferences">("configuration");
+export const SettingsTabs = ({
+  configurationContent,
+  preferencesContent,
+}: Props) => {
+  const [tab, setTab] = useState<"configuration" | "preferences">(
+    "configuration"
+  );
 
   return (
     <Tabs
       value={tab}
-      onValueChange={(value) => setTab(value as "configuration" | "preferences")}
+      onValueChange={(value) =>
+        setTab(value as "configuration" | "preferences")
+      }
       className="space-y-6"
     >
       <TabsList>

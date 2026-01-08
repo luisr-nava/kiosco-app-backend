@@ -26,7 +26,8 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "No se pudo iniciar sesión.";
+    const message =
+      error instanceof Error ? error.message : "No se pudo iniciar sesión.";
 
     return NextResponse.json({ message }, { status: 401 });
   }

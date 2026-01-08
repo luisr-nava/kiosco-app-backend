@@ -21,7 +21,9 @@ export default function ProductExpanded({ product }: ProductExpandedProps) {
 
         <div>
           <p className="text-muted-foreground">Código de barras:</p>
-          <p className="text-right font-medium sm:text-left">{product.barcode || "No asignado"}</p>
+          <p className="text-right font-medium sm:text-left">
+            {product.barcode || "No asignado"}
+          </p>
         </div>
 
         <div>
@@ -42,12 +44,16 @@ export default function ProductExpanded({ product }: ProductExpandedProps) {
       <div className="space-y-2">
         <div>
           <p className="text-muted-foreground">Precio de costo:</p>
-          <p className="text-right font-medium sm:text-left">{formatCurrency(product.costPrice)}</p>
+          <p className="text-right font-medium sm:text-left">
+            {formatCurrency(product.costPrice)}
+          </p>
         </div>
 
         <div>
           <p className="text-muted-foreground">Precio de venta:</p>
-          <p className="text-right font-medium sm:text-left">{formatCurrency(product.salePrice)}</p>
+          <p className="text-right font-medium sm:text-left">
+            {formatCurrency(product.salePrice)}
+          </p>
         </div>
 
         <div>

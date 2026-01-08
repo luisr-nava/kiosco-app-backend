@@ -4,7 +4,12 @@ import { useShopQuery } from "./useShopQuery";
 
 export const useShop = () => {
   const { shops, shopsLoading } = useShopQuery();
-  const { setShops, activeShopId, setActiveShopId, setShouldForceStoreSelection } = useShopStore();
+  const {
+    setShops,
+    activeShopId,
+    setActiveShopId,
+    setShouldForceStoreSelection,
+  } = useShopStore();
 
   return {
     shops,

@@ -1,6 +1,9 @@
 export { useProductForm } from "./useProductForm";
 export { useProductModals } from "./useProductModals";
-export { usePoductCreateMutation, useProductUpdateMutation } from "./useProductMutation";
+export {
+  usePoductCreateMutation,
+  useProductUpdateMutation,
+} from "./useProductMutation";
 export { useProductParams } from "./useProductParams";
 export { useProductQuery } from "./useProductQuery";
 export { useProductQueryParams } from "./useProductQueryParams";

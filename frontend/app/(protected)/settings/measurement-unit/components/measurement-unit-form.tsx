@@ -3,7 +3,11 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { MeasurementUnit, MeasurementUnitCategory, MeasurementBaseUnit } from "../interfaces";
+import type {
+  MeasurementUnit,
+  MeasurementUnitCategory,
+  MeasurementBaseUnit,
+} from "../interfaces";
 
 export interface MeasurementUnitFormValues {
   name: string;
@@ -33,7 +37,10 @@ const CATEGORY_LABELS: Record<MeasurementUnitCategory, string> = {
   VOLUME: "Volumen",
 };
 
-const BASE_UNIT_BY_CATEGORY: Record<MeasurementUnitCategory, MeasurementBaseUnit> = {
+const BASE_UNIT_BY_CATEGORY: Record<
+  MeasurementUnitCategory,
+  MeasurementBaseUnit
+> = {
   UNIT: "UNIT",
   WEIGHT: "KG",
   VOLUME: "L",
@@ -135,8 +142,8 @@ export const MeasurementUnitForm = ({
           })}
         />
         <p className="text-muted-foreground text-xs">
-          Usa 1 para unidades base; para múltiplos usa el equivalente a la unidad base (ej: gramos =
-          0.001 KG).
+          Usa 1 para unidades base; para múltiplos usa el equivalente a la
+          unidad base (ej: gramos = 0.001 KG).
         </p>
       </div>
 
@@ -151,7 +158,12 @@ export const MeasurementUnitForm = ({
               : "Crear unidad"}
         </Button>
         {editing && onCancelEdit && (
-          <Button type="button" variant="outline" onClick={onCancelEdit} disabled={isSubmitting}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancelEdit}
+            disabled={isSubmitting}
+          >
             Cancelar edición
           </Button>
         )}

@@ -20,7 +20,8 @@ export const useLogout = () => {
       },
       onError: () => {
         toast.warning("Sesión cerrada localmente", {
-          description: "No se pudo contactar con el servidor, pero la sesión se cerró localmente.",
+          description:
+            "No se pudo contactar con el servidor, pero la sesión se cerró localmente.",
         });
 
         clearAuth();

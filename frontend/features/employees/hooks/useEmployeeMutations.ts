@@ -35,7 +35,13 @@ export const useEmployeeUpdateMutation = () => {
   const queryClient = useQueryClient();
   const { activeShopId } = useShopStore();
   return useMutation({
-    mutationFn: async ({ id, payload }: { id: string; payload: Partial<CreateEmployeeDto> }) => {
+    mutationFn: async ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: Partial<CreateEmployeeDto>;
+    }) => {
       const { password, shopIds, ...safePayload } = payload;
 
       await updateAuthUserAction(id, safePayload);

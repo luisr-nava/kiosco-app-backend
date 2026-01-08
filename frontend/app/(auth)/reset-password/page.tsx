@@ -23,7 +23,9 @@ export default function ResetPassword() {
       <div className="grid w-full justify-center">
         <div className="mb-8 text-center">
           <h1 className="mb-2 text-3xl font-bold">Restablecer Contraseña</h1>
-          <p className="text-muted-foreground">Ingresa tu nueva contraseña para tu cuenta</p>
+          <p className="text-muted-foreground">
+            Ingresa tu nueva contraseña para tu cuenta
+          </p>
         </div>
         <ResetPasswordForm token={token} />
       </div>

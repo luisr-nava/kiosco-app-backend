@@ -7,7 +7,9 @@ interface CardTopProductProps {
 export default function CardTopProduct({ topProducts }: CardTopProductProps) {
   return (
     <Card className="mx-4 flex h-[280px] w-1/2 flex-col">
-      <CardTitle className="px-4 py-3">Top 5 de productos más vendidos</CardTitle>
+      <CardTitle className="px-4 py-3">
+        Top 5 de productos más vendidos
+      </CardTitle>
 
       <CardContent className="flex-1 overflow-y-auto px-4">
         {topProducts.length === 0 ? (

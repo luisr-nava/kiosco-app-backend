@@ -38,7 +38,9 @@ export const CardProduct = ({
         </p>
       </div>
       <div className="flex items-center justify-between text-sm">
-        <span className="font-semibold">${product.salePrice?.toLocaleString("es-AR") || 0}</span>
+        <span className="font-semibold">
+          ${product.salePrice?.toLocaleString("es-AR") || 0}
+        </span>
         <span className="text-muted-foreground text-xs">Stock: {stock}</span>
       </div>
       <div className="flex justify-end">

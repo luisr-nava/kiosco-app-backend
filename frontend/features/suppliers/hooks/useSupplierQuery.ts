@@ -20,7 +20,15 @@ export const useSupplierQuery = ({
 }: UseSupplierQueryParams) => {
   const { activeShopId } = useShopStore();
   const query = useQuery({
-    queryKey: ["suppliers", activeShopId, search, page, limit, startDate, endDate],
+    queryKey: [
+      "suppliers",
+      activeShopId,
+      search,
+      page,
+      limit,
+      startDate,
+      endDate,
+    ],
     queryFn: () =>
       getSuppliersAction(activeShopId!, {
         search,

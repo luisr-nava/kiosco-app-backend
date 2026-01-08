@@ -121,7 +121,9 @@ export const AuthErrorCodes = {
 /**
  * Mensajes de error específicos para autenticación
  */
-export const getAuthErrorMessage = (error: unknown): { title: string; message: string } => {
+export const getAuthErrorMessage = (
+  error: unknown
+): { title: string; message: string } => {
   const statusCode = getStatusCode(error);
   const messageFromError =
     (isApiError(error) && error.message) ||
@@ -131,7 +133,8 @@ export const getAuthErrorMessage = (error: unknown): { title: string; message: s
     case AuthErrorCodes.INVALID_CREDENTIALS:
       return {
         title: "Credenciales incorrectas",
-        message: messageFromError || "El email o la contraseña son incorrectos.",
+        message:
+          messageFromError || "El email o la contraseña son incorrectos.",
       };
 
     case AuthErrorCodes.EMAIL_NOT_VERIFIED:
@@ -145,7 +148,9 @@ export const getAuthErrorMessage = (error: unknown): { title: string; message: s
     case AuthErrorCodes.USER_NOT_FOUND:
       return {
         title: "Usuario no encontrado",
-        message: messageFromError || "No existe una cuenta con este email. ¿Deseas registrarte?",
+        message:
+          messageFromError ||
+          "No existe una cuenta con este email. ¿Deseas registrarte?",
       };
 
     case AuthErrorCodes.EMAIL_ALREADY_EXISTS:
@@ -167,10 +172,14 @@ export const getAuthErrorMessage = (error: unknown): { title: string; message: s
     case AuthErrorCodes.SERVER_ERROR:
       return {
         title: "Error del servidor",
-        message: "Ocurrió un error en el servidor. Por favor intenta más tarde.",
+        message:
+          "Ocurrió un error en el servidor. Por favor intenta más tarde.",
       };
 
     default:
-      return getErrorMessage(error, "Error al autenticar. Por favor intenta de nuevo.");
+      return getErrorMessage(
+        error,
+        "Error al autenticar. Por favor intenta de nuevo."
+      );
   }
 };

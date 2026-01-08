@@ -1,30 +1,32 @@
-import { Modal } from "@/components/ui/modal";
-import { useExpenseForm, useExpenseModals } from "../hooks";
-import ExpenseForm from "./expense-form";
 import { usePaymentMethods } from "@/app/(protected)/settings/payment-method/hooks";
+import { Modal } from "@/components/ui/modal";
+import React, { useEffect } from "react";
+import { useIncomeForm } from "../hooks/useIncomeForm";
+import { useIncomeModals } from "../hooks";
+import IncomeForm from "./income-form";
 import { Button } from "@/components/ui/button";
 
-interface ExpenseModalProps {
+interface IncomeModalProps {
   cashRegisterId?: string;
-  modals: ReturnType<typeof useExpenseModals>;
+  modals: ReturnType<typeof useIncomeModals>;
 }
-export default function ExpenseModal({
-  cashRegisterId,
+export default function IncomeModal({
   modals,
-}: ExpenseModalProps) {
+  cashRegisterId,
+}: IncomeModalProps) {
   const {
-    createExpenseModal,
-    editExpense,
-    editExpenseModal,
-    deleteExpense,
-    deleteExpenseModal,
+    createIncomeModal,
+    editIncome,
+    editIncomeModal,
+    deleteIncome,
+    deleteIncomeModal,
     isEdit,
     closeAll,
   } = modals;
   const openModal =
-    createExpenseModal.isOpen ||
-    editExpenseModal.isOpen ||
-    deleteExpenseModal.isOpen;
+    createIncomeModal.isOpen ||
+    editIncomeModal.isOpen ||
+    deleteIncomeModal.isOpen;
 
   const {
     form,
@@ -33,15 +35,9 @@ export default function ExpenseModal({
     isLoadingUpdate,
     reset,
     isLoadingDelete,
-  } = useExpenseForm(
-    cashRegisterId!,
-    editExpense!,
-    deleteExpense!,
-    isEdit,
-    () => {
-      closeAll();
-    }
-  );
+  } = useIncomeForm(cashRegisterId!, editIncome!, deleteIncome!, isEdit, () => {
+    closeAll();
+  });
 
   const handleClose = () => {
     closeAll();
@@ -55,21 +51,15 @@ export default function ExpenseModal({
     <Modal
       isOpen={openModal}
       onClose={handleClose}
-      title={
-        editExpenseModal.isOpen
-          ? "Editar egreso"
-          : deleteExpenseModal
-            ? "Eliminar egreso "
-            : "Crear egreso"
-      }
+      title={editIncomeModal.isOpen ? "Editar ingreso" : "Crear ingreso"}
       description={
-        editExpenseModal.isOpen || createExpenseModal.isOpen
-          ? "Completa los datos del egreso"
+        editIncomeModal.isOpen || createIncomeModal.isOpen
+          ? "Completa los datos del ingreso"
           : ""
       }
       size="lg"
     >
-      {deleteExpenseModal.isOpen ? (
+      {deleteIncomeModal.isOpen ? (
         <div className="space-y-4">
           <p className="text-muted-foreground text-sm">
             ¿Seguro que deseas eliminar este egreso?
@@ -86,7 +76,7 @@ export default function ExpenseModal({
             <Button
               variant="destructive"
               onClick={() => {
-                onSubmit(deleteExpense!);
+                onSubmit(deleteIncome!);
               }}
               disabled={isLoadingDelete}
             >
@@ -95,7 +85,7 @@ export default function ExpenseModal({
           </div>
         </div>
       ) : (
-        <ExpenseForm
+        <IncomeForm
           form={form}
           onSubmit={onSubmit}
           onCancel={handleClose}

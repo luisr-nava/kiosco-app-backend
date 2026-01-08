@@ -2,7 +2,10 @@
 
 import { useShopStore } from "@/features/shop/shop.store";
 import { useCashRegisterStateQuery } from "@/features/cash-register/hooks/useCashRegisterStateQuery";
-import { useExpenseColumns, ExpenseModal } from "@/features/expenses/components";
+import {
+  useExpenseColumns,
+  ExpenseModal,
+} from "@/features/expenses/components";
 import { useExpenseModals, useExpenses } from "@/features/expenses/hooks";
 import { usePaginationParams } from "@/src/hooks/usePaginationParams";
 import { Loading } from "@/components/loading";
@@ -14,8 +17,16 @@ import { BaseTable } from "@/components/table/BaseTable";
 
 export default function ExpensesPage() {
   const expenseModals = useExpenseModals();
-  const { searchInput, debouncedSearch, page, limit, setSearch, setPage, setLimit, reset } =
-    usePaginationParams(500);
+  const {
+    searchInput,
+    debouncedSearch,
+    page,
+    limit,
+    setSearch,
+    setPage,
+    setLimit,
+    reset,
+  } = usePaginationParams(500);
   const { expenses, expensesLoading, pagination, isFetching } = useExpenses(
     debouncedSearch,
     page,
@@ -81,7 +92,10 @@ export default function ExpensesPage() {
         />
       )}
       <ExpenseModal cashRegisterId={cashRegisterId!} modals={expenseModals} />
-      <OpenCashRegisterModal open={openCashModal} onOpenChange={setOpenCashRegisterModal} />
+      <OpenCashRegisterModal
+        open={openCashModal}
+        onOpenChange={setOpenCashRegisterModal}
+      />
     </div>
   );
 }

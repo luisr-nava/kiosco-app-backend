@@ -3,11 +3,11 @@ export interface Expense {
   shopId: string;
   amount: number;
   description: string;
-  cashRegisterId?: string | null;
+  cashRegisterId?: string;
   category?: string | null;
   date: string;
-  paymentMethodId?: string | null;
-  paymentMethod?: {
+  paymentMethodId?: string;
+  paymentMethod: {
     id?: string;
     name?: string;
     code?: string;
@@ -24,8 +24,8 @@ export interface Expense {
 export interface CreateExpenseDto {
   description: string;
   amount?: number;
-  paymentMethodId: string;
-  cashRegisterId: string;
+  paymentMethodId?: string;
+  cashRegisterId?: string;
   shopId: string;
   date: string | null;
 }

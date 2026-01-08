@@ -8,7 +8,8 @@ interface UseCustomerParams {
 }
 
 export const useCustomers = ({ ...params }: UseCustomerParams) => {
-  const { customers, customersLoading, pagination, isFetching, refetch } = useCustomerQuery(params);
+  const { customers, customersLoading, pagination, isFetching, refetch } =
+    useCustomerQuery(params);
 
   return {
     customers,

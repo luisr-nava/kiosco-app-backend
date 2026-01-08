@@ -88,7 +88,9 @@ export function Sidebar() {
       icon: TrendingDown,
     },
   ];
-  const isInMovements = movementItems.some((item) => pathname.startsWith(item.href));
+  const isInMovements = movementItems.some((item) =>
+    pathname.startsWith(item.href)
+  );
   const showMovementsExpanded = movementsOpen || (!collapsed && isInMovements);
 
   const contactItems = [
@@ -103,7 +105,9 @@ export function Sidebar() {
       icon: User,
     },
   ];
-  const isInContacts = contactItems.some((item) => pathname.startsWith(item.href));
+  const isInContacts = contactItems.some((item) =>
+    pathname.startsWith(item.href)
+  );
   const showContactsExpanded = contactsOpen || (!collapsed && isInContacts);
 
   const settingsItems = [
@@ -123,11 +127,16 @@ export function Sidebar() {
       icon: UsersRound,
     },
   ];
-  const isInSettingsGroup = settingsItems.some((item) => pathname.startsWith(item.href));
-  const showSettingsExpanded = settingsOpen || (!collapsed && isInSettingsGroup);
+  const isInSettingsGroup = settingsItems.some((item) =>
+    pathname.startsWith(item.href)
+  );
+  const showSettingsExpanded =
+    settingsOpen || (!collapsed && isInSettingsGroup);
   const baseNavClasses =
     "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-1";
-  const collapsedJustify = collapsed ? "justify-center group-hover:justify-start" : "justify-start";
+  const collapsedJustify = collapsed
+    ? "justify-center group-hover:justify-start"
+    : "justify-start";
   const getNavItemClasses = (isActive: boolean) =>
     cn(
       baseNavClasses,
@@ -137,7 +146,10 @@ export function Sidebar() {
         : "text-muted-foreground hover:bg-primary/15 hover:text-foreground focus-visible:text-foreground focus-visible:bg-primary/15"
     );
   const getNavIconClasses = () =>
-    cn("shrink-0 transition-colors duration-150", collapsed ? "text-current" : "text-current");
+    cn(
+      "shrink-0 transition-colors duration-150",
+      collapsed ? "text-current" : "text-current"
+    );
 
   return (
     <aside
@@ -178,7 +190,11 @@ export function Sidebar() {
             const isActive = pathname === item.href;
 
             return (
-              <Link key={item.href} href={item.href} className={getNavItemClasses(isActive)}>
+              <Link
+                key={item.href}
+                href={item.href}
+                className={getNavItemClasses(isActive)}
+              >
                 <Icon className={getNavIconClasses()} />
                 <span
                   className={cn(
@@ -221,13 +237,20 @@ export function Sidebar() {
             </button>
             {showMovementsExpanded && (
               <div
-                className={cn("flex flex-col gap-1 pl-3", collapsed ? "group-hover:flex" : "flex")}
+                className={cn(
+                  "flex flex-col gap-1 pl-3",
+                  collapsed ? "group-hover:flex" : "flex"
+                )}
               >
                 {movementItems.map((item) => {
                   const Icon = item.icon;
                   const isActive = pathname.startsWith(item.href);
                   return (
-                    <Link key={item.href} href={item.href} className={getNavItemClasses(isActive)}>
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={getNavItemClasses(isActive)}
+                    >
                       <Icon className={getNavIconClasses()} />
                       <span
                         className={cn(
@@ -273,13 +296,20 @@ export function Sidebar() {
             </button>
             {showContactsExpanded && (
               <div
-                className={cn("flex flex-col gap-1 pl-3", collapsed ? "group-hover:flex" : "flex")}
+                className={cn(
+                  "flex flex-col gap-1 pl-3",
+                  collapsed ? "group-hover:flex" : "flex"
+                )}
               >
                 {contactItems.map((item) => {
                   const Icon = item.icon;
                   const isActive = pathname.startsWith(item.href);
                   return (
-                    <Link key={item.href} href={item.href} className={getNavItemClasses(isActive)}>
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={getNavItemClasses(isActive)}
+                    >
                       <Icon className={getNavIconClasses()} />
                       <span
                         className={cn(
@@ -325,13 +355,20 @@ export function Sidebar() {
             </button>
             {showSettingsExpanded && (
               <div
-                className={cn("flex flex-col gap-1 pl-3", collapsed ? "group-hover:flex" : "flex")}
+                className={cn(
+                  "flex flex-col gap-1 pl-3",
+                  collapsed ? "group-hover:flex" : "flex"
+                )}
               >
                 {settingsItems.map((item) => {
                   const Icon = item.icon;
                   const isActive = pathname.startsWith(item.href);
                   return (
-                    <Link key={item.href} href={item.href} className={getNavItemClasses(isActive)}>
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={getNavItemClasses(isActive)}
+                    >
                       <Icon className={getNavIconClasses()} />
                       <span
                         className={cn(

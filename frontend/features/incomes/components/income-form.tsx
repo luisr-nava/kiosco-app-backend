@@ -1,6 +1,16 @@
 import { PaymentMethod } from "@/app/(protected)/settings/payment-method/interfaces";
-import { Control, Controller, FieldErrors, UseFormRegister } from "react-hook-form";
+import { Controller, UseFormReturn } from "react-hook-form";
 import { CreateIncomeDto } from "../types";
+import { BaseForm } from "@/components/form/BaseForm";
+import { FormGrid } from "@/components/form/FormGrid";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -9,107 +19,119 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ModalFooter } from "@/components/ui/modal";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 
 interface Props {
-  register: UseFormRegister<CreateIncomeDto>;
-  control: Control<CreateIncomeDto>;
-  errors: FieldErrors<CreateIncomeDto>;
-  onSubmit: () => void;
+  form: UseFormReturn<CreateIncomeDto>;
+  onSubmit: (values: CreateIncomeDto) => void;
   onCancel: () => void;
   isEdit: boolean;
-  isValid: boolean;
   isSubmitting: boolean;
   paymentMethods: PaymentMethod[];
 }
 
 export default function IncomeForm({
-  register,
-  control,
-  errors,
+  form,
   onSubmit,
   onCancel,
   isEdit,
-  isValid,
   isSubmitting,
   paymentMethods = [],
 }: Props) {
   return (
-    <form>
-      <div className="space-y-3">
-        <div className="grid gap-1">
-          <Label>
-            Descripcion <span className="text-destructive">*</span>
-          </Label>
-          <Textarea
-            {...register("description", {
-              required: "La descripción es obligatoria",
-            })}
-            placeholder="Ingreso..."
-            className="resize-none"
-            cols={3}
-          />
-          {errors.description && (
-            <p className="text-destructive text-xs">{errors.description.message?.toString()}</p>
+    <BaseForm
+      form={form}
+      onSubmit={onSubmit}
+      onCancel={onCancel}
+      submitLabel={isEdit ? "Actualizar egreso" : "Crear egreso"}
+      isSubmitting={isSubmitting}
+    >
+      <FormGrid cols={2}>
+        <FormField
+          control={form.control}
+          name="description"
+          rules={{ required: "La descripción es obligatoria" }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                Descripción <span className="text-destructive">*</span>
+              </FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Pago de alquiler" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           )}
-        </div>
-
-        <div className="grid gap-1">
-          <Label>
-            Monto <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            type="number"
-            {...register("amount", {
-              valueAsNumber: true,
-              min: { value: 0, message: "No puede ser negativo" },
-            })}
-            placeholder="1000"
-          />
-        </div>
-        {errors.amount && (
-          <p className="text-destructive text-xs">{errors.amount.message?.toString()}</p>
-        )}
-        <div className="grid gap-1">
-          <Label>
-            Metodo de Pago <span className="text-destructive">*</span>
-          </Label>
-          <Controller
-            control={control}
-            name="paymentMethodId"
-            rules={{ required: "El método de pago es obligatorio" }}
-            render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger className="h-9">
-                  <SelectValue placeholder="Seleccionar método" />
+        />
+        <FormField
+          control={form.control}
+          name="amount"
+          rules={{ required: "El monto es obligatorio" }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                Monto <span className="text-destructive">*</span>
+              </FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="0"
+                  type="number"
+                  {...field}
+                  value={field.value ?? ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </FormGrid>
+      <FormGrid cols={2}>
+        <FormField
+          control={form.control}
+          name="date"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Fecha</FormLabel>
+              <FormControl>
+                <Input type="date" {...field} value={field.value ?? ""} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Controller
+          control={form.control}
+          name="paymentMethodId"
+          rules={{ required: "El metodo de pago es requerido" }}
+          render={({ field, fieldState }) => (
+            <div className="">
+              <Label className="pb-2">
+                Metodo de pago <span className="text-destructive">*</span>
+              </Label>
+              <Select
+                key={field.value}
+                value={field.value}
+                onValueChange={field.onChange}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccionar unidad" />
                 </SelectTrigger>
-
-                <SelectContent align="end">
-                  {paymentMethods.map((option) => (
-                    <SelectItem key={option.id} value={option.id}>
-                      {option.name}
+                <SelectContent>
+                  {paymentMethods.map((u) => (
+                    <SelectItem key={u.id} value={String(u.id)}>
+                      {u.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-            )}
-          />
-          {errors.paymentMethodId && (
-            <p className="text-destructive text-xs">{errors.paymentMethodId.message?.toString()}</p>
+              {fieldState.error && (
+                <p className="text-destructive text-xs">
+                  {fieldState.error.message}
+                </p>
+              )}
+            </div>
           )}
-        </div>
-      </div>
-      <ModalFooter>
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Cancelar
-        </Button>
-        <Button type="submit" disabled={!isValid || isSubmitting} variant="default">
-          {isSubmitting ? "Guardando..." : isEdit ? "Actualizar ingreso" : "Crear ingreso"}
-        </Button>
-      </ModalFooter>
-    </form>
+        />
+      </FormGrid>
+    </BaseForm>
   );
 }

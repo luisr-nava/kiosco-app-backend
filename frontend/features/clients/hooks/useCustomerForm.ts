@@ -19,7 +19,10 @@ const initialForm: CreateCustomerDto = {
   notes: "",
   shopId: "",
 };
-function mapCustomerToForm(customer: Customer, initialForm: CreateCustomerDto): CreateCustomerDto {
+function mapCustomerToForm(
+  customer: Customer,
+  initialForm: CreateCustomerDto
+): CreateCustomerDto {
   return {
     ...initialForm,
     fullName: customer.fullName,

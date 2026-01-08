@@ -29,7 +29,11 @@ export const PaymentMethodTable = ({
   }
 
   if (!paymentMethods.length) {
-    return <p className="text-muted-foreground text-sm">No hay métodos de pago registrados.</p>;
+    return (
+      <p className="text-muted-foreground text-sm">
+        No hay métodos de pago registrados.
+      </p>
+    );
   }
 
   return (
@@ -49,12 +53,20 @@ export const PaymentMethodTable = ({
             <tr key={pm.id} className="border-t">
               <td className="px-4 py-3">{pm.name}</td>
               <td className="px-4 py-3">{pm.code}</td>
-              <td className="px-4 py-3">{pm.description?.trim() || "Sin descripción"}</td>
               <td className="px-4 py-3">
-                <span className="text-xs font-medium">{pm.isActive ? "Activo" : "Inactivo"}</span>
+                {pm.description?.trim() || "Sin descripción"}
+              </td>
+              <td className="px-4 py-3">
+                <span className="text-xs font-medium">
+                  {pm.isActive ? "Activo" : "Inactivo"}
+                </span>
               </td>
               <td className="space-x-2 px-4 py-3 text-right whitespace-nowrap">
-                <Button size="icon" variant="outline" onClick={() => onEdit(pm)}>
+                <Button
+                  size="icon"
+                  variant="outline"
+                  onClick={() => onEdit(pm)}
+                >
                   <Edit3 className="h-4 w-4" />
                 </Button>
                 <Button

@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Términos y Condiciones",
-  description: "Revisa los términos de uso de Balanzio para operar tu negocio con confianza.",
+  description:
+    "Revisa los términos de uso de Balanzio para operar tu negocio con confianza.",
   alternates: {
     canonical: "/terms",
   },

@@ -1,6 +1,9 @@
 import { ORDERED_CURRENCY_OPTIONS } from "@/lib/constants/shop";
 import { useMemo } from "react";
-export const getCurrencySymbol = (currencyCode: string, locale: string = "es"): string => {
+export const getCurrencySymbol = (
+  currencyCode: string,
+  locale: string = "es"
+): string => {
   try {
     const formatter = new Intl.NumberFormat(locale, {
       style: "currency",
@@ -19,12 +22,18 @@ export const getCurrencySymbol = (currencyCode: string, locale: string = "es"): 
 interface CurrencyOption {
   code: string;
 }
-export const mapCurrencyWithSymbol = (currencies: CurrencyOption[], locale?: string) =>
+export const mapCurrencyWithSymbol = (
+  currencies: CurrencyOption[],
+  locale?: string
+) =>
   currencies.map((currency) => ({
     code: currency.code,
     symbol: getCurrencySymbol(currency.code, locale),
   }));
 
 export const useCurrencySymbols = (locale: string = "es") => {
-  return useMemo(() => mapCurrencyWithSymbol(ORDERED_CURRENCY_OPTIONS, locale), [locale]);
+  return useMemo(
+    () => mapCurrencyWithSymbol(ORDERED_CURRENCY_OPTIONS, locale),
+    [locale]
+  );
 };

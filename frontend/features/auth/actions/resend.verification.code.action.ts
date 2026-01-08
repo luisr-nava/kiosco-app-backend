@@ -4,7 +4,9 @@ interface ResendCodeResponse {
   message: string;
 }
 
-export const resendVerificationCodeAction = async (email: string): Promise<ResendCodeResponse> => {
+export const resendVerificationCodeAction = async (
+  email: string
+): Promise<ResendCodeResponse> => {
   try {
     const { data } = await authApi.post<ResendCodeResponse>(
       "/auth/resend-verification-code",

@@ -40,8 +40,12 @@ export default function Financial() {
                 <item.icon className="text-primary/80 h-6 w-6 stroke-2" />
                 <div className="flex items-center gap-5">
                   <div className="">
-                    <p className="text-muted-foreground text-sm">{item.label}</p>
-                    <p className="text-2xl font-semibold">{formatCurrency(item.value ?? 0)}</p>
+                    <p className="text-muted-foreground text-sm">
+                      {item.label}
+                    </p>
+                    <p className="text-2xl font-semibold">
+                      {formatCurrency(item.value ?? 0)}
+                    </p>
                   </div>
                 </div>
               </div>

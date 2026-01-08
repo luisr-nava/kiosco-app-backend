@@ -8,14 +8,15 @@ export const useSupplier = (
   startDate?: string,
   endDate?: string
 ) => {
-  const { suppliers, pagination, supplierLoading, isFetching, refetch } = useSupplierQuery({
-    search,
-    page,
-    limit,
-    enabled,
-    startDate,
-    endDate,
-  });
+  const { suppliers, pagination, supplierLoading, isFetching, refetch } =
+    useSupplierQuery({
+      search,
+      page,
+      limit,
+      enabled,
+      startDate,
+      endDate,
+    });
 
   return {
     suppliers,

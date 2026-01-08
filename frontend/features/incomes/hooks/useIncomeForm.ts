@@ -7,40 +7,55 @@ import {
   useIncomeUpdateMutation,
 } from "./useIncomeMutations";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 const initialForm: CreateIncomeDto = {
   description: "",
-  amount: 0,
+  amount: undefined,
   paymentMethodId: "",
   cashRegisterId: "",
-  date: "",
+  date: null,
   shopId: "",
 };
 
-export const useIncomeForm = (editIncome?: Income, deleteIncome?: Income, onClose?: () => void) => {
+function mapIncomeToForm(
+  expense: Income,
+  initialForm: CreateIncomeDto
+): CreateIncomeDto {
+  return {
+    ...initialForm,
+    amount: expense.amount,
+    paymentMethodId: expense.paymentMethodId
+      ? String(expense.paymentMethodId)
+      : "",
+    date: expense.date ? expense.date.split("T")[0] : "",
+    description: expense.description,
+  };
+}
+
+export const useIncomeForm = (
+  cashRegisterId: string,
+  editIncome?: Income,
+  deleteIncome?: Income,
+  isEdit?: boolean,
+  onClose?: () => void
+) => {
   const { activeShopId } = useShopStore();
 
   const createMutation = useIncomeCreateMutation();
   const updateMutation = useIncomeUpdateMutation();
   const deleteMutation = useIncomeDeleteMutation();
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    getValues,
-    control,
-    formState: { errors, isValid },
-  } = useForm<CreateIncomeDto>({
+  const form = useForm<CreateIncomeDto>({
     defaultValues: initialForm,
-    mode: "onChange",
   });
 
-  const onSubmit = handleSubmit((values) => {
+  const onSubmit = async (values: CreateIncomeDto) => {
     const basePayload: CreateIncomeDto = {
       ...values,
       shopId: activeShopId!,
+      cashRegisterId: cashRegisterId,
+      amount: +values.amount!,
     };
     if (editIncome) {
       updateMutation.mutate(
@@ -51,6 +66,8 @@ export const useIncomeForm = (editIncome?: Income, deleteIncome?: Income, onClos
         {
           onSuccess: () => {
             toast.success("Gasto actualizado");
+            onClose?.();
+            form.reset({ ...initialForm });
           },
           onError: () => {
             toast.error("No se pudo actualizar el cliente");
@@ -65,6 +82,8 @@ export const useIncomeForm = (editIncome?: Income, deleteIncome?: Income, onClos
         {
           onSuccess: () => {
             toast.success("Gasto eliminado correctamente");
+            onClose?.();
+            form.reset({ ...initialForm });
           },
           onError: () => {
             toast.error("No se pudo eliminar el gasto");
@@ -75,17 +94,28 @@ export const useIncomeForm = (editIncome?: Income, deleteIncome?: Income, onClos
       createMutation.mutate(basePayload, {
         onSuccess: () => {
           toast.success("Gasto creado");
+          onClose?.();
+          form.reset({ ...initialForm });
         },
         onError: () => {
           toast.error("No se pudo crear el gasto");
         },
       });
     }
-    onClose?.();
-    reset();
-  });
+  };
+  useEffect(() => {
+    if (!isEdit) {
+      form.reset(initialForm);
+      return;
+    }
+
+    if (editIncome) {
+      form.reset(mapIncomeToForm(editIncome, initialForm));
+    }
+  }, [isEdit, editIncome]);
 
   return {
+    form,
     activeShopId,
     createMutation,
     updateMutation,
@@ -93,14 +123,8 @@ export const useIncomeForm = (editIncome?: Income, deleteIncome?: Income, onClos
     isLoadingCreate: createMutation.isPending,
     isLoadingUpdate: updateMutation.isPending,
     isLoadingDelete: deleteMutation.isPending,
-    register,
-    reset,
+    reset: form.reset,
     onSubmit,
     initialForm,
-    setValue,
-    isValid,
-    control,
-    getValues,
-    errors,
   };
 };

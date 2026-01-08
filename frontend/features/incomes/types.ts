@@ -3,9 +3,9 @@ export interface Income {
   shopId: string;
   amount: number;
   description: string;
-  cashRegisterId?: string | null;
+  cashRegisterId?: string;
   date: string;
-  paymentMethodId?: string | null;
+  paymentMethodId?: string;
   paymentMethod?: {
     id?: string;
     name?: string;
@@ -22,11 +22,11 @@ export interface Income {
 
 export interface CreateIncomeDto {
   description: string;
-  amount: number;
-  paymentMethodId: string;
-  cashRegisterId: string;
-  date: string;
+  amount?: number;
+  paymentMethodId?: string;
+  cashRegisterId?: string;
   shopId: string;
+  date: string | null;
 }
 
 export interface GetIncomesResponse {

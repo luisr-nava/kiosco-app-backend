@@ -42,7 +42,11 @@ export const MeasurementUnitTable = ({
   }
 
   if (!measurementUnits.length) {
-    return <p className="text-muted-foreground text-sm">No hay unidades de medida registradas.</p>;
+    return (
+      <p className="text-muted-foreground text-sm">
+        No hay unidades de medida registradas.
+      </p>
+    );
   }
 
   return (
@@ -71,15 +75,22 @@ export const MeasurementUnitTable = ({
                   <div className="flex flex-wrap items-center gap-2">
                     <span>{unit.name}</span>
                     {badges.map((badge) => (
-                      <Badge key={badge} variant={badge === "Base" ? "secondary" : "outline"}>
+                      <Badge
+                        key={badge}
+                        variant={badge === "Base" ? "secondary" : "outline"}
+                      >
                         {badge}
                       </Badge>
                     ))}
                   </div>
                 </td>
                 <td className="px-4 py-3 uppercase">{unit.code}</td>
-                <td className="px-4 py-3">{CATEGORY_LABELS[unit.category] || unit.category}</td>
-                <td className="px-4 py-3">{BASE_UNIT_LABELS[unit.baseUnit] || unit.baseUnit}</td>
+                <td className="px-4 py-3">
+                  {CATEGORY_LABELS[unit.category] || unit.category}
+                </td>
+                <td className="px-4 py-3">
+                  {BASE_UNIT_LABELS[unit.baseUnit] || unit.baseUnit}
+                </td>
                 <td className="px-4 py-3">
                   {Number(unit.conversionFactor).toLocaleString("es-AR", {
                     maximumFractionDigits: 6,

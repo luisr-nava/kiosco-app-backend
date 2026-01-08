@@ -2,7 +2,10 @@ import type { CategoryProduct } from "../interfaces";
 import { useCategoryProductsQuery, useCategorySuppliersQuery } from "./";
 
 const aggregateCategories = (categories: CategoryProduct[]) => {
-  const map = new Map<string, CategoryProduct & { shopIds?: string[]; shopNames?: string[] }>();
+  const map = new Map<
+    string,
+    CategoryProduct & { shopIds?: string[]; shopNames?: string[] }
+  >();
 
   categories.forEach((cat) => {
     const key = cat.name.toLowerCase();

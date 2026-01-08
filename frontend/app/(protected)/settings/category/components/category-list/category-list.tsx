@@ -42,7 +42,8 @@ export const CategoryList = <T extends Item>({
   const handleScroll = (event: UIEvent<HTMLDivElement>) => {
     if (!hasNextPage || !fetchNextPage || isFetchingNextPage || loading) return;
     const target = event.currentTarget;
-    const distanceToBottom = target.scrollHeight - target.scrollTop - target.clientHeight;
+    const distanceToBottom =
+      target.scrollHeight - target.scrollTop - target.clientHeight;
     if (distanceToBottom < 60) {
       fetchNextPage();
     }
@@ -55,7 +56,10 @@ export const CategoryList = <T extends Item>({
         <p className="font-semibold">{title}</p>
       </div>
       <Separator className="my-3" />
-      <div className="max-h-40 min-h-40 space-y-2 overflow-y-auto pr-1" onScroll={handleScroll}>
+      <div
+        className="max-h-40 min-h-40 space-y-2 overflow-y-auto pr-1"
+        onScroll={handleScroll}
+      >
         {loading ? (
           <Loading />
         ) : items.length === 0 ? (
@@ -95,7 +99,11 @@ export const CategoryList = <T extends Item>({
                         {category.shopName || category.shopId}
                       </Badge>
                     ))}
-                  <Button variant="outline" size="icon" onClick={() => onEdit(category)}>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => onEdit(category)}
+                  >
                     <Edit3 className="h-4 w-4" />
                   </Button>
                 </div>

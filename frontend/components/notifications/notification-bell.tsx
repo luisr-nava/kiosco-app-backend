@@ -30,7 +30,12 @@ export const NotificationBell = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative" aria-label="Abrir notificaciones">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative"
+          aria-label="Abrir notificaciones"
+        >
           <Bell className="h-5 w-5" />
           {/* {unreadCount > 0 && ( */}
           <span className="bg-primary text-primary-foreground absolute -top-0.5 -right-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-semibold">

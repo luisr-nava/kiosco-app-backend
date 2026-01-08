@@ -5,7 +5,11 @@ import { Loading } from "@/components/loading";
 import { ShopDataLoader } from "@/features/shop/components/shop-data-loader";
 import { useShopStore } from "@/features/shop/shop.store";
 
-export default function PrivateLayout({ children }: { children: React.ReactNode }) {
+export default function PrivateLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <ShopDataLoader>
       <PrivateLayoutContent>{children}</PrivateLayoutContent>

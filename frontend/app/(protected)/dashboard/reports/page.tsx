@@ -14,13 +14,16 @@ export default function CashRegisterReportsPage() {
 
   const filters = useCashRegisterReportFilters();
 
-  const { reports, message, isFetching, isLoading, isError, error } = useCashRegisterReports(
-    filters.queryParams
-  );
+  const { reports, message, isFetching, isLoading, isError, error } =
+    useCashRegisterReports(filters.queryParams);
 
   return (
     <div className="space-y-4">
-      <ReportsFilters {...filters.ui} minYear={MIN_REPORT_YEAR} isLoading={isLoading} />
+      <ReportsFilters
+        {...filters.ui}
+        minYear={MIN_REPORT_YEAR}
+        isLoading={isLoading}
+      />
 
       <ReportsResults
         reports={reports}

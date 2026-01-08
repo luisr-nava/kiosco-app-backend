@@ -49,7 +49,9 @@ export default function RegisterForm() {
                 disabled={isLoading}
               />
               {errors.fullName && (
-                <p className="text-destructive text-sm">{errors.fullName.message}</p>
+                <p className="text-destructive text-sm">
+                  {errors.fullName.message}
+                </p>
               )}
             </div>
 
@@ -68,7 +70,11 @@ export default function RegisterForm() {
                 })}
                 disabled={isLoading}
               />
-              {errors.email && <p className="text-destructive text-sm">{errors.email.message}</p>}
+              {errors.email && (
+                <p className="text-destructive text-sm">
+                  {errors.email.message}
+                </p>
+              )}
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -87,7 +93,9 @@ export default function RegisterForm() {
                   disabled={isLoading}
                 />
                 {errors.password && (
-                  <p className="text-destructive text-sm">{errors.password.message}</p>
+                  <p className="text-destructive text-sm">
+                    {errors.password.message}
+                  </p>
                 )}
               </div>
 
@@ -98,12 +106,15 @@ export default function RegisterForm() {
                   placeholder="••••••••"
                   {...register("verifyPassword", {
                     required: "Debes verificar la contraseña",
-                    validate: (value) => value === password || "Las contraseñas no coinciden",
+                    validate: (value) =>
+                      value === password || "Las contraseñas no coinciden",
                   })}
                   disabled={isLoading}
                 />
                 {errors.verifyPassword && (
-                  <p className="text-destructive text-sm">{errors.verifyPassword.message}</p>
+                  <p className="text-destructive text-sm">
+                    {errors.verifyPassword.message}
+                  </p>
                 )}
               </div>
             </div>

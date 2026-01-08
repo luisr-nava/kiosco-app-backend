@@ -13,9 +13,12 @@ interface OpenCashRegisterModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export default function OpenCashRegisterModal({ onOpenChange, open }: OpenCashRegisterModalProps) {
-  const { isLoadingCreate, register, onSubmit, setValue } = useCashRegisterForm(() =>
-    onOpenChange(false)
+export default function OpenCashRegisterModal({
+  onOpenChange,
+  open,
+}: OpenCashRegisterModalProps) {
+  const { isLoadingCreate, register, onSubmit, setValue } = useCashRegisterForm(
+    () => onOpenChange(false)
   );
   const { user } = useAuth();
   const openedByName = user?.fullName?.trim() ?? "";
@@ -64,7 +67,8 @@ export default function OpenCashRegisterModal({ onOpenChange, open }: OpenCashRe
         </p>
         {!hasResponsibleName ? (
           <p className="text-destructive text-xs">
-            No se detecta el responsable en el store. Actualiza tu perfil para poder abrir la caja.
+            No se detecta el responsable en el store. Actualiza tu perfil para
+            poder abrir la caja.
           </p>
         ) : (
           <p className="text-muted-foreground text-xs">
@@ -74,10 +78,19 @@ export default function OpenCashRegisterModal({ onOpenChange, open }: OpenCashRe
       </div>
 
       <ModalFooter className="justify-end">
-        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => onOpenChange(false)}
+        >
           Cancelar
         </Button>
-        <Button type="submit" variant="default" onClick={onSubmit} disabled={isLoadingCreate}>
+        <Button
+          type="submit"
+          variant="default"
+          onClick={onSubmit}
+          disabled={isLoadingCreate}
+        >
           Abrir caja
         </Button>
       </ModalFooter>

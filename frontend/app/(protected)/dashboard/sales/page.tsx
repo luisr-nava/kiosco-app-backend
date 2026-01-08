@@ -73,7 +73,9 @@ export default function VentasPage() {
           <Card className="h-full lg:max-h-[80vh]">
             <CardContent className="h-full space-y-4 lg:overflow-y-auto">
               {productsLoading ? (
-                <p className="text-muted-foreground text-sm">Cargando productos...</p>
+                <p className="text-muted-foreground text-sm">
+                  Cargando productos...
+                </p>
               ) : products.length === 0 ? (
                 <p className="text-muted-foreground text-sm">
                   No hay productos disponibles en esta tienda.
@@ -83,7 +85,8 @@ export default function VentasPage() {
                   {products.map((product) => {
                     const resolvedShopProductId = resolveShopProductId(product);
                     const stock = Math.max(0, Number(product.stock ?? 0));
-                    const quantityInCart = quantityByShopProductId.get(resolvedShopProductId) ?? 0;
+                    const quantityInCart =
+                      quantityByShopProductId.get(resolvedShopProductId) ?? 0;
                     const isAddDisabled = stock <= 0 || quantityInCart >= stock;
 
                     return (
@@ -161,7 +164,9 @@ export default function VentasPage() {
                 </Button>
               </DrawerClose>
               <DrawerTitle>Carrito</DrawerTitle>
-              <DrawerDescription>Revisa tu carrito antes de cobrar.</DrawerDescription>
+              <DrawerDescription>
+                Revisa tu carrito antes de cobrar.
+              </DrawerDescription>
             </DrawerHeader>
             <div className="space-y-4 px-4 pb-2">
               <CartContent

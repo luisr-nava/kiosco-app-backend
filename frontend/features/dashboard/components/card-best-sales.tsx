@@ -13,7 +13,9 @@ export default function CardBestSales({ bestSales }: CardBestSalesProps) {
 
       <CardContent className="flex-1 px-4">
         {!bestSales ? (
-          <p className="text-muted-foreground text-sm">No hay ventas destacadas en este período</p>
+          <p className="text-muted-foreground text-sm">
+            No hay ventas destacadas en este período
+          </p>
         ) : (
           <div className="border-primary bg-primary/10 space-y-2 rounded-md border p-4">
             <p className="text-muted-foreground text-sm">

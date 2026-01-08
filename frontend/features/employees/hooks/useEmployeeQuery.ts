@@ -12,7 +12,13 @@ export const useEmployeeQuery = (params: UseEmployeeQueryParams) => {
   const { activeShopId } = useShopStore();
 
   const query = useQuery({
-    queryKey: ["employees", activeShopId, params.page, params.limit, params.search ?? ""],
+    queryKey: [
+      "employees",
+      activeShopId,
+      params.page,
+      params.limit,
+      params.search ?? "",
+    ],
     queryFn: () =>
       getEmployeesAction(activeShopId!, {
         ...params,

@@ -52,7 +52,12 @@ export function BaseHeader({
 
           {showClearFilters && onClearFilters && (
             <div className="flex flex-col gap-1">
-              <Button variant="outline" size="sm" className="h-10" onClick={onClearFilters}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-10"
+                onClick={onClearFilters}
+              >
                 Borrar filtros
               </Button>
             </div>

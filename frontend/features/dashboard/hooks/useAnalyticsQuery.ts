@@ -8,7 +8,9 @@ type GetAnalyticsParams = {
   to?: string;
 };
 
-export const useAnalyticsQuery = (params: GetAnalyticsParams = { period: "week" }) => {
+export const useAnalyticsQuery = (
+  params: GetAnalyticsParams = { period: "week" }
+) => {
   const { activeShopId } = useShopStore();
 
   const query = useQuery({

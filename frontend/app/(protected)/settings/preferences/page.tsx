@@ -3,7 +3,13 @@
 import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
@@ -48,12 +54,17 @@ export default function PreferencesPage() {
       });
     },
     onError: (error) => {
-      const { title, message } = getErrorMessage(error, "No se pudieron guardar las preferencias");
+      const { title, message } = getErrorMessage(
+        error,
+        "No se pudieron guardar las preferencias"
+      );
       toast.error(title, { description: message });
     },
   });
 
-  const onSubmit = form.handleSubmit((values) => updatePreferences.mutate(values));
+  const onSubmit = form.handleSubmit((values) =>
+    updatePreferences.mutate(values)
+  );
 
   if (!activeShopId) {
     return (
@@ -65,7 +76,8 @@ export default function PreferencesPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="text-muted-foreground text-sm">
-          No hay tienda activa. Selecciona una tienda desde el menú para continuar.
+          No hay tienda activa. Selecciona una tienda desde el menú para
+          continuar.
         </CardContent>
       </Card>
     );
@@ -99,7 +111,9 @@ export default function PreferencesPage() {
                   <Switch
                     checked={field.value}
                     onCheckedChange={field.onChange}
-                    disabled={preferencesQuery.isLoading || updatePreferences.isPending}
+                    disabled={
+                      preferencesQuery.isLoading || updatePreferences.isPending
+                    }
                   />
                 )}
               />
@@ -116,10 +130,13 @@ export default function PreferencesPage() {
                   valueAsNumber: true,
                   min: 0,
                 })}
-                disabled={preferencesQuery.isLoading || updatePreferences.isPending}
+                disabled={
+                  preferencesQuery.isLoading || updatePreferences.isPending
+                }
               />
               <p className="text-muted-foreground text-sm">
-                Se enviarán notificaciones cuando un producto esté por debajo de este stock.
+                Se enviarán notificaciones cuando un producto esté por debajo de
+                este stock.
               </p>
             </div>
 
@@ -132,7 +149,9 @@ export default function PreferencesPage() {
                   !form.formState.isDirty
                 }
               >
-                {updatePreferences.isPending ? "Guardando..." : "Guardar cambios"}
+                {updatePreferences.isPending
+                  ? "Guardando..."
+                  : "Guardar cambios"}
               </Button>
             </div>
           </form>

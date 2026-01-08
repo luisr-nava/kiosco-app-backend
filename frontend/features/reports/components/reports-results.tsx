@@ -27,7 +27,9 @@ export default function ReportsResults({
       <section className="border-border bg-card/80 rounded-3xl border p-6 shadow-sm">
         <Alert variant="destructive">
           <AlertTitle>Error al cargar reportes</AlertTitle>
-          <AlertDescription>No pudimos obtener los reportes de caja.</AlertDescription>
+          <AlertDescription>
+            No pudimos obtener los reportes de caja.
+          </AlertDescription>
         </Alert>
       </section>
     );

@@ -1,6 +1,10 @@
 import { kioscoApi } from "@/lib/kioscoApi";
 import { Pagination } from "@/src/types";
-import { CashRegisterReport, CashRegisterReportsApiResponse, PeriodFilter } from "../type";
+import {
+  CashRegisterReport,
+  CashRegisterReportsApiResponse,
+  PeriodFilter,
+} from "../type";
 import { getTodayIsoDate } from "@/lib/date-utils";
 
 interface Params {
@@ -37,9 +41,12 @@ export const getReportsAction = async (
     queryParams.year = year;
   }
 
-  const { data } = await kioscoApi.get<CashRegisterReportsApiResponse>(`/cash-register/reports`, {
-    params: queryParams,
-  });
+  const { data } = await kioscoApi.get<CashRegisterReportsApiResponse>(
+    `/cash-register/reports`,
+    {
+      params: queryParams,
+    }
+  );
 
   const reports: CashRegisterReport[] = data.data.map((item) => ({
     id: item.cashRegisterId,

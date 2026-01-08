@@ -9,7 +9,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
-import { DateRangePicker, type DateRangeValue } from "@/components/ui/date-range-picker";
+import {
+  DateRangePicker,
+  type DateRangeValue,
+} from "@/components/ui/date-range-picker";
 import { PeriodFilter } from "../type";
 
 const periodOptions: Array<{ value: PeriodFilter; label: string }> = [
@@ -81,11 +84,13 @@ export default function ReportsFilters({
 }: ReportsFiltersProps) {
   const monthOptions = MONTHS.filter(
     (month) =>
-      period !== "month" || month.value <= (monthYearValue === currentYear ? currentMonth : 12)
+      period !== "month" ||
+      month.value <= (monthYearValue === currentYear ? currentMonth : 12)
   );
 
   const yearOptions = buildYears(minYear, currentYear);
-  const hasWeekRange = Boolean(weekRangeValue?.from) && Boolean(weekRangeValue?.to);
+  const hasWeekRange =
+    Boolean(weekRangeValue?.from) && Boolean(weekRangeValue?.to);
   return (
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

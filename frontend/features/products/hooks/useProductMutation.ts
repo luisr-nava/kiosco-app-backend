@@ -21,8 +21,13 @@ export const useProductUpdateMutation = () => {
   const { activeShopId } = useShopStore();
 
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: Partial<CreateProductDto> }) =>
-      updateProductAction(id, payload),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: Partial<CreateProductDto>;
+    }) => updateProductAction(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products", activeShopId] });
     },

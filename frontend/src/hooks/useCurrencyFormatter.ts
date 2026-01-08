@@ -15,7 +15,11 @@ export function useCurrencyFormatter(maximumFractionDigits: number = 0) {
   const countryCode = activeShop?.countryCode ?? "AR";
 
   return (value: number) => {
-    const localeCandidates = [`es-${countryCode}`, `en-${countryCode}`, FALLBACK_LOCALE];
+    const localeCandidates = [
+      `es-${countryCode}`,
+      `en-${countryCode}`,
+      FALLBACK_LOCALE,
+    ];
 
     for (const locale of localeCandidates) {
       try {

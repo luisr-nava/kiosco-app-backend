@@ -6,7 +6,13 @@ import { Controller, type UseFormReturn } from "react-hook-form";
 import { Supplier } from "@/features/suppliers/types";
 import { BaseForm } from "@/components/form/BaseForm";
 import { FormGrid } from "@/components/form/FormGrid";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
@@ -108,7 +114,8 @@ export default function ProductForm({
               if (salePrice == null) return true;
 
               return (
-                costPrice! < salePrice || "El precio de costo debe ser menor al precio de venta"
+                costPrice! < salePrice ||
+                "El precio de costo debe ser menor al precio de venta"
               );
             },
           }}
@@ -127,7 +134,9 @@ export default function ProductForm({
                   step="0.01"
                   value={field.value ?? ""}
                   onChange={(e) =>
-                    field.onChange(e.target.value === "" ? undefined : Number(e.target.value))
+                    field.onChange(
+                      e.target.value === "" ? undefined : Number(e.target.value)
+                    )
                   }
                 />
               </FormControl>
@@ -150,7 +159,8 @@ export default function ProductForm({
               if (costPrice == null) return true;
 
               return (
-                salePrice! > costPrice || "El precio de venta debe ser mayor al precio de costo"
+                salePrice! > costPrice ||
+                "El precio de venta debe ser mayor al precio de costo"
               );
             },
           }}
@@ -167,7 +177,9 @@ export default function ProductForm({
                   placeholder="150"
                   value={field.value ?? ""}
                   onChange={(e) =>
-                    field.onChange(e.target.value === "" ? undefined : Number(e.target.value))
+                    field.onChange(
+                      e.target.value === "" ? undefined : Number(e.target.value)
+                    )
                   }
                 />
               </FormControl>
@@ -199,7 +211,9 @@ export default function ProductForm({
                   {...field}
                   value={field.value ?? ""}
                   onChange={(e) =>
-                    field.onChange(e.target.value === "" ? undefined : Number(e.target.value))
+                    field.onChange(
+                      e.target.value === "" ? undefined : Number(e.target.value)
+                    )
                   }
                 />
               </FormControl>
@@ -218,7 +232,11 @@ export default function ProductForm({
               <Label className="pb-2">
                 Unidad de medida <span className="text-destructive">*</span>
               </Label>
-              <Select key={field.value} value={field.value} onValueChange={field.onChange}>
+              <Select
+                key={field.value}
+                value={field.value}
+                onValueChange={field.onChange}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar unidad" />
                 </SelectTrigger>
@@ -231,7 +249,9 @@ export default function ProductForm({
                 </SelectContent>
               </Select>
               {fieldState.error && (
-                <p className="text-destructive text-xs">{fieldState.error.message}</p>
+                <p className="text-destructive text-xs">
+                  {fieldState.error.message}
+                </p>
               )}
             </div>
           )}

@@ -81,7 +81,7 @@ export function BaseTable<T>({
       {/* BODY */}
       <TableBody>
         {sortedData.length === 0 ? (
-          <EmptyTable colSpan={7} title="No datos cargados" />
+          <EmptyTable colSpan={7} title="No hay datos cargados" />
         ) : (
           sortedData.map((row) => {
             const id = getRowId(row);
@@ -91,7 +91,11 @@ export function BaseTable<T>({
               <React.Fragment key={id}>
                 <TableRow
                   className={isExpandable ? "cursor-pointer" : undefined}
-                  onClick={isExpandable ? () => setExpandedRow(isOpen ? null : id) : undefined}
+                  onClick={
+                    isExpandable
+                      ? () => setExpandedRow(isOpen ? null : id)
+                      : undefined
+                  }
                 >
                   {columns.map((col) => (
                     <TableCell
@@ -103,7 +107,10 @@ export function BaseTable<T>({
                   ))}
 
                   {actions && (
-                    <TableCell align="right" onClick={(e) => e.stopPropagation()}>
+                    <TableCell
+                      align="right"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <TableActions
                         row={row}
                         actions={actions(row).map((a) => ({
@@ -117,7 +124,10 @@ export function BaseTable<T>({
 
                 {isExpandable && isOpen && (
                   <TableRow className="bg-muted/40">
-                    <TableCell colSpan={columns.length + (actions ? 1 : 0)} className="p-0">
+                    <TableCell
+                      colSpan={columns.length + (actions ? 1 : 0)}
+                      className="p-0"
+                    >
                       {renderExpandedContent!(row)}
                     </TableCell>
                   </TableRow>

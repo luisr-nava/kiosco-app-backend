@@ -54,7 +54,9 @@ export default function ProductFilters({
         <Label>Proveedor</Label>
         <Select
           value={value.supplierId ?? "all"}
-          onValueChange={(v) => onChange({ ...value, supplierId: v === "all" ? undefined : v })}
+          onValueChange={(v) =>
+            onChange({ ...value, supplierId: v === "all" ? undefined : v })
+          }
         >
           <SelectTrigger className="w-44">
             <SelectValue placeholder="Todos" />

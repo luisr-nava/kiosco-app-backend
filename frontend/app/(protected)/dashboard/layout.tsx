@@ -17,16 +17,19 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const isOnSales = pathname.startsWith("/dashboard/sales");
   const sellButtonClasses = cn(
     "transition shadow-sm",
-    !isOnSales && "animate-pulse ring-2 ring-primary/50 ring-offset-2 ring-offset-background"
+    !isOnSales &&
+      "animate-pulse ring-2 ring-primary/50 ring-offset-2 ring-offset-background"
   );
   const currentMenu =
     menuItems.reduce<(typeof menuItems)[number] | null>((best, item) => {
-      const matches = pathname === item.href || pathname.startsWith(`${item.href}/`);
+      const matches =
+        pathname === item.href || pathname.startsWith(`${item.href}/`);
       if (!matches) return best;
       if (!best) return item;
       return item.href.length > best.href.length ? item : best;
     }, null) || null;
-  const pageDescription = currentMenu?.description || "Panel de administración.";
+  const pageDescription =
+    currentMenu?.description || "Panel de administración.";
 
   return (
     <div className="bg-background flex min-h-screen">

@@ -5,16 +5,19 @@ interface ModalEmployeeProps {
   modals: ReturnType<typeof useEmployeeModals>;
 }
 export default function ModalEmployee({ modals }: ModalEmployeeProps) {
-  const { createEmployeeModal, editEmployeeModal, editEmployee, isEdit, closeAll } = modals;
+  const {
+    createEmployeeModal,
+    editEmployeeModal,
+    editEmployee,
+    isEdit,
+    closeAll,
+  } = modals;
   const openModal = createEmployeeModal.isOpen || editEmployeeModal.isOpen;
 
-  const { form, onSubmit, isLoadingCreate, isLoadingUpdate, reset } = useEmployeeForm(
-    editEmployee!,
-    isEdit,
-    () => {
+  const { form, onSubmit, isLoadingCreate, isLoadingUpdate, reset } =
+    useEmployeeForm(editEmployee!, isEdit, () => {
       closeAll();
-    }
-  );
+    });
   const handleClose = () => {
     closeAll();
     reset();

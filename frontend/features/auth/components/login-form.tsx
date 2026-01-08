@@ -13,7 +13,8 @@ import { useEffect, useState } from "react";
 export default function LoginForm() {
   const [mounted, setMounted] = useState(false);
 
-  const { onSubmit, isLoading, rememberMe, setRememberMe, savedEmail } = useLogin();
+  const { onSubmit, isLoading, rememberMe, setRememberMe, savedEmail } =
+    useLogin();
 
   const {
     register,
@@ -51,7 +52,11 @@ export default function LoginForm() {
                 })}
                 disabled={isLoading}
               />
-              {errors.email && <p className="text-destructive text-sm">{errors.email.message}</p>}
+              {errors.email && (
+                <p className="text-destructive text-sm">
+                  {errors.email.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -77,7 +82,9 @@ export default function LoginForm() {
                 disabled={isLoading}
               />
               {errors.password && (
-                <p className="text-destructive text-sm">{errors.password.message}</p>
+                <p className="text-destructive text-sm">
+                  {errors.password.message}
+                </p>
               )}
             </div>
           </div>

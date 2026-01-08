@@ -6,7 +6,9 @@ interface CountryOption {
   label: string;
 }
 
-export const useCountriesWithLabels = (locales: string[] = ["es", "en"]): CountryOption[] => {
+export const useCountriesWithLabels = (
+  locales: string[] = ["es", "en"]
+): CountryOption[] => {
   const regionDisplay = useMemo(() => {
     try {
       return new Intl.DisplayNames(locales, { type: "region" });

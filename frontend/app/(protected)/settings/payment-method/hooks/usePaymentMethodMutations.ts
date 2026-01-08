@@ -18,26 +18,38 @@ export const usePaymentMethodMutations = () => {
     });
 
   const createMutation = useMutation({
-    mutationFn: (payload: CreatePaymentMethodDto) => createPaymentMethodAction(payload),
+    mutationFn: (payload: CreatePaymentMethodDto) =>
+      createPaymentMethodAction(payload),
     onSuccess: () => {
       toast.success("Método de pago creado");
       invalidate();
     },
     onError: (error: unknown) => {
-      const { message } = getErrorMessage(error, "No se pudo crear el método de pago");
+      const { message } = getErrorMessage(
+        error,
+        "No se pudo crear el método de pago"
+      );
       toast.error("Error", { description: message });
     },
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: Partial<CreatePaymentMethodDto> }) =>
-      updatePaymentMethodAction(id, payload),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: Partial<CreatePaymentMethodDto>;
+    }) => updatePaymentMethodAction(id, payload),
     onSuccess: () => {
       toast.success("Método de pago actualizado");
       invalidate();
     },
     onError: (error: unknown) => {
-      const { message } = getErrorMessage(error, "No se pudo actualizar el método de pago");
+      const { message } = getErrorMessage(
+        error,
+        "No se pudo actualizar el método de pago"
+      );
       toast.error("Error", { description: message });
     },
   });
@@ -49,7 +61,10 @@ export const usePaymentMethodMutations = () => {
       invalidate();
     },
     onError: (error: unknown) => {
-      const { message } = getErrorMessage(error, "No se pudo eliminar el método de pago");
+      const { message } = getErrorMessage(
+        error,
+        "No se pudo eliminar el método de pago"
+      );
       toast.error("Error", { description: message });
     },
   });

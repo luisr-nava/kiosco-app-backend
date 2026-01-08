@@ -17,7 +17,11 @@ export default function SupplierPage() {
 
   return (
     <div className="space-y-6">
-      <SupplierHeader handleOpenCreate={openCreate} search={search} setSearch={setSearch} />
+      <SupplierHeader
+        handleOpenCreate={openCreate}
+        search={search}
+        setSearch={setSearch}
+      />
       {supplierLoading ? (
         <Loading />
       ) : (

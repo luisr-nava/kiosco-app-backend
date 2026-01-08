@@ -66,12 +66,18 @@ export const CartContent = ({
         <CardContent className="space-y-3">
           <div className={`max-h-[55vh] space-y-1 overflow-y-auto pr-1`}>
             {safeItems.length === 0 ? (
-              <p className="text-muted-foreground text-sm">Aún no has agregado productos.</p>
+              <p className="text-muted-foreground text-sm">
+                Aún no has agregado productos.
+              </p>
             ) : (
               safeItems.map((item, idx) => {
-                const product = products.find((p) => matchesShopProductId(p, item.shopProductId));
+                const product = products.find((p) =>
+                  matchesShopProductId(p, item.shopProductId)
+                );
                 const productName = product?.name || "Producto";
-                const unitPrice = Number(item.unitPrice || product?.salePrice || 0);
+                const unitPrice = Number(
+                  item.unitPrice || product?.salePrice || 0
+                );
                 const quantity = Number(item.quantity || 0);
                 const stock = product?.stock ?? 0;
                 const isIncrementDisabled = stock <= 0 || quantity >= stock;
@@ -92,16 +98,22 @@ export const CartContent = ({
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => decrementProduct(item.shopProductId || "")}
+                          onClick={() =>
+                            decrementProduct(item.shopProductId || "")
+                          }
                         >
                           -
                         </Button>
-                        <span className="w-8 text-center font-semibold">{item.quantity}</span>
+                        <span className="w-8 text-center font-semibold">
+                          {item.quantity}
+                        </span>
                         <Button
                           size="sm"
                           variant="outline"
                           disabled={isIncrementDisabled}
-                          onClick={() => incrementProduct(item.shopProductId || "")}
+                          onClick={() =>
+                            incrementProduct(item.shopProductId || "")
+                          }
                         >
                           +
                         </Button>
@@ -109,7 +121,9 @@ export const CartContent = ({
                     </div>
                     <div className="text-muted-foreground mt-2 flex justify-between text-base">
                       <span>Subtotal</span>
-                      <span>${Number(item.subtotal || 0).toLocaleString("es-AR")}</span>
+                      <span>
+                        ${Number(item.subtotal || 0).toLocaleString("es-AR")}
+                      </span>
                     </div>
                   </motion.div>
                 );
@@ -136,7 +150,9 @@ export const CartContent = ({
                 <SelectTrigger>
                   <SelectValue
                     placeholder={
-                      paymentMethodsLoading ? "Cargando métodos..." : "Seleccioná un método"
+                      paymentMethodsLoading
+                        ? "Cargando métodos..."
+                        : "Seleccioná un método"
                     }
                   />
                 </SelectTrigger>
@@ -171,7 +187,11 @@ export const CartContent = ({
               >
                 Vaciar
               </Button>
-              <Button className="flex-1" disabled={isSubmitting} onClick={handleSubmit}>
+              <Button
+                className="flex-1"
+                disabled={isSubmitting}
+                onClick={handleSubmit}
+              >
                 {isSubmitting ? "Guardando..." : "Cobrar"}
               </Button>
             </div>

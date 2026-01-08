@@ -18,7 +18,9 @@ export default function Navbar() {
           />
           <div className="flex flex-col leading-tight">
             <span className="text-lg font-semibold">Balanzio</span>
-            <span className="text-muted-foreground text-xs">Gestión para tu negocio</span>
+            <span className="text-muted-foreground text-xs">
+              Gestión para tu negocio
+            </span>
           </div>
         </Link>
         <Link href="/dashboard/sales">

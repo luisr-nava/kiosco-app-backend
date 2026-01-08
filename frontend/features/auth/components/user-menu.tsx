@@ -36,7 +36,8 @@ export default function UserMenu() {
   };
 
   if (!user) return redirect("/login");
-  const canAddStores = plan === SubscriptionPlanType.PREMIUM || plan === SubscriptionPlanType.PRO;
+  const canAddStores =
+    plan === SubscriptionPlanType.PREMIUM || plan === SubscriptionPlanType.PRO;
 
   return (
     <DropdownMenu>
@@ -51,7 +52,9 @@ export default function UserMenu() {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm leading-none font-medium">{user.fullName}</p>
-            <p className="text-muted-foreground text-xs leading-none">{user.email}</p>
+            <p className="text-muted-foreground text-xs leading-none">
+              {user.email}
+            </p>
             <p className="text-muted-foreground mt-1 text-xs leading-none">
               <span className="font-semibold">Rol:</span> {user.role}
             </p>
@@ -118,7 +121,11 @@ export default function UserMenu() {
               className="text-xs"
               onClick={() => setTheme(option)}
             >
-              {option === "light" ? "Claro" : option === "dark" ? "Oscuro" : "Sistema"}
+              {option === "light"
+                ? "Claro"
+                : option === "dark"
+                  ? "Oscuro"
+                  : "Sistema"}
             </Button>
           ))}
         </div>

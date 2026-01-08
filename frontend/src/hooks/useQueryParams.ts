@@ -55,7 +55,10 @@ export function useQueryParams<T extends QueryParams = QueryParams>(
    * @param options - Opciones adicionales
    */
   const updateParams = useCallback(
-    (updates: Partial<T>, options?: { scroll?: boolean; replace?: boolean }) => {
+    (
+      updates: Partial<T>,
+      options?: { scroll?: boolean; replace?: boolean }
+    ) => {
       const { scroll = false, replace = false } = options || {};
 
       const newParams = new URLSearchParams(searchParams.toString());

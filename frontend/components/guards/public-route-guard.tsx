@@ -18,7 +18,9 @@ const isPublicRoute = (pathname: string) => {
     return true;
   }
 
-  return PUBLIC_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+  return PUBLIC_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
 };
 
 interface PublicRouteGuardProps {
@@ -30,7 +32,8 @@ export function PublicRouteGuard({ children }: PublicRouteGuardProps) {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
 
-  const shouldRedirect = isPublicRoute(pathname) && isAuthenticated && !isLoading;
+  const shouldRedirect =
+    isPublicRoute(pathname) && isAuthenticated && !isLoading;
 
   useEffect(() => {
     if (shouldRedirect) {

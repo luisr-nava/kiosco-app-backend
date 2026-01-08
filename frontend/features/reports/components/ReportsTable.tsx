@@ -47,7 +47,9 @@ export default function ReportsTable({
         <p className="text-foreground text-lg font-semibold">
           {emptyMessage ?? "No hay arqueos cerrados en este periodo."}
         </p>
-        <p>Intenta otro periodo o espera a que el próximo cierre esté disponible.</p>
+        <p>
+          Intenta otro periodo o espera a que el próximo cierre esté disponible.
+        </p>
       </div>
     );
   }
@@ -75,7 +77,9 @@ export default function ReportsTable({
           return (
             <TableRow key={report.id}>
               <TableCell>
-                <span className="text-foreground font-semibold">{report.shopName}</span>
+                <span className="text-foreground font-semibold">
+                  {report.shopName}
+                </span>
               </TableCell>
               <TableCell>
                 <span className="text-muted-foreground text-sm">

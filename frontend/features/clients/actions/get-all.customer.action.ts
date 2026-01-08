@@ -13,13 +13,16 @@ export const getAllCustomerAction = async (
   customers: Customer[];
   pagination: Pagination;
 }> => {
-  const { data } = await kioscoApi.get<GetAllCustomerResponse>(`/customer/shop/${shopId}`, {
-    params: {
-      search: params.search,
-      page: params.page ?? 1,
-      limit: params.limit ?? 10,
-    },
-  });
+  const { data } = await kioscoApi.get<GetAllCustomerResponse>(
+    `/customer/shop/${shopId}`,
+    {
+      params: {
+        search: params.search,
+        page: params.page ?? 1,
+        limit: params.limit ?? 10,
+      },
+    }
+  );
 
   return {
     customers: data.data,

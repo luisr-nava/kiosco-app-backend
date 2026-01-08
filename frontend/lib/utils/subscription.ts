@@ -122,7 +122,10 @@ export function formatStorageSize(bytes: number): string {
 /**
  * Calcula el porcentaje de uso de un recurso
  */
-export function getUsagePercentage(current: number, limit: number | "unlimited"): number {
+export function getUsagePercentage(
+  current: number,
+  limit: number | "unlimited"
+): number {
   if (limit === "unlimited") {
     return 0;
   }

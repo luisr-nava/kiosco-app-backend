@@ -4,7 +4,13 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -142,7 +148,9 @@ export default function SetupStorePage() {
                 minLength={4}
                 maxLength={20}
               />
-              <p className="text-muted-foreground text-xs">Entre 4 y 20 caracteres</p>
+              <p className="text-muted-foreground text-xs">
+                Entre 4 y 20 caracteres
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -156,7 +164,9 @@ export default function SetupStorePage() {
                 minLength={4}
                 maxLength={20}
               />
-              <p className="text-muted-foreground text-xs">Opcional - Entre 4 y 20 caracteres</p>
+              <p className="text-muted-foreground text-xs">
+                Opcional - Entre 4 y 20 caracteres
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -221,7 +231,11 @@ export default function SetupStorePage() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full" disabled={createShopMutation.isPending}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={createShopMutation.isPending}
+            >
               {createShopMutation.isPending ? "Creando..." : "Crear Tienda"}
             </Button>
           </form>

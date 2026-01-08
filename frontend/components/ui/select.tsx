@@ -42,7 +42,9 @@ const SelectContent = React.forwardRef<
       )}
       {...props}
     >
-      <SelectPrimitive.Viewport className="p-1">{props.children}</SelectPrimitive.Viewport>
+      <SelectPrimitive.Viewport className="p-1">
+        {props.children}
+      </SelectPrimitive.Viewport>
     </SelectPrimitive.Content>
   </SelectPrimitive.Portal>
 ));
@@ -74,7 +76,10 @@ const SelectLabel = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Label
     ref={ref}
-    className={cn("text-muted-foreground px-2 py-1 text-xs font-semibold uppercase", className)}
+    className={cn(
+      "text-muted-foreground px-2 py-1 text-xs font-semibold uppercase",
+      className
+    )}
     {...props}
   />
 ));

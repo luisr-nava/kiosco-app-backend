@@ -4,7 +4,13 @@ import Link from "next/link";
 import Script from "next/script";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
   ArrowUpRight,
@@ -90,7 +96,11 @@ const featureHighlights = [
     description:
       "Inventario en tiempo real, alertas de mínimos, trazabilidad por lotes y reposiciones basadas en ventas.",
     icon: Package,
-    bullets: ["Alertas automáticas", "Recepciones con proveedor", "Conteos y ajustes auditados"],
+    bullets: [
+      "Alertas automáticas",
+      "Recepciones con proveedor",
+      "Conteos y ajustes auditados",
+    ],
   },
   {
     title: "Finanzas y reportes",
@@ -108,12 +118,14 @@ const featureHighlights = [
 const steps = [
   {
     title: "Configura tu catálogo y cajas",
-    description: "Carga productos con códigos de barra, impuestos y listas de precio por sucursal.",
+    description:
+      "Carga productos con códigos de barra, impuestos y listas de precio por sucursal.",
     icon: Layers,
   },
   {
     title: "Opera ventas y stock en tiempo real",
-    description: "POS rápido con soporte offline, sincronizado con inventario y facturación.",
+    description:
+      "POS rápido con soporte offline, sincronizado con inventario y facturación.",
     icon: Clock3,
   },
   {
@@ -151,7 +163,8 @@ const trustPoints = [
   },
   {
     title: "Estabilidad y datos seguros",
-    description: "Backups diarios, roles de usuario y autenticación segura para tus equipos.",
+    description:
+      "Backups diarios, roles de usuario y autenticación segura para tus equipos.",
     icon: ShieldCheck,
   },
   {
@@ -162,7 +175,8 @@ const trustPoints = [
   },
   {
     title: "Multi-sucursal desde un panel",
-    description: "Centraliza precios, stock y ventas de todas tus tiendas sin hardware adicional.",
+    description:
+      "Centraliza precios, stock y ventas de todas tus tiendas sin hardware adicional.",
     icon: Store,
   },
 ];
@@ -217,20 +231,34 @@ export default function HomePage() {
             <div className="h-10 w-10 rounded-xl bg-linear-to-b from-sky-500 via-indigo-500 to-blue-600 shadow-md" />
             <div className="leading-tight">
               <span className="text-xl font-semibold">Balanzio</span>
-              <p className="text-muted-foreground text-sm">Software de gestión para comercios</p>
+              <p className="text-muted-foreground text-sm">
+                Software de gestión para comercios
+              </p>
             </div>
           </Link>
           <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
-            <Link href="#soluciones" className="hover:text-primary transition-colors">
+            <Link
+              href="#soluciones"
+              className="hover:text-primary transition-colors"
+            >
               Soluciones
             </Link>
-            <Link href="#sectores" className="hover:text-primary transition-colors">
+            <Link
+              href="#sectores"
+              className="hover:text-primary transition-colors"
+            >
               Sectores
             </Link>
-            <Link href="#flujo" className="hover:text-primary transition-colors">
+            <Link
+              href="#flujo"
+              className="hover:text-primary transition-colors"
+            >
               Cómo funciona
             </Link>
-            <Link href="/pricing" className="hover:text-primary transition-colors">
+            <Link
+              href="/pricing"
+              className="hover:text-primary transition-colors"
+            >
               Precios
             </Link>
           </nav>
@@ -255,12 +283,13 @@ export default function HomePage() {
             </Badge>
             <div className="space-y-4">
               <h1 className="text-4xl leading-tight font-bold tracking-tight md:text-5xl">
-                Software de gestión para comercios y kioscos con punto de venta integrado
+                Software de gestión para comercios y kioscos con punto de venta
+                integrado
               </h1>
               <p className="text-muted-foreground text-lg">
-                Balanzio te ayuda a vender más rápido, mantener el stock bajo control y tomar
-                decisiones con datos confiables. Diseñado para kioscos, almacenes y pymes que
-                necesitan operar sin fricciones.
+                Balanzio te ayuda a vender más rápido, mantener el stock bajo
+                control y tomar decisiones con datos confiables. Diseñado para
+                kioscos, almacenes y pymes que necesitan operar sin fricciones.
               </p>
               <div className="text-muted-foreground flex flex-wrap gap-3 text-sm">
                 <span className="flex items-center gap-2">
@@ -296,11 +325,15 @@ export default function HomePage() {
             <div className="bg-background/60 grid grid-cols-1 gap-4 rounded-2xl border p-4 shadow-sm sm:grid-cols-3">
               <div>
                 <p className="text-3xl font-bold">2 min</p>
-                <p className="text-muted-foreground text-sm">Tiempo promedio por venta completa</p>
+                <p className="text-muted-foreground text-sm">
+                  Tiempo promedio por venta completa
+                </p>
               </div>
               <div>
                 <p className="text-3xl font-bold">99.9%</p>
-                <p className="text-muted-foreground text-sm">Disponibilidad de la plataforma</p>
+                <p className="text-muted-foreground text-sm">
+                  Disponibilidad de la plataforma
+                </p>
               </div>
               <div>
                 <p className="text-3xl font-bold">Stock vivo</p>
@@ -325,23 +358,33 @@ export default function HomePage() {
                 <div className="flex items-center gap-3">
                   <div className="bg-primary/10 h-10 w-10 rounded-lg" />
                   <div>
-                    <p className="text-muted-foreground text-sm">Panel Balanzio</p>
-                    <p className="text-lg font-semibold">Ventas + Stock + Finanzas</p>
+                    <p className="text-muted-foreground text-sm">
+                      Panel Balanzio
+                    </p>
+                    <p className="text-lg font-semibold">
+                      Ventas + Stock + Finanzas
+                    </p>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-3 gap-3 text-center">
                   <div className="bg-muted/30 rounded-xl border p-3">
-                    <p className="text-muted-foreground text-xs">Ventas de hoy</p>
+                    <p className="text-muted-foreground text-xs">
+                      Ventas de hoy
+                    </p>
                     <p className="text-xl font-semibold">$482.500</p>
                   </div>
                   <div className="bg-muted/30 rounded-xl border p-3">
-                    <p className="text-muted-foreground text-xs">Ticket promedio</p>
+                    <p className="text-muted-foreground text-xs">
+                      Ticket promedio
+                    </p>
                     <p className="text-xl font-semibold">$5.820</p>
                   </div>
                   <div className="bg-muted/30 rounded-xl border p-3">
-                    <p className="text-muted-foreground text-xs">Unidades en stock</p>
+                    <p className="text-muted-foreground text-xs">
+                      Unidades en stock
+                    </p>
                     <p className="text-xl font-semibold">12.430</p>
                   </div>
                 </div>
@@ -371,9 +414,12 @@ export default function HomePage() {
                   <div className="flex items-center gap-3">
                     <ShieldCheck className="text-primary h-10 w-10" />
                     <div>
-                      <p className="text-sm font-semibold">Datos seguros y siempre disponibles</p>
+                      <p className="text-sm font-semibold">
+                        Datos seguros y siempre disponibles
+                      </p>
                       <p className="text-muted-foreground text-xs">
-                        Respaldo automático, roles por usuario y auditoría completa.
+                        Respaldo automático, roles por usuario y auditoría
+                        completa.
                       </p>
                     </div>
                   </div>
@@ -383,20 +429,28 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="soluciones" className="container mx-auto max-w-6xl px-4 py-16">
+        <section
+          id="soluciones"
+          className="container mx-auto max-w-6xl px-4 py-16"
+        >
           <div className="mb-8 space-y-3">
-            <Badge className="bg-primary/10 text-primary w-fit">Soluciones clave</Badge>
+            <Badge className="bg-primary/10 text-primary w-fit">
+              Soluciones clave
+            </Badge>
             <h2 className="text-3xl font-bold tracking-tight">
               Control total de ventas, stock y finanzas
             </h2>
             <p className="text-muted-foreground text-lg">
-              Procesos diseñados para Core Web Vitals: renderizado server-first, navegación fluida y
-              datos siempre consistentes.
+              Procesos diseñados para Core Web Vitals: renderizado server-first,
+              navegación fluida y datos siempre consistentes.
             </p>
           </div>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             {featureHighlights.map((feature) => (
-              <Card key={feature.title} className="border-primary/10 h-full shadow-sm">
+              <Card
+                key={feature.title}
+                className="border-primary/10 h-full shadow-sm"
+              >
                 <CardHeader className="space-y-2">
                   <div className="bg-primary/10 text-primary flex h-12 w-12 items-center justify-center rounded-lg">
                     <feature.icon className="h-6 w-6" />
@@ -423,13 +477,15 @@ export default function HomePage() {
         <section id="sectores" className="bg-muted/40">
           <div className="container mx-auto max-w-6xl px-4 py-16">
             <div className="mb-8 space-y-3">
-              <Badge className="bg-primary/10 text-primary w-fit">Sectores</Badge>
+              <Badge className="bg-primary/10 text-primary w-fit">
+                Sectores
+              </Badge>
               <h2 className="text-3xl font-bold tracking-tight">
                 Diseñado para el día a día de tu tienda
               </h2>
               <p className="text-muted-foreground text-lg">
-                Flujos listos para kioscos, almacenes y pymes que necesitan velocidad, precisión y
-                control financiero.
+                Flujos listos para kioscos, almacenes y pymes que necesitan
+                velocidad, precisión y control financiero.
               </p>
             </div>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -463,13 +519,15 @@ export default function HomePage() {
 
         <section id="flujo" className="container mx-auto max-w-6xl px-4 py-16">
           <div className="mb-8 space-y-3">
-            <Badge className="bg-primary/10 text-primary w-fit">Implementación</Badge>
+            <Badge className="bg-primary/10 text-primary w-fit">
+              Implementación
+            </Badge>
             <h2 className="text-3xl font-bold tracking-tight">
               De cero a operativo en días, no semanas
             </h2>
             <p className="text-muted-foreground text-lg">
-              Onboarding guiado, importadores de catálogo y dashboards preconfigurados para medir
-              ventas y rentabilidad.
+              Onboarding guiado, importadores de catálogo y dashboards
+              preconfigurados para medir ventas y rentabilidad.
             </p>
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -495,7 +553,9 @@ export default function HomePage() {
                   <item.icon className="text-primary h-5 w-5" />
                   <p className="text-sm font-semibold">{item.title}</p>
                 </div>
-                <p className="text-muted-foreground text-sm">{item.description}</p>
+                <p className="text-muted-foreground text-sm">
+                  {item.description}
+                </p>
               </div>
             ))}
           </div>
@@ -510,9 +570,9 @@ export default function HomePage() {
                   Prueba Balanzio y valida tu operación
                 </h2>
                 <p className="text-muted-foreground text-lg">
-                  Configuramos tu primer punto de venta, dejamos el stock listo y activamos alertas
-                  críticas para que no pierdas ventas. Sin hardware extra, sin instalaciones
-                  complejas.
+                  Configuramos tu primer punto de venta, dejamos el stock listo
+                  y activamos alertas críticas para que no pierdas ventas. Sin
+                  hardware extra, sin instalaciones complejas.
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <Link href="/register">
@@ -542,19 +602,27 @@ export default function HomePage() {
                   <div className="mt-4 space-y-3">
                     <div className="text-muted-foreground flex items-center justify-between text-sm">
                       <span>Ventas con tarjeta</span>
-                      <span className="text-foreground font-semibold">$315.200</span>
+                      <span className="text-foreground font-semibold">
+                        $315.200
+                      </span>
                     </div>
                     <div className="text-muted-foreground flex items-center justify-between text-sm">
                       <span>Efectivo</span>
-                      <span className="text-foreground font-semibold">$97.300</span>
+                      <span className="text-foreground font-semibold">
+                        $97.300
+                      </span>
                     </div>
                     <div className="text-muted-foreground flex items-center justify-between text-sm">
                       <span>Costo de mercadería</span>
-                      <span className="text-foreground font-semibold">$189.000</span>
+                      <span className="text-foreground font-semibold">
+                        $189.000
+                      </span>
                     </div>
                     <Separator />
                     <div className="flex items-center justify-between text-sm">
-                      <span className="font-semibold">Margen bruto estimado</span>
+                      <span className="font-semibold">
+                        Margen bruto estimado
+                      </span>
                       <span className="font-semibold text-green-600">48%</span>
                     </div>
                   </div>
@@ -578,8 +646,8 @@ export default function HomePage() {
                 <span className="text-lg font-semibold">Balanzio</span>
               </div>
               <p className="text-muted-foreground text-sm">
-                SaaS de gestión para kioscos, almacenes y pymes. Controla ventas, stock y finanzas
-                desde un solo panel.
+                SaaS de gestión para kioscos, almacenes y pymes. Controla
+                ventas, stock y finanzas desde un solo panel.
               </p>
             </div>
             <div>
@@ -616,7 +684,10 @@ export default function HomePage() {
               <h3 className="font-semibold">Contacto</h3>
               <ul className="text-muted-foreground mt-3 space-y-2 text-sm">
                 <li>
-                  <Link href="mailto:soporte@balanzio.net" className="hover:text-primary">
+                  <Link
+                    href="mailto:soporte@balanzio.net"
+                    className="hover:text-primary"
+                  >
                     soporte@balanzio.net
                   </Link>
                 </li>
@@ -630,7 +701,8 @@ export default function HomePage() {
           </div>
           <Separator className="my-6" />
           <p className="text-muted-foreground text-sm">
-            © {new Date().getFullYear()} Balanzio. SaaS de gestión y punto de venta para comercios.
+            © {new Date().getFullYear()} Balanzio. SaaS de gestión y punto de
+            venta para comercios.
           </p>
         </div>
       </footer>

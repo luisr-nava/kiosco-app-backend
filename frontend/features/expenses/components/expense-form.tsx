@@ -3,7 +3,13 @@ import { CreateExpenseDto } from "../types";
 import { PaymentMethod } from "@/app/(protected)/settings/payment-method/interfaces";
 import { BaseForm } from "@/components/form/BaseForm";
 import { FormGrid } from "@/components/form/FormGrid";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -66,7 +72,12 @@ export default function ExpenseForm({
                 Monto <span className="text-destructive">*</span>
               </FormLabel>
               <FormControl>
-                <Input placeholder="0" type="number" {...field} value={field.value ?? ""} />
+                <Input
+                  placeholder="0"
+                  type="number"
+                  {...field}
+                  value={field.value ?? ""}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -96,7 +107,11 @@ export default function ExpenseForm({
               <Label className="pb-2">
                 Metodo de pago <span className="text-destructive">*</span>
               </Label>
-              <Select key={field.value} value={field.value} onValueChange={field.onChange}>
+              <Select
+                key={field.value}
+                value={field.value}
+                onValueChange={field.onChange}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar unidad" />
                 </SelectTrigger>
@@ -109,7 +124,9 @@ export default function ExpenseForm({
                 </SelectContent>
               </Select>
               {fieldState.error && (
-                <p className="text-destructive text-xs">{fieldState.error.message}</p>
+                <p className="text-destructive text-xs">
+                  {fieldState.error.message}
+                </p>
               )}
             </div>
           )}

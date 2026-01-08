@@ -2,7 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,7 +29,9 @@ export function StoreSelector() {
   const { mutate, isPending } = useShopMutation();
   const currencySymbols = useCurrencySymbols();
 
-  const [selectedShopId, setSelectedShopId] = useState<string | null>(shops?.[0]?.id ?? null);
+  const [selectedShopId, setSelectedShopId] = useState<string | null>(
+    shops?.[0]?.id ?? null
+  );
   const countries = useCountriesWithLabels();
 
   const {
@@ -93,7 +101,9 @@ export function StoreSelector() {
                       key={shop.id}
                       onClick={() => setSelectedShopId(shop.id)}
                       className={`hover:border-primary w-full rounded-lg border p-4 text-left transition ${
-                        selectedShopId === shop.id ? "border-primary bg-primary/5" : "border-muted"
+                        selectedShopId === shop.id
+                          ? "border-primary bg-primary/5"
+                          : "border-muted"
                       }`}
                     >
                       <div className="flex items-start justify-between gap-3">
@@ -105,7 +115,9 @@ export function StoreSelector() {
                               {shop.address || "Sin dirección"}
                             </p>
                             {shop.phone && (
-                              <p className="text-muted-foreground text-xs">Tel: {shop.phone}</p>
+                              <p className="text-muted-foreground text-xs">
+                                Tel: {shop.phone}
+                              </p>
                             )}
                           </div>
                         </div>
@@ -159,7 +171,9 @@ export function StoreSelector() {
                 />
                 <p
                   className={`text-xs ${
-                    touchedFields.name && errors.name ? "text-destructive" : "text-muted-foreground"
+                    touchedFields.name && errors.name
+                      ? "text-destructive"
+                      : "text-muted-foreground"
                   }`}
                 >
                   {touchedFields.name && errors.name
@@ -208,7 +222,9 @@ export function StoreSelector() {
                     ))}
                   </select>
                   {touchedFields.countryCode && errors.countryCode && (
-                    <p className="text-destructive text-xs">{errors.countryCode.message}</p>
+                    <p className="text-destructive text-xs">
+                      {errors.countryCode.message}
+                    </p>
                   )}
                 </div>
 
@@ -231,12 +247,18 @@ export function StoreSelector() {
                     ))}
                   </select>
                   {touchedFields.currencyCode && errors.currencyCode && (
-                    <p className="text-destructive text-xs">{errors.currencyCode.message}</p>
+                    <p className="text-destructive text-xs">
+                      {errors.currencyCode.message}
+                    </p>
                   )}
                 </div>
               </div>
 
-              <Button type="submit" className="w-full" disabled={!isValid || isPending}>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={!isValid || isPending}
+              >
                 {isPending ? "Creando..." : "Crear tienda"}
               </Button>
             </form>

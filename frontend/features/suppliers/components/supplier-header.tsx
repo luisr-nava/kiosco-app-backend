@@ -10,7 +10,11 @@ interface Props {
   handleOpenCreate: () => void;
 }
 
-export default function SupplierHeader({ handleOpenCreate, search, setSearch }: Props) {
+export default function SupplierHeader({
+  handleOpenCreate,
+  search,
+  setSearch,
+}: Props) {
   const [localSearch, setLocalSearch] = useState(search);
   const debouncedSearch = useDebounce(localSearch, 400);
   useEffect(() => {
@@ -27,7 +31,9 @@ export default function SupplierHeader({ handleOpenCreate, search, setSearch }: 
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
         <div className="flex w-full items-center gap-2 sm:w-auto">
-          <Label className="text-muted-foreground text-sm whitespace-nowrap">Buscar</Label>
+          <Label className="text-muted-foreground text-sm whitespace-nowrap">
+            Buscar
+          </Label>
           <Input
             className="w-full sm:w-56"
             placeholder="Nombre"

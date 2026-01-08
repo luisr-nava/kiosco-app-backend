@@ -1,18 +1,35 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardTitle,
+} from "@/components/ui/card";
 import { ShopLoading } from "@/components/shop-loading";
 import { useShallow } from "zustand/react/shallow";
 import { Package, Truck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CategoryForm, CategoryList } from "../category/components";
 import { useCategory, useCategoryForm } from "../category/hooks";
-import { PaymentMethodForm, PaymentMethodTable } from "../payment-method/components";
-import { usePaymentMethodMutations, usePaymentMethods } from "../payment-method/hooks";
+import {
+  PaymentMethodForm,
+  PaymentMethodTable,
+} from "../payment-method/components";
+import {
+  usePaymentMethodMutations,
+  usePaymentMethods,
+} from "../payment-method/hooks";
 import type { PaymentMethod } from "../payment-method/interfaces";
-import { MeasurementUnitForm, MeasurementUnitTable } from "../measurement-unit/components";
-import { useMeasurementUnitMutations, useMeasurementUnits } from "../measurement-unit/hooks";
+import {
+  MeasurementUnitForm,
+  MeasurementUnitTable,
+} from "../measurement-unit/components";
+import {
+  useMeasurementUnitMutations,
+  useMeasurementUnits,
+} from "../measurement-unit/hooks";
 import type {
   MeasurementBaseUnit,
   MeasurementUnit,
@@ -20,7 +37,10 @@ import type {
 } from "../measurement-unit/interfaces";
 import { useShopStore } from "@/features/shop/shop.store";
 
-const BASE_UNIT_BY_CATEGORY: Record<MeasurementUnitCategory, MeasurementBaseUnit> = {
+const BASE_UNIT_BY_CATEGORY: Record<
+  MeasurementUnitCategory,
+  MeasurementBaseUnit
+> = {
   UNIT: "UNIT",
   WEIGHT: "KG",
   VOLUME: "L",
@@ -90,15 +110,19 @@ export default function ConfigurationPage() {
     deleteMutation: deleteMeasurementUnit,
   } = useMeasurementUnitMutations();
 
-  const [panel, setPanel] = useState<"categories" | "payment-methods" | "measurement-units">(
-    "categories"
-  );
-  const [editingPaymentMethod, setEditingPaymentMethod] = useState<PaymentMethod | null>(null);
-  const [deletingPaymentMethodId, setDeletingPaymentMethodId] = useState<string | null>(null);
-  const [editingMeasurementUnit, setEditingMeasurementUnit] = useState<MeasurementUnit | null>(
-    null
-  );
-  const [deletingMeasurementUnitId, setDeletingMeasurementUnitId] = useState<string | null>(null);
+  const [panel, setPanel] = useState<
+    "categories" | "payment-methods" | "measurement-units"
+  >("categories");
+  const [editingPaymentMethod, setEditingPaymentMethod] =
+    useState<PaymentMethod | null>(null);
+  const [deletingPaymentMethodId, setDeletingPaymentMethodId] = useState<
+    string | null
+  >(null);
+  const [editingMeasurementUnit, setEditingMeasurementUnit] =
+    useState<MeasurementUnit | null>(null);
+  const [deletingMeasurementUnitId, setDeletingMeasurementUnitId] = useState<
+    string | null
+  >(null);
 
   const categoriesView = (
     <div className="space-y-6">
@@ -217,7 +241,9 @@ export default function ConfigurationPage() {
               );
             }}
             isSubmitting={
-              editingPaymentMethod ? updatePaymentMethod.isPending : createPaymentMethod.isPending
+              editingPaymentMethod
+                ? updatePaymentMethod.isPending
+                : createPaymentMethod.isPending
             }
             editing={editingPaymentMethod}
             onCancelEdit={() => setEditingPaymentMethod(null)}

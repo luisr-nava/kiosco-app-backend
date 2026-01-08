@@ -1,11 +1,12 @@
-export const getLocale = () => (typeof navigator !== "undefined" ? navigator.language : "es-AR");
-export default function formatDate(date: string | Date, locale: string = getLocale()): string {
-  const parsed = date instanceof Date ? date : new Date(date);
-  if (isNaN(parsed.getTime())) return "-";
+export const getLocale = () =>
+  typeof navigator !== "undefined" ? navigator.language : "es-AR";
+export default function formatDate(date: string): string {
+  if (!date) return "-";
 
-  return new Intl.DateTimeFormat(locale, {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(parsed);
+  // Espera "YYYY-MM-DD" o ISO
+  const [year, month, day] = date.split("T")[0].split("-");
+
+  if (!year || !month || !day) return "-";
+
+  return `${day}/${month}/${year}`;
 }

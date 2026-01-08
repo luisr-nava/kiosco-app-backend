@@ -9,7 +9,8 @@ export type PasswordInputProps = React.InputHTMLAttributes<HTMLInputElement>;
 const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
   ({ className, ...props }, ref) => {
     const [showPassword, setShowPassword] = React.useState(false);
-    const isInvalid = props["aria-invalid"] === true || props["aria-invalid"] === "true";
+    const isInvalid =
+      props["aria-invalid"] === true || props["aria-invalid"] === "true";
     return (
       <div className="relative">
         <input
@@ -30,7 +31,11 @@ const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
           className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
           tabIndex={-1}
         >
-          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          {showPassword ? (
+            <EyeOff className="h-4 w-4" />
+          ) : (
+            <Eye className="h-4 w-4" />
+          )}
         </button>
       </div>
     );

@@ -18,7 +18,8 @@ export const useRegister = () => {
       {
         onSuccess: () => {
           toast.success("¡Cuenta creada exitosamente!", {
-            description: "Te hemos enviado un código de verificación de 6 dígitos a tu email.",
+            description:
+              "Te hemos enviado un código de verificación de 6 dígitos a tu email.",
             duration: 5000,
           });
 

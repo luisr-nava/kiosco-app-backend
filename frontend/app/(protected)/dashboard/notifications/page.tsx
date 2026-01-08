@@ -1,7 +1,13 @@
 "use client";
 import { Bell, Check, RefreshCcw } from "lucide-react";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -46,7 +52,8 @@ export default function NotificationsPage() {
               Bandeja de notificaciones
             </CardTitle>
             <CardDescription>
-              Se sincroniza al iniciar sesión y escucha nuevas alertas por WebSocket.
+              Se sincroniza al iniciar sesión y escucha nuevas alertas por
+              WebSocket.
             </CardDescription>
           </div>
           <div className="flex flex-wrap items-center gap-2">

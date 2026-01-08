@@ -51,7 +51,9 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
               disabled={isPending}
             />
             {errors.password && (
-              <p className="text-destructive text-sm">{errors.password.message}</p>
+              <p className="text-destructive text-sm">
+                {errors.password.message}
+              </p>
             )}
           </div>
 
@@ -62,12 +64,15 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
               placeholder="••••••••"
               {...register("confirmPassword", {
                 required: "Debes confirmar la contraseña",
-                validate: (value) => value === password || "Las contraseñas no coinciden",
+                validate: (value) =>
+                  value === password || "Las contraseñas no coinciden",
               })}
               disabled={isPending}
             />
             {errors.confirmPassword && (
-              <p className="text-destructive text-sm">{errors.confirmPassword.message}</p>
+              <p className="text-destructive text-sm">
+                {errors.confirmPassword.message}
+              </p>
             )}
           </div>
 

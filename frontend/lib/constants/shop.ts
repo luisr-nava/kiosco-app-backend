@@ -229,7 +229,9 @@ const COMMON_CURRENCY_OPTIONS = COMMON_CURRENCIES.map((code) =>
 
 export const ORDERED_CURRENCY_OPTIONS = [
   ...COMMON_CURRENCY_OPTIONS,
-  ...CURRENCY_OPTIONS.filter((currency) => !COMMON_CURRENCY_SET.has(currency.code)),
+  ...CURRENCY_OPTIONS.filter(
+    (currency) => !COMMON_CURRENCY_SET.has(currency.code)
+  ),
 ];
 
 export const DEFAULT_COUNTRY_CODE = "AR";
