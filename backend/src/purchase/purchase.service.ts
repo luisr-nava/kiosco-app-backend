@@ -324,7 +324,6 @@ export class PurchaseService {
         include: {
           shop: { select: { name: true } },
           supplier: { select: { name: true } },
-          paymentMethod: { select: { name: true, code: true } },
           items: {
             include: {
               shopProduct: {
@@ -359,7 +358,7 @@ export class PurchaseService {
         shopName: p.shop.name,
         supplierId: p.supplierId,
         supplierName: p.supplier?.name,
-        paymentMethod: p.paymentMethod,
+        paymentMethodId: p.paymentMethodId,
         totalAmount: p.totalAmount,
         itemsCount: p.items.length,
         purchaseDate: p.purchaseDate,
@@ -396,13 +395,6 @@ export class PurchaseService {
             contactName: true,
             phone: true,
             email: true,
-          },
-        },
-        paymentMethod: {
-          select: {
-            id: true,
-            name: true,
-            code: true,
           },
         },
         items: {
@@ -465,7 +457,7 @@ export class PurchaseService {
         shopAddress: purchase.shop.address,
         supplierId: purchase.supplierId,
         supplier: purchase.supplier,
-        paymentMethod: purchase.paymentMethod,
+        paymentMethodId: purchase.paymentMethodId,
         totalAmount: purchase.totalAmount,
         purchaseDate: purchase.purchaseDate,
         status: purchase.status,

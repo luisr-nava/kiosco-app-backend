@@ -5,20 +5,9 @@ import { useCurrencyFormatter } from "@/src/hooks/useCurrencyFormatter";
 import { formatDate } from "@/utils";
 
 export function usePurchaseColumns(): TableColumn<Purchase>[] {
-  // const formatCurrency = useCurrencyFormatter(0);
+  const formatCurrency = useCurrencyFormatter(0);
 
   return [
-    {
-      header: "#",
-      cell: (e, index) => index! + 1,
-      sortable: false,
-    },
-    {
-      header: "Proveedor",
-      cell: (e) => e.supplierId,
-      sortable: true,
-      sortKey: (e) => e.supplierId || "Sin proveedor",
-    },
     {
       header: "Fecha",
       cell: (e) => formatDate(e.purchaseDate!),
@@ -30,6 +19,18 @@ export function usePurchaseColumns(): TableColumn<Purchase>[] {
       cell: (e) => e.itemsCount,
       sortable: true,
       sortKey: (e) => e.itemsCount!,
+    },
+    {
+      header: "Proveedor",
+      cell: (e) => e.supplierId || "Sin proveedor",
+      sortable: true,
+      sortKey: (e) => e.supplierId || "",
+    },
+    {
+      header: "Total",
+      cell: (e) => formatCurrency(e.totalAmount!),
+      sortable: true,
+      sortKey: (e) => e.totalAmount!,
     },
   ];
 }

@@ -7,6 +7,7 @@ import {
   usePurchaseDeleteMutation,
   usePurchaseUpdateMutation,
 } from "./usePurchaseMutations";
+import { toast } from "sonner";
 
 const initialForm: CreatePurchaseDto = {
   shopId: "",
@@ -23,6 +24,9 @@ function mapPurchaseToForm(
     ...initialForm,
     shopId: purchase.shopId,
     supplierId: purchase.supplierId ?? initialForm.supplierId,
+    paymentMethodId: purchase.paymentMethodId
+      ? String(purchase.paymentMethodId)
+      : "",
     notes: purchase.notes ?? initialForm.notes,
     items: purchase.items.map((item) => ({
       shopProductId: item.shopProductId,
@@ -48,6 +52,7 @@ export const usePurchaseForm = (
 
   const form = useForm<CreatePurchaseDto>({
     defaultValues: initialForm,
+    mode: "onChange",
   });
 
   const {
@@ -143,6 +148,10 @@ export const usePurchaseForm = (
           onSuccess: () => {
             onClose?.();
             form.reset(initialForm);
+            toast.success("Compra actualizada");
+          },
+          onError: () => {
+            toast.error("No se pudo actualizar la compra");
           },
         }
       );
@@ -156,6 +165,10 @@ export const usePurchaseForm = (
           onSuccess: () => {
             onClose?.();
             form.reset(initialForm);
+            toast.success("Compra eliminada correctamente");
+          },
+          onError: () => {
+            toast.error("No se pudo eliminar la compra");
           },
         }
       );
@@ -166,9 +179,14 @@ export const usePurchaseForm = (
       onSuccess: () => {
         onClose?.();
         form.reset(initialForm);
+        toast.success("Compra creada");
+      },
+      onError: () => {
+        toast.error("No se pudo crear la compra");
       },
     });
   };
+  console.log(editPurchase);
 
   useEffect(() => {
     if (!isEdit) {

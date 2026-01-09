@@ -70,7 +70,7 @@ export const useExpenseForm = (
             form.reset({ ...initialForm });
           },
           onError: () => {
-            toast.error("No se pudo actualizar el cliente");
+            toast.error("No se pudo actualizar el gasto");
           },
         }
       );

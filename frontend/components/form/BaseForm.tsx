@@ -10,6 +10,7 @@ interface BaseFormProps<T extends FieldValues> {
   submitLabel: string;
   isSubmitting?: boolean;
   children: React.ReactNode;
+  submitDisabled?: boolean;
 }
 
 export function BaseForm<T extends FieldValues>({
@@ -19,6 +20,7 @@ export function BaseForm<T extends FieldValues>({
   submitLabel,
   isSubmitting = false,
   children,
+  submitDisabled,
 }: BaseFormProps<T>) {
   return (
     <Form {...form}>
@@ -35,7 +37,7 @@ export function BaseForm<T extends FieldValues>({
             Cancelar
           </Button>
 
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" disabled={isSubmitting || submitDisabled}>
             {isSubmitting ? "Guardando..." : submitLabel}
           </Button>
         </ModalFooter>

@@ -32,6 +32,7 @@ export interface Purchase {
   items: PurchaseItemDto[];
   createdAt?: string;
   updatedAt?: string;
+  paymentMethodId?: string;
 }
 
 export interface PurchaseItemForm {

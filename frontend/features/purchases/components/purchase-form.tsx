@@ -60,6 +60,12 @@ export default function PurchaseForm({
   updateItem,
   isLastItemComplete,
 }: Props) {
+  const {
+    formState: { isValid },
+  } = form;
+  const hasItems = items.length > 0;
+
+  const canSubmit = isValid && hasItems;
   return (
     <BaseForm
       form={form}
@@ -67,6 +73,7 @@ export default function PurchaseForm({
       onCancel={onCancel}
       submitLabel={isEdit ? "Actualizar producto" : "Crear producto"}
       isSubmitting={isSubmitting}
+      submitDisabled={!canSubmit || isSubmitting}
     >
       <FormGrid cols={2}>
         <FormField

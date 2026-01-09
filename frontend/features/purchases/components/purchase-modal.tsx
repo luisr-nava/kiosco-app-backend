@@ -39,7 +39,6 @@ export default function PurchaseModal({
     isLoadingUpdate,
     isLoadingDelete,
     onSubmit,
-    reset,
     items,
     addItem,
     removeItem,
