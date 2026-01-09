@@ -84,14 +84,6 @@ export class PurchaseService {
           },
         });
 
-        // Actualizar stock y costo del producto en la tienda
-        await tx.shopProduct.update({
-          where: { id: item.shopProductId },
-          data: {
-            costPrice: item.unitCost,
-          },
-        });
-
         await this.stockService.updateStock({
           tx,
           shopProductId: item.shopProductId,
@@ -636,14 +628,6 @@ export class PurchaseService {
             const shopProduct = currentItem.shopProduct;
             const quantityDiff = newItem.quantity - currentItem.quantity;
 
-            // Actualizar stock y costo del producto
-            await tx.shopProduct.update({
-              where: { id: currentItem.shopProductId },
-              data: {
-                costPrice: newItem.unitCost,
-              },
-            });
-
             await this.stockService.updateStock({
               tx,
               shopProductId: currentItem.shopProductId,
@@ -694,14 +678,6 @@ export class PurchaseService {
               quantity: newItem.quantity,
               unitCost: newItem.unitCost,
               subtotal: newItem.subtotal,
-            },
-          });
-
-          // Actualizar stock y costo
-          await tx.shopProduct.update({
-            where: { id: newItem.shopProductId },
-            data: {
-              costPrice: newItem.unitCost,
             },
           });
 
