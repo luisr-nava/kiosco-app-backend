@@ -1,5 +1,5 @@
 import { useShopStore } from "@/features/shop/shop.store";
-import { CreatePurchaseDto, Purchase } from "../types";
+import { CreatePurchaseDto, Purchase, PurchaseItemForm } from "../types";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useEffect } from "react";
 import {
@@ -29,7 +29,6 @@ function mapPurchaseToForm(
       quantity: item.quantity,
       unitCost: item.unitCost,
       subtotal: item.subtotal,
-      includesTax: item.includesTax,
     })),
   };
 }
@@ -56,34 +55,75 @@ export const usePurchaseForm = (
     append,
     remove,
     update,
+    replace,
   } = useFieldArray({
     control: form.control,
     name: "items",
   });
 
-  const buildItem = () => ({
+  const buildItem = (): PurchaseItemForm => ({
     shopProductId: "",
-    quantity: 1,
-    unitCost: 0,
+    quantity: undefined,
+    unitCost: undefined,
     subtotal: 0,
-    includesTax: true,
   });
+
+  const isLastItemComplete = () => {
+    const items = form.getValues("items");
+    if (items.length === 0) return true;
+
+    const last = items[items.length - 1];
+
+    return Boolean(
+      last.shopProductId &&
+      Number(last.quantity) > 0 &&
+      Number(last.unitCost) > 0
+    );
+  };
+
   const addItem = () => {
+    if (!isLastItemComplete()) return;
+
     append(buildItem());
   };
+
+  const resetForm = () => {
+    form.reset(initialForm);
+    replace([]);
+  };
+
   const updateItem = (
     index: number,
     next: Partial<CreatePurchaseDto["items"][number]>
   ) => {
     const current = form.getValues(`items.${index}`);
 
-    const merged = { ...current, ...next };
+    const quantity = next.quantity ?? current.quantity ?? 0;
 
-    update(index, {
-      ...merged,
-      subtotal: Number(merged.quantity) * Number(merged.unitCost),
+    const unitCost = next.unitCost ?? current.unitCost ?? 0;
+
+    const subtotal = quantity * unitCost;
+
+    if (next.quantity !== undefined) {
+      form.setValue(`items.${index}.quantity`, quantity, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+
+    if (next.unitCost !== undefined) {
+      form.setValue(`items.${index}.unitCost`, unitCost, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+
+    form.setValue(`items.${index}.subtotal`, subtotal, {
+      shouldDirty: false,
+      shouldValidate: false,
     });
   };
+
   const onSubmit = async (values: CreatePurchaseDto) => {
     const payload: CreatePurchaseDto = {
       ...values,
@@ -140,6 +180,7 @@ export const usePurchaseForm = (
       form.reset(mapPurchaseToForm(editPurchase, initialForm));
     }
   }, [isEdit, editPurchase]);
+
   const removeItem = (index: number) => {
     remove(index);
   };
@@ -152,6 +193,8 @@ export const usePurchaseForm = (
     updateItem,
     onSubmit,
     reset: form.reset,
+    isLastItemComplete,
+    resetForm,
     isLoadingCreate: createMutation.isPending,
     isLoadingUpdate: updateMutation.isPending,
     isLoadingDelete: deleteMutation.isPending,

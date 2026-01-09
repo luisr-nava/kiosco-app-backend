@@ -3,6 +3,7 @@
 import { BaseHeader } from "@/components/header/BaseHeader";
 import { Loading } from "@/components/loading";
 import { BaseTable } from "@/components/table/BaseTable";
+import { useProductQuery, useProducts } from "@/features/products/hooks";
 import {
   PurchaseModal,
   usePurchaseColumns,
@@ -10,7 +11,9 @@ import {
 import { usePurchaseModals, usePurchases } from "@/features/purchases/hooks";
 import { Purchase } from "@/features/purchases/types";
 import { useShopStore } from "@/features/shop/shop.store";
+import { supplierApi } from "@/lib/api/supplier.api";
 import { usePaginationParams } from "@/src/hooks/usePaginationParams";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 export default function ComprasPage() {
@@ -32,7 +35,15 @@ export default function ComprasPage() {
     categoryId?: string;
     supplierId?: string;
   }>({});
+  const { products } = useProductQuery();
+  // ? TODO: Move to supplier hook
+  const { data: suppliers = [], isLoading: suppliersLoading } = useQuery({
+    queryKey: ["suppliers", activeShopId, "for-products"],
+    queryFn: () => supplierApi.listByShop(activeShopId || ""),
 
+    enabled: Boolean(activeShopId),
+    staleTime: 1000 * 30,
+  });
   const { purchase, purchaseLoading, pagination, isFetching } = usePurchases({
     ...filters,
     search: debouncedSearch,
@@ -93,7 +104,11 @@ export default function ComprasPage() {
           }}
         />
       )}
-      <PurchaseModal modals={purchaseModals} suppliers={[]} />
+      <PurchaseModal
+        modals={purchaseModals}
+        suppliers={suppliers}
+        products={products}
+      />
     </div>
   );
 }

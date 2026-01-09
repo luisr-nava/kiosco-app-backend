@@ -3,19 +3,13 @@ import { GetAllProductAction } from "../actions/get-all.product.action";
 import { useShopStore } from "@/features/shop/shop.store";
 import { ProductQueryParams } from "../types";
 
-export const useProductQuery = (params: Omit<ProductQueryParams, "shopId">) => {
+export const useProductQuery = (
+  params?: Omit<ProductQueryParams, "shopId">
+) => {
   const { activeShopId } = useShopStore();
 
   const query = useQuery({
-    queryKey: [
-      "products",
-      activeShopId,
-      params.page,
-      params.limit,
-      params.search ?? "",
-      params.categoryId ?? "",
-      params.supplierId ?? "",
-    ],
+    queryKey: ["products", activeShopId],
     queryFn: () =>
       GetAllProductAction({
         ...params,

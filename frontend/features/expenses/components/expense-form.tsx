@@ -113,7 +113,7 @@ export default function ExpenseForm({
                 onValueChange={field.onChange}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar unidad" />
+                  <SelectValue placeholder="Sin metodo de pago" />
                 </SelectTrigger>
                 <SelectContent>
                   {paymentMethods.map((u) => (

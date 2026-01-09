@@ -13,9 +13,8 @@ export const usePurchaseCreateMutation = () => {
   return useMutation({
     mutationFn: (payload: CreatePurchaseDto) => createPurchaseAction(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["purchases", activeShopId],
-      });
+      queryClient.invalidateQueries({ queryKey: ["purchases", activeShopId] });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
     },
   });
 };
@@ -31,9 +30,8 @@ export const usePurchaseUpdateMutation = () => {
       payload: Partial<CreatePurchaseDto>;
     }) => updatePurchaseAction(id, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["purchases", activeShopId],
-      });
+      queryClient.invalidateQueries({ queryKey: ["purchases", activeShopId] });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
     },
   });
 };
@@ -44,9 +42,8 @@ export const usePurchaseDeleteMutation = () => {
   return useMutation({
     mutationFn: ({ id }: { id: string }) => deletePurchaseAction(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["purchases", activeShopId],
-      });
+      queryClient.invalidateQueries({ queryKey: ["purchases", activeShopId] });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
     },
   });
 };

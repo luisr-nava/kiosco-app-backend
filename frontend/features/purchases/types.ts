@@ -1,15 +1,15 @@
 export interface PurchaseItemDto {
   shopProductId: string;
-  quantity: number;
-  unitCost: number;
+  quantity?: number;
+  unitCost?: number;
   subtotal: number;
-  includesTax: boolean;
 }
 
 export interface CreatePurchaseDto {
   shopId: string;
   supplierId?: string | null;
   notes?: string | null;
+  paymentMethodId?: string;
   items: PurchaseItemDto[];
 }
 
@@ -34,17 +34,19 @@ export interface Purchase {
   updatedAt?: string;
 }
 
-export interface CreatePurchaseDto {
+export interface PurchaseItemForm {
+  shopProductId: string;
+  quantity?: number | undefined;
+  unitCost?: number | undefined;
+  subtotal: number;
+}
+
+export interface CreatePurchaseForm {
   shopId: string;
   supplierId?: string | null;
+  paymentMethodId?: string;
   notes?: string | null;
-  items: Array<{
-    shopProductId: string;
-    quantity: number;
-    unitCost: number;
-    subtotal: number;
-    includesTax: boolean;
-  }>;
+  items: PurchaseItemForm[];
 }
 
 export interface PurchaseQueryParams {
