@@ -15,7 +15,7 @@ import { UpdateSupplierDto } from './dto/update-supplier.dto';
 import type { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface';
 import { GetUser } from '../auth-client/decorators/get-user.decorator';
 import { JwtAuthGuard } from '../auth-client/guards/jwt-auth.guard';
-import { SearchQueryWithInactiveDto } from '../common/dto';
+import { SearchQueryWithShopAndInactiveDto } from '../common/dto';
 
 @Controller('supplier')
 export class SupplierController {
@@ -34,7 +34,7 @@ export class SupplierController {
   @UseGuards(JwtAuthGuard)
   findAll(
     @GetUser() user: JwtPayload,
-    @Query() query: SearchQueryWithInactiveDto,
+    @Query() query: SearchQueryWithShopAndInactiveDto,
   ) {
     return this.supplierService.getSuppliers(user, query);
   }

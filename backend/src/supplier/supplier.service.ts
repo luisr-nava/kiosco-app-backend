@@ -9,7 +9,7 @@ import { UpdateSupplierDto } from './dto/update-supplier.dto';
 import { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
-import { SearchQueryWithInactiveDto } from '../common/dto';
+import { SearchQueryWithShopAndInactiveDto } from '../common/dto';
 
 type SupplierWithRelations = Prisma.SupplierGetPayload<{
   include: {
@@ -196,14 +196,10 @@ export class SupplierService {
 
     await this.validateCategoryOwnership(dto.categoryId, shopIds);
 
-    // 🔥 Extraer shopIds para que NO vaya a Prisma
-    const { shopIds: _, ...supplierData } = dto;
+    const supplierData = this.buildCreateSupplierData(dto, ownerId);
 
     const supplier = await this.prisma.supplier.create({
-      data: {
-        ownerId,
-        ...supplierData, // shopIds ya NO está acá
-      },
+      data: supplierData,
     });
 
     // 🟢 Relacionar con las tiendas via pivot
@@ -236,7 +232,7 @@ export class SupplierService {
 
     await this.validateShopsExist(newShopIds);
 
-    if (dto.categoryId !== undefined)
+    if (dto.categoryId !== undefined && dto.categoryId !== null)
       await this.validateCategoryOwnership(dto.categoryId, newShopIds);
 
     for (const sId of (
@@ -249,7 +245,7 @@ export class SupplierService {
     }
 
     const currentShops = supplier.supplierShop.map((s) => s.shopId);
-    const { shopIds: _, ...supplierData } = dto;
+    const supplierData = this.buildUpdateSupplierData(dto);
 
     const updated = await this.prisma.supplier.update({
       where: { id },
@@ -266,57 +262,107 @@ export class SupplierService {
     return updated;
   }
 
+  private buildCreateSupplierData(
+    dto: CreateSupplierDto,
+    ownerId: string,
+  ): Prisma.SupplierUncheckedCreateInput {
+    return {
+      ownerId,
+      name: dto.name,
+      ...(dto.contactName !== undefined ? { contactName: dto.contactName } : {}),
+      ...(dto.phone !== undefined ? { phone: dto.phone } : {}),
+      ...(dto.email !== undefined ? { email: dto.email } : {}),
+      ...(dto.address !== undefined ? { address: dto.address } : {}),
+      ...(dto.notes !== undefined ? { notes: dto.notes } : {}),
+      ...(dto.categoryId !== undefined && dto.categoryId !== null
+        ? { categoryId: dto.categoryId }
+        : {}),
+    };
+  }
+
+  private buildUpdateSupplierData(
+    dto: UpdateSupplierDto,
+  ): Prisma.SupplierUncheckedUpdateInput {
+    return {
+      ...(dto.name !== undefined ? { name: dto.name } : {}),
+      ...(dto.contactName !== undefined ? { contactName: dto.contactName } : {}),
+      ...(dto.phone !== undefined ? { phone: dto.phone } : {}),
+      ...(dto.email !== undefined ? { email: dto.email } : {}),
+      ...(dto.address !== undefined ? { address: dto.address } : {}),
+      ...(dto.notes !== undefined ? { notes: dto.notes } : {}),
+      ...(dto.categoryId !== undefined ? { categoryId: dto.categoryId } : {}),
+    };
+  }
+
   // ───────────────────────────────────────────────
   // GET ALL
   // ───────────────────────────────────────────────
 
-  async getSuppliers(user: JwtPayload, query: SearchQueryWithInactiveDto) {
-    const { search, includeInactive = false } = query;
+  async getSuppliers(user: JwtPayload, query: SearchQueryWithShopAndInactiveDto) {
+    const { search, includeInactive = false, page = 1, limit = 20 } = query;
     const { ownerId, shopId } = await this.getOwnerAndShopFromUser(user);
+    let accessibleShopIds: string[] = [];
 
-    const filters: Prisma.SupplierWhereInput = { ownerId };
+    if (user.role === 'OWNER') {
+      const shops = await this.prisma.shop.findMany({
+        where: { ownerId: user.id },
+        select: { id: true },
+      });
+      accessibleShopIds = shops.map((s) => s.id);
+    } else {
+      if (!shopId) {
+        throw new ForbiddenException('No se encontró información del empleado');
+      }
+      accessibleShopIds = [shopId];
+    }
+
+    if (query.shopId && !accessibleShopIds.includes(query.shopId)) {
+      throw new ForbiddenException('No tenés acceso a esta tienda');
+    }
+
+    const targetShopIds = query.shopId ? [query.shopId] : accessibleShopIds;
+
+    if (targetShopIds.length === 0) {
+      throw new ForbiddenException('No tenés tiendas asignadas');
+    }
+
+    const filters: Prisma.SupplierWhereInput = {
+      ownerId,
+      supplierShop: { some: { shopId: { in: targetShopIds } } },
+    };
 
     if (!includeInactive) {
       filters.isActive = true;
     }
 
-    if (user.role !== 'OWNER') {
-      filters.supplierShop = { some: { shopId: shopId! } };
+    const normalizedSearch = search?.trim();
+    if (normalizedSearch) {
+      filters.name = { contains: normalizedSearch, mode: 'insensitive' };
     }
 
-    if (search?.trim()) {
-      const normalizedSearch = search.trim();
-      filters.OR = [
-        { name: { contains: normalizedSearch, mode: 'insensitive' } },
-        {
-          contactName: {
-            contains: normalizedSearch,
-            mode: 'insensitive',
-          },
+    const [suppliers, total] = await Promise.all([
+      this.prisma.supplier.findMany({
+        where: filters,
+        include: {
+          supplierShop: { select: { shopId: true } },
+          category: { select: { id: true, name: true } },
         },
-        {
-          email: {
-            contains: normalizedSearch,
-            mode: 'insensitive',
-          },
-        },
-        {
-          phone: {
-            contains: normalizedSearch,
-            mode: 'insensitive',
-          },
-        },
-      ];
-    }
+        orderBy: { name: 'asc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      this.prisma.supplier.count({ where: filters }),
+    ]);
 
-    return this.prisma.supplier.findMany({
-      where: filters,
-      include: {
-        supplierShop: { select: { shopId: true } },
-        category: { select: { id: true, name: true } },
+    return {
+      suppliers,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
       },
-      orderBy: { name: 'asc' },
-    });
+    };
   }
 
   // ───────────────────────────────────────────────
