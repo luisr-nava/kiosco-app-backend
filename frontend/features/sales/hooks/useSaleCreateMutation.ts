@@ -108,6 +108,10 @@ export const useSaleUpdateMutation = () => {
         queryKey: ["sale", saleId],
       });
 
+      queryClient.invalidateQueries({
+        queryKey: ["products", activeShopId],
+      });
+
       // opcional pero recomendado (totales / caja)
       queryClient.invalidateQueries({
         queryKey: ["cash-register-state", activeShopId],
