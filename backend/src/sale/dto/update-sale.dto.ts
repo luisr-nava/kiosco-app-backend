@@ -20,6 +20,11 @@ export class UpdateSaleItemDto {
   @IsNumber()
   @Min(1, { message: 'La cantidad debe ser al menos 1' })
   quantity: number;
+
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  discount?: number;
 }
 
 // Solo permitir actualizar ciertos campos (no shopId)

@@ -234,7 +234,7 @@ export class SaleService {
             },
           },
           history: {
-            orderBy: { changedAt: 'desc' },
+            orderBy: { createdAt: 'desc' },
           },
         },
       });
@@ -379,7 +379,7 @@ export class SaleService {
           },
         },
         history: {
-          orderBy: { changedAt: 'desc' },
+          orderBy: { createdAt: 'desc' },
         },
       },
       orderBy: { saleDate: 'desc' },
@@ -490,7 +490,7 @@ export class SaleService {
           },
         },
         history: {
-          orderBy: { changedAt: 'desc' },
+          orderBy: { createdAt: 'desc' },
         },
       },
     });
@@ -544,154 +544,157 @@ export class SaleService {
     }
 
     return this.prisma.$transaction(async (tx) => {
-      const currentItems = await tx.saleItem.findMany({
-        where: { saleId: id },
-        select: {
-          shopProductId: true,
-          quantity: true,
-          unitPrice: true,
-          discount: true,
-          taxRate: true,
+      const oldSale = await tx.sale.findUnique({
+        where: { id },
+        include: { items: true },
+      });
+
+      if (!oldSale) {
+        throw new NotFoundException('Venta no encontrada');
+      }
+
+      await tx.saleHistory.create({
+        data: {
+          saleId: id,
+          action: 'UPDATED',
+          snapshot: {
+            sale: oldSale,
+            items: oldSale.items,
+          },
         },
       });
 
-      const currentByProduct = new Map(
-        currentItems.map((item) => [item.shopProductId, item]),
-      );
-      const incomingByProduct = new Map(
-        items.map((item) => [item.shopProductId, item.quantity]),
-      );
-
-      const historyEntries: Prisma.SaleItemHistoryCreateManyInput[] = [];
-
-      for (const [shopProductId, newQty] of incomingByProduct.entries()) {
-        const currentItem = currentByProduct.get(shopProductId);
-        if (!currentItem) {
-          historyEntries.push({
-            saleId: id,
-            shopProductId,
-            previousQty: 0,
-            newQty,
-            changedBy: user.id,
-          });
-          continue;
-        }
-
-        if (currentItem.quantity !== newQty) {
-          historyEntries.push({
-            saleId: id,
-            shopProductId,
-            previousQty: currentItem.quantity,
-            newQty,
-            changedBy: user.id,
-          });
-        }
+      const currentQtyByProduct = new Map<string, number>();
+      for (const item of oldSale.items) {
+        const previousQty = currentQtyByProduct.get(item.shopProductId) ?? 0;
+        currentQtyByProduct.set(item.shopProductId, previousQty + item.quantity);
       }
 
-      for (const [shopProductId, currentItem] of currentByProduct.entries()) {
-        if (!incomingByProduct.has(shopProductId)) {
-          historyEntries.push({
-            saleId: id,
-            shopProductId,
-            previousQty: currentItem.quantity,
-            newQty: 0,
-            changedBy: user.id,
-          });
-        }
+      const incomingQtyByProduct = new Map<string, number>();
+      for (const item of items) {
+        const previousQty = incomingQtyByProduct.get(item.shopProductId) ?? 0;
+        incomingQtyByProduct.set(item.shopProductId, previousQty + item.quantity);
       }
 
-      if (historyEntries.length > 0) {
-        await tx.saleItemHistory.createMany({
-          data: historyEntries,
-        });
-      }
+      const stockProductIds = new Set<string>([
+        ...currentQtyByProduct.keys(),
+        ...incomingQtyByProduct.keys(),
+      ]);
 
-      const missingProductIds = items
-        .map((item) => item.shopProductId)
-        .filter((shopProductId) => !currentByProduct.has(shopProductId));
-
-      const shopProductsById = new Map<string, { salePrice: number; taxRate: number }>();
-
-      if (missingProductIds.length > 0) {
-        const shopProducts = await tx.shopProduct.findMany({
+      if (stockProductIds.size > 0) {
+        const stockProducts = await tx.shopProduct.findMany({
           where: {
-            id: { in: missingProductIds },
+            id: { in: Array.from(stockProductIds) },
             shopId: sale.shopId,
-            isActive: true,
           },
-          include: {
-            product: true,
+          select: {
+            id: true,
+            stock: true,
           },
         });
 
-        if (shopProducts.length !== missingProductIds.length) {
+        if (stockProducts.length !== stockProductIds.size) {
           throw new BadRequestException(
-            'Algunos productos no existen o no est�n activos',
+            'Algunos productos no existen para esta venta',
           );
         }
 
-        for (const shopProduct of shopProducts) {
-          shopProductsById.set(shopProduct.id, {
-            salePrice: shopProduct.salePrice,
-            taxRate: shopProduct.product.taxRate || 0,
+        const stockById = new Map(
+          stockProducts.map((product) => [product.id, product.stock]),
+        );
+
+        for (const shopProductId of stockProductIds) {
+          const oldQty = currentQtyByProduct.get(shopProductId) ?? 0;
+          const newQty = incomingQtyByProduct.get(shopProductId) ?? 0;
+          const delta = oldQty - newQty;
+
+          if (delta === 0) continue;
+
+          const currentStock = stockById.get(shopProductId);
+          if (currentStock === null) {
+            continue;
+          }
+
+          await tx.shopProduct.update({
+            where: { id: shopProductId },
+            data: {
+              stock: {
+                increment: delta,
+              },
+            },
           });
         }
       }
 
+      await tx.saleItem.deleteMany({
+        where: { saleId: id },
+      });
+
+      const shopProductIds = items.map((item) => item.shopProductId);
+      const shopProducts = await tx.shopProduct.findMany({
+        where: {
+          id: { in: shopProductIds },
+          shopId: sale.shopId,
+          isActive: true,
+        },
+        include: {
+          product: true,
+        },
+      });
+
+      if (shopProducts.length !== shopProductIds.length) {
+        throw new BadRequestException(
+          'Algunos productos no existen o no est�n activos',
+        );
+      }
+
+      const shopProductsById = new Map(
+        shopProducts.map((shopProduct) => [shopProduct.id, shopProduct]),
+      );
+
       const itemsData = items.map((item) => {
-        const existingItem = currentByProduct.get(item.shopProductId);
-
-        if (existingItem) {
-          const subtotal = existingItem.unitPrice * item.quantity;
-          const taxAmount =
-            ((subtotal - existingItem.discount) * existingItem.taxRate) / 100;
-          const total = subtotal - existingItem.discount + taxAmount;
-
-          return {
-            saleId: id,
-            shopProductId: item.shopProductId,
-            quantity: item.quantity,
-            unitPrice: existingItem.unitPrice,
-            subtotal,
-            discount: existingItem.discount,
-            taxRate: existingItem.taxRate,
-            taxAmount,
-            total,
-          };
-        }
-
         const shopProduct = shopProductsById.get(item.shopProductId);
         if (!shopProduct) {
           throw new BadRequestException('Producto inv�lido para la venta');
         }
 
-        const discount = 0;
-        const subtotal = shopProduct.salePrice * item.quantity;
-        const taxAmount = ((subtotal - discount) * shopProduct.taxRate) / 100;
+        const discount = item.discount ?? 0;
+        const unitPrice = shopProduct.salePrice;
+        const subtotal = unitPrice * item.quantity;
+        const taxRate = shopProduct.product.taxRate || 0;
+        const taxAmount = ((subtotal - discount) * taxRate) / 100;
         const total = subtotal - discount + taxAmount;
 
         return {
           saleId: id,
           shopProductId: item.shopProductId,
           quantity: item.quantity,
-          unitPrice: shopProduct.salePrice,
+          unitPrice,
           subtotal,
           discount,
-          taxRate: shopProduct.taxRate,
+          taxRate,
           taxAmount,
           total,
         };
       });
 
-      await tx.saleItem.deleteMany({
-        where: { saleId: id },
+      await tx.saleItem.createMany({
+        data: itemsData,
       });
 
-      if (itemsData.length > 0) {
-        await tx.saleItem.createMany({
-          data: itemsData,
-        });
-      }
+      const subtotal = itemsData.reduce(
+        (acc, item) => acc + item.unitPrice * item.quantity,
+        0,
+      );
+      const taxAmount = itemsData.reduce(
+        (acc, item) => acc + (item.taxAmount ?? 0),
+        0,
+      );
+      const discountAmount = itemsData.reduce(
+        (acc, item) => acc + (item.discount ?? 0),
+        0,
+      );
+      const totalAmount = subtotal + taxAmount - discountAmount;
 
       return tx.sale.update({
         where: { id },
@@ -700,8 +703,11 @@ export class SaleService {
           invoiceNumber: dto.invoiceNumber,
           invoiceType: dto.invoiceType,
           paymentMethodId: dto.paymentMethodId,
-          discountAmount: dto.discountAmount,
           customerId: dto.customerId,
+          subtotal,
+          taxAmount,
+          discountAmount,
+          totalAmount,
         },
       });
     });
@@ -740,11 +746,11 @@ export class SaleService {
       await tx.saleHistory.create({
         data: {
           saleId: id,
-          userId: user.id,
-          action: 'CANCEL',
-          previousData: JSON.stringify({ status: sale.status }),
-          newData: JSON.stringify({ status: 'CANCELLED' }),
-          reason,
+          action: 'CANCELLED',
+          snapshot: {
+            sale,
+            items: sale.items,
+          },
         },
       });
 

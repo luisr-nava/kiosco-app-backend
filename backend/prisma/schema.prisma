@@ -140,7 +140,8 @@ model Sale {
   employee        Employee?                @relation(fields: [employeeId], references: [id])
   paymentMethod   PaymentMethod            @relation(fields: [paymentMethodId], references: [id])
   items           SaleItem[]
-  history         SaleItemHistory[]
+  history         SaleHistory[]
+  itemHistory     SaleItemHistory[]
   saleReturns     SaleReturn[]             @relation("SaleToReturn")
   accountMovement CustomerAccountMovement?
   cashMovement    CashMovement?
@@ -155,18 +156,21 @@ model Sale {
 }
 
 model SaleHistory {
-  id           String   @id @default(uuid())
-  saleId       String
-  userId       String // Usuario que realizó la acción
-  action       String // CREATE, CANCEL, UPDATE
-  previousData String?  @db.Text // JSON con datos anteriores
-  newData      String?  @db.Text // JSON con datos nuevos
-  reason       String? // Razón del cambio (especialmente para cancelaciones)
-  createdAt    DateTime @default(now())
+  id        String            @id @default(uuid())
+  saleId    String
+  action    SaleHistoryAction
+  snapshot  Json
+  createdAt DateTime          @default(now())
+
+  sale Sale @relation(fields: [saleId], references: [id])
 
   @@index([saleId])
-  @@index([userId])
-  @@index([action])
+}
+
+enum SaleHistoryAction {
+  CREATED
+  UPDATED
+  CANCELLED
 }
 
 model SaleItem {
