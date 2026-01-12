@@ -9,7 +9,7 @@ export const useSalesQuery = (params: SaleQueryParams) => {
   const { activeShopId } = useShopStore();
 
   const query = useQuery({
-    queryKey: ["sales", activeShopId],
+    queryKey: ["sales", activeShopId, params],
     queryFn: () => getAllSalesAction(activeShopId!, { ...params }),
     enabled: Boolean(activeShopId),
   });
