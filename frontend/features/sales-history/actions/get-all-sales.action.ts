@@ -18,9 +18,8 @@ export const getAllSalesAction = async (
       limit: params.limit ?? 10,
     },
   });
-
   return {
     sales: data.data,
-    pagination: data.pagination,
+    pagination: data.meta,
   };
 };

@@ -43,7 +43,7 @@ export interface GetAllSalesParams {
 
 export interface SaleResponse {
   data: Sale[];
-  pagination: {
+  meta: {
     total: number;
     page: number;
     limit: number;

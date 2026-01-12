@@ -29,6 +29,7 @@ export default function VentasPage() {
     totalItems,
     resolveShopProductId,
     incrementProductById,
+    getInitialQuantity,
   } = useSaleCart(form);
   const editSaleId = searchParams.get("editSaleId");
   const { submitSale, isSubmitting } = useSaleCreateFlow(
@@ -38,10 +39,12 @@ export default function VentasPage() {
   const { products } = useProductQuery({});
   const { paymentMethods } = usePaymentMethods();
   const paymentMethodId = form.watch("paymentMethodId");
+  
   const { totalAmount, productsForGrid } = useSaleDerivedState({
     items,
     products,
     resolveShopProductId,
+    getInitialQuantity,
   });
 
   const canSubmit =
@@ -55,6 +58,7 @@ export default function VentasPage() {
     increment: (productId: string) => incrementProductById(productId, products),
     decrement: decrementProduct,
     clear: () => form.setValue("items", []),
+    getInitialQuantity,
   };
 
   const checkout = {
@@ -83,12 +87,14 @@ export default function VentasPage() {
                 </p>
               ) : (
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:pr-1 xl:grid-cols-5">
-                  {productsForGrid.map(({ product, isAddDisabled }) => (
+                  {productsForGrid.map(
+                    ({ product, isAddDisabled, quantityInCart }) => (
                     <ProductCard
                       key={product.id}
                       product={product}
                       incrementProduct={incrementProduct}
                       isAddDisabled={isAddDisabled}
+                      quantityInCart={quantityInCart}
                     />
                   ))}
                 </div>

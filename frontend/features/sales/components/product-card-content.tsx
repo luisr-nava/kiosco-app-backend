@@ -41,6 +41,7 @@ export default function ProductCardContent({
     increment,
     decrement,
     clear,
+    getInitialQuantity,
   } = cart;
 
   const { canSubmit, isSubmitting, onSubmit, paymentMethods } = checkout;
@@ -68,8 +69,11 @@ export default function ProductCardContent({
                 const unitPrice = Number(product?.salePrice || 0);
                 const quantity = Number(item.quantity || 0);
                 const subtotal = unitPrice * quantity;
-                const stock = product?.stock ?? 0;
-                const isIncrementDisabled = stock <= 0 || quantity >= stock;
+                const stock = Math.max(0, Number(product?.stock ?? 0));
+                const initialQty =
+                  getInitialQuantity?.(item.shopProductId) ?? 0;
+                const maxAllowed = Math.max(0, stock + initialQty);
+                const isIncrementDisabled = quantity >= maxAllowed;
                 return (
                   <motion.div
                     key={`${item.shopProductId}-${idx}`}

@@ -6,12 +6,14 @@ type CardProductProps = {
   product: Product;
   incrementProduct: (product: Product) => void;
   isAddDisabled?: boolean;
+  quantityInCart?: number;
 };
 
 export default function ProductCard({
   product,
   incrementProduct,
   isAddDisabled = false,
+  quantityInCart = 0,
 }: CardProductProps) {
   const stock = Math.max(0, Number(product.stock ?? 0));
   const disabled = isAddDisabled;
@@ -62,7 +64,12 @@ export default function ProductCard({
       </div>
 
       {/* CTA */}
-      <div className="flex justify-end">
+      <div className="flex items-center justify-end gap-2">
+        {quantityInCart > 0 ? (
+          <span className="text-muted-foreground text-xs font-semibold">
+            x{quantityInCart}
+          </span>
+        ) : null}
         <span
           aria-hidden
           className={`flex h-9 w-9 items-center justify-center rounded-full border text-lg font-semibold transition ${

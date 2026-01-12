@@ -46,6 +46,7 @@ export type CartUI = {
   increment: (productId: string) => void;
   decrement: (productId: string) => void;
   clear: () => void;
+  getInitialQuantity?: (shopProductId: string) => number;
 };
 
 export type CheckoutUI = {

@@ -7,12 +7,13 @@ import {
 import { useShopStore } from "@/features/shop/shop.store";
 import { CreateSaleDto } from "../types";
 import { SaleFormValues } from "./useSaleForm";
+import { useRouter } from "next/navigation";
 
 export const useSaleCreateFlow = (
   form: UseFormReturn<SaleFormValues>,
   saleId?: string
 ) => {
-  const values = form.getValues();
+  const router = useRouter();
   const { activeShopId } = useShopStore();
   const createSale = useSaleCreateMutation();
   const updateSale = useSaleUpdateMutation();
@@ -45,6 +46,7 @@ export const useSaleCreateFlow = (
         {
           onSuccess: () => {
             toast.success("Venta actualizada");
+            router.push("/dashboard/sales/history");
           },
           onError: () => {
             toast.error("No se pudo actualizar la venta");

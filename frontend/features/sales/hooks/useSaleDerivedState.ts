@@ -6,12 +6,14 @@ type Params = {
   items: SaleItem[];
   products: Product[];
   resolveShopProductId: (product: Product) => string;
+  getInitialQuantity?: (shopProductId: string) => number;
 };
 
 export const useSaleDerivedState = ({
   items,
   products,
   resolveShopProductId,
+  getInitialQuantity,
 }: Params) => {
   const quantityByShopProductId = useMemo(() => {
     const map = new Map<string, number>();
@@ -38,14 +40,18 @@ export const useSaleDerivedState = ({
     return products.map((product) => {
       const shopProductId = resolveShopProductId(product);
       const stock = Math.max(0, Number(product.stock ?? 0));
+      const initialQty = getInitialQuantity?.(shopProductId) ?? 0;
+      const maxAllowed = Math.max(0, stock + initialQty);
       const quantityInCart = quantityByShopProductId.get(shopProductId) ?? 0;
 
       return {
         product,
-        isAddDisabled: stock <= 0 || quantityInCart >= stock,
+        quantityInCart,
+        maxAllowed,
+        isAddDisabled: quantityInCart >= maxAllowed,
       };
     });
-  }, [products, quantityByShopProductId, resolveShopProductId]);
+  }, [getInitialQuantity, products, quantityByShopProductId, resolveShopProductId]);
 
   return {
     totalAmount,

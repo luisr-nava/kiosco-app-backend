@@ -15,6 +15,8 @@ export const useSalesQuery = (params: SaleQueryParams) => {
   });
   const sales = query.data?.sales || [];
   const pagination = query.data?.pagination;
+  
+  
   return {
     sales,
     pagination,

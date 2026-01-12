@@ -33,7 +33,13 @@ export default function SalesHistoryPage() {
     categoryId?: string;
     supplierId?: string;
   }>({});
-  const { sales, isLoading, pagination } = useSalesQuery({});
+  const { sales, isLoading, pagination } = useSalesQuery({
+    ...filters,
+    search: debouncedSearch,
+    page,
+    limit,
+  });
+
   useEffect(() => {
     if (!pagination) return;
 
@@ -41,6 +47,7 @@ export default function SalesHistoryPage() {
       setPage(pagination.totalPages);
     }
   }, [pagination?.totalPages, page]);
+
   const salesColums = useSaleColumns();
   const router = useRouter();
   return (

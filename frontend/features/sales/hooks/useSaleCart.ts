@@ -1,5 +1,5 @@
 import { Product } from "@/features/products/types";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useFieldArray, UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 import { SaleFormValues } from "./useSaleForm";
@@ -11,8 +11,26 @@ export const useSaleCart = (form: UseFormReturn<SaleFormValues>) => {
     name: "items",
   });
   const items = watch("items");
+  const [initialQuantities, setInitialQuantities] = useState<
+    Map<string, number>
+  >(new Map());
   const resolveShopProductId = (product: Product): string =>
     product.shopProductId || product.id || product.productId || "";
+
+  useEffect(() => {
+    if (form.formState.isDirty) return;
+
+    const map = new Map<string, number>();
+    items.forEach((item) => {
+      if (item.shopProductId) {
+        map.set(item.shopProductId, item.quantity);
+      }
+    });
+    setInitialQuantities(map);
+  }, [form.formState.isDirty, items]);
+
+  const getInitialQuantity = (shopProductId: string) =>
+    initialQuantities.get(shopProductId) ?? 0;
 
   const incrementProduct = (product: Product) => {
     const shopProductId = resolveShopProductId(product);
@@ -22,28 +40,21 @@ export const useSaleCart = (form: UseFormReturn<SaleFormValues>) => {
     }
 
     const stock = Number(product.stock ?? 0);
-    if (stock <= 0) {
-      toast.error("Producto sin stock");
+    const initialQty = getInitialQuantity(shopProductId);
+    const maxAllowed = Math.max(0, stock + initialQty);
+
+    const index = items.findIndex((i) => i.shopProductId === shopProductId);
+    const currentQty = index >= 0 ? items[index].quantity : 0;
+
+    if (currentQty >= maxAllowed) {
+      toast.error("Stock insuficiente");
       return;
     }
 
-    const unitPrice =
-      product.finalSalePrice || product.salePrice || product.price || 0;
-
-    const index = items.findIndex((i) => i.shopProductId === shopProductId);
-
     if (index >= 0) {
-      const current = items[index];
-
-      if (current.quantity >= stock) {
-        toast.error("Stock insuficiente");
-        return;
-      }
-
-      const quantity = current.quantity + 1;
       update(index, {
-        ...current,
-        quantity,
+        ...items[index],
+        quantity: currentQty + 1,
       });
       return;
     }
@@ -53,6 +64,7 @@ export const useSaleCart = (form: UseFormReturn<SaleFormValues>) => {
       quantity: 1,
     });
   };
+
 
   const decrementProduct = (shopProductId: string) => {
     const index = items.findIndex((i) => i.shopProductId === shopProductId);
@@ -77,10 +89,10 @@ export const useSaleCart = (form: UseFormReturn<SaleFormValues>) => {
     [items]
   );
 
-//   const totalAmount = useMemo(
-//     () => items.reduce((acc, i) => acc + Number(i.subtotal ?? 0), 0),
-//     [items]
-//   );
+  //   const totalAmount = useMemo(
+  //     () => items.reduce((acc, i) => acc + Number(i.subtotal ?? 0), 0),
+  //     [items]
+  //   );
   const incrementProductById = (productId: string, products: Product[]) => {
     const product = products.find((p) => resolveShopProductId(p) === productId);
     if (product) {
@@ -95,5 +107,6 @@ export const useSaleCart = (form: UseFormReturn<SaleFormValues>) => {
     // totalAmount,
     resolveShopProductId,
     incrementProductById,
+    getInitialQuantity,
   };
 };
