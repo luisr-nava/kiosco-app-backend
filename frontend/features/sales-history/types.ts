@@ -30,6 +30,9 @@ export interface Sale {
   notes?: string | null;
   createdAt: string;
   items: SaleItem[];
+
+  // 👇 NUEVO (opcional por seguridad)
+  changesSummary?: SaleChangesSummary;
 }
 
 export interface GetAllSalesParams {
@@ -60,4 +63,46 @@ export interface SaleHistory {
   paymentStatus: string;
   items: SaleItem[];
   createdAt: string;
+
+  // 👇 NUEVO (opcional para no romper nada)
+  changesSummary?: SaleChangesSummary;
+}
+
+export interface SaleChangeAmount {
+  before: number;
+  after: number;
+}
+
+export interface SaleItemChange {
+  shopProductId: string;
+  quantity?: {
+    before: number;
+    after: number;
+  };
+  unitPrice?: {
+    before: number;
+    after: number;
+  };
+}
+
+export interface SaleItemsChanges {
+  added: {
+    shopProductId: string;
+    quantity: number;
+  }[];
+  removed: {
+    shopProductId: string;
+    quantity: number;
+  }[];
+  updated: SaleItemChange[];
+}
+
+export interface SaleChangesSummary {
+  wasEdited: boolean;
+  lastEditedAt: string | null;
+  changes: {
+    totalAmount?: SaleChangeAmount;
+    itemsUnits?: SaleChangeAmount;
+    items?: SaleItemsChanges;
+  };
 }

@@ -23,7 +23,11 @@ interface BaseTableProps<T> {
   renderExpandedContent?: (row: T) => React.ReactNode;
   pagination?: TablePagination;
 }
-
+const getAlignClass = (align?: "left" | "center" | "right") => {
+  if (align === "right") return "text-right";
+  if (align === "center") return "text-center";
+  return "text-left";
+};
 export function BaseTable<T>({
   data,
   getRowId,
@@ -51,7 +55,9 @@ export function BaseTable<T>({
             return (
               <TableHead
                 key={columnKey}
-                className={`select-none ${col.align === "right" ? "text-right" : ""} ${col.sortable ? "group hover:bg-muted/50 cursor-pointer" : ""}`}
+                className={`select-none ${getAlignClass(col.align)} ${
+                  col.sortable ? "group hover:bg-muted/50 cursor-pointer" : ""
+                }`}
                 onClick={col.sortable ? () => toggleSort(index) : undefined}
               >
                 <div className="inline-flex items-center gap-1">
@@ -77,7 +83,11 @@ export function BaseTable<T>({
             );
           })}
 
-          {actions && <TableHead className="text-right" key="actions-header" >Acción</TableHead>}
+          {actions && (
+            <TableHead className="text-right" key="actions-header">
+              Acción
+            </TableHead>
+          )}
         </TableRow>
       </TableHeader>
 
@@ -104,7 +114,7 @@ export function BaseTable<T>({
                   {columns.map((col, index) => (
                     <TableCell
                       key={getColumnKey(col, index)}
-                      className={col.align === "right" ? "text-right" : ""}
+                      className={getAlignClass(col.align)}
                     >
                       {col.cell(row)}
                     </TableCell>

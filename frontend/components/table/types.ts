@@ -11,7 +11,7 @@ export interface TableColumn<T> {
   sortable?: boolean;
   sortKey?: (row: T) => string | number;
 
-  align?: "left" | "right";
+  align?: "left" | "center" | "right";
 }
 
 export interface TablePagination {

@@ -13,7 +13,6 @@ import {
 import { useSaleColumns } from "@/features/sales-history/components/sales.columns";
 import { useSalesQuery } from "@/features/sales-history/hooks/useSalesHistoryQuery";
 import { SaleHistory } from "@/features/sales-history/types";
-import { Sale } from "@/features/sales/types";
 import { usePaginationParams } from "@/src/hooks/usePaginationParams";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
