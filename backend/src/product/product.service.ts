@@ -451,6 +451,7 @@ export class ProductService {
         isActive: sp.isActive,
         createdAt: sp.createdAt,
         currency: sp.currency,
+        allowPriceOverride: sp.product.measurementUnit.category === 'WEIGHT',
         measurementUnit: this.serializeMeasurementUnit(
           sp.product.measurementUnit,
         ),

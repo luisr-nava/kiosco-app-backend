@@ -540,7 +540,13 @@ export class SaleService {
       throw new ForbiddenException('No ten�s acceso a esta venta');
     }
 
-    return sale;
+    return {
+      ...sale,
+      items: sale.items.map((item) => ({
+        ...item,
+        allowPriceOverride: item.shopProduct?.product?.allowPriceOverride ?? false,
+      })),
+    };
   }
 
   async update(id: string, dto: UpdateSaleDto, user: JwtPayload) {
