@@ -8,10 +8,6 @@ interface Props {
   preferencesContent: ReactNode;
 }
 
-/**
- * Contenedor de tabs para Ajustes con las vistas de Configuración y Preferencias.
- * Maneja el estado internamente (no cambia la URL).
- */
 export const SettingsTabs = ({
   configurationContent,
   preferencesContent,

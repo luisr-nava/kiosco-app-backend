@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import type { DateRangeValue } from "@/components/ui/date-range-picker";
 import { CashRegisterReportsQueryParams, PeriodFilter } from "../type";
-import { formatDate } from "@/utils";
 
 const DEFAULT_PERIOD: PeriodFilter = "day";
 
@@ -33,15 +32,15 @@ export function useCashRegisterReportFilters() {
     const params: CashRegisterReportsQueryParams = { period };
 
     if (period === "day" && selectedDay) {
-      params.date = formatDate(selectedDay);
+      params.date = selectedDay.toISOString().split("T")[0];
     }
 
     if (period === "week") {
-      if (normalizedRange.from) {
-        params.dateFrom = formatDate(normalizedRange.from);
+      if (normalizedRange.from && normalizedRange.from instanceof Date) {
+        params.dateFrom = normalizedRange.from.toISOString().split("T")[0];
       }
-      if (normalizedRange.to) {
-        params.dateTo = formatDate(normalizedRange.to);
+      if (normalizedRange.to && normalizedRange.to instanceof Date) {
+        params.dateTo = normalizedRange.to.toISOString().split("T")[0];
       }
     }
 

@@ -1,7 +1,6 @@
 "use client";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { cashRegisterApi } from "@/lib/api/cash-register.api";
 import {
   CashRegisterReportsQueryParams,
   UseCashRegisterReportsResult,

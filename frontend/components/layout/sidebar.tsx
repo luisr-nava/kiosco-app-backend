@@ -113,17 +113,17 @@ export function Sidebar() {
   const settingsItems = [
     {
       label: "Configuración",
-      href: "/settings/configuration",
+      href: "/dashboard/settings/configuration",
       icon: SlidersHorizontal,
     },
     {
       label: "Preferencias",
-      href: "/settings/preferences",
+      href: "/dashboard/settings/preferences",
       icon: Sliders,
     },
     {
       label: "Empleados",
-      href: "/dashboard/employees",
+      href: "/dashboard/dashboard/employees",
       icon: UsersRound,
     },
   ];

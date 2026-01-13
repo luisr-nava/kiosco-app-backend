@@ -14,7 +14,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { shopApi } from "@/lib/api/shop.api";
 import type { CreateShopDto } from "@/lib/types/shop";
 import { getErrorMessage } from "@/lib/error-handler";
 import {

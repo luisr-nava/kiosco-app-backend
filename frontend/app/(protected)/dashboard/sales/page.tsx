@@ -18,7 +18,7 @@ import { usePaymentMethods } from "../../settings/payment-method/hooks";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
-export default function VentasPage() {
+export default function SalesPage() {
   const form = useSaleForm();
   const searchParams = useSearchParams();
 

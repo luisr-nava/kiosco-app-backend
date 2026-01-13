@@ -1,11 +1,9 @@
 import { kioscoApi } from "@/lib/kioscoApi";
-import { Pagination } from "@/src/types";
 import {
   CashRegisterReport,
   CashRegisterReportsApiResponse,
   PeriodFilter,
 } from "../type";
-import { getTodayIsoDate } from "@/lib/date-utils";
 
 interface Params {
   period: PeriodFilter;
@@ -27,7 +25,7 @@ export const getReportsAction = async (
   const queryParams: Record<string, string> = { period };
 
   if (period === "day") {
-    queryParams.date = date ?? getTodayIsoDate();
+    queryParams.date = date ?? new Date().toISOString().split("T")[0];
   }
 
   if (dateFrom) queryParams.dateFrom = dateFrom;
