@@ -5,9 +5,21 @@ import { usePaymentMethodForm } from "../hooks/usePaymentMethodForm";
 import { PaymentMethod } from "../types";
 import { PaymentMethodTable } from "./payment-method-table";
 import { usePaymentMethods } from "../hooks";
+import { usePaymentMethodModals } from "../hooks/usePaymentMethodModals";
+import PaymentMethodDeleteModal from "./payment-method-delete-modal";
 
 export default function PaymentMethodPanel() {
-  const { isFetching, paymentMethods } = usePaymentMethods();
+  const modals = usePaymentMethodModals();
+  const {
+    isFetching,
+    paymentMethods,
+    fetchNextPaymentMethods,
+    hasMorePaymentMethods,
+    isFetchingNextPaymentMethods,
+  } = usePaymentMethods();
+
+  console.log(paymentMethods);
+
   const [editingCategory, setEditingCategory] = useState<
     PaymentMethod | undefined
   >();
@@ -19,23 +31,29 @@ export default function PaymentMethodPanel() {
     handleCancelEdit
   );
   return (
-    <Card className="max-h-90 min-h-90">
-      <CardContent className="grid gap-6">
-        <PaymentMethodForm
-          form={form}
-          onSubmit={onSubmit}
-          isEditing={isEditing}
-          pending={isLoading}
-          handleCancelEdit={handleCancelEdit}
-        />
-        <PaymentMethodTable
-          onDelete={() => {}}
-          paymentMethods={paymentMethods}
-          deletingId={""}
-          loading={isLoading}
-          onEdit={(category) => setEditingCategory(category)}
-        />
-      </CardContent>
-    </Card>
+    <>
+      <Card className="max-h-90 min-h-90">
+        <CardContent className="flex h-full min-h-0 flex-col gap-6">
+          <PaymentMethodForm
+            form={form}
+            onSubmit={onSubmit}
+            isEditing={isEditing}
+            pending={isLoading}
+            handleCancelEdit={handleCancelEdit}
+          />
+          <PaymentMethodTable
+            onDelete={modals.openDelete}
+            paymentMethods={paymentMethods}
+            deletingId={""}
+            loading={isFetching && !isFetchingNextPaymentMethods}
+            onEdit={(category) => setEditingCategory(category)}
+            hasNextPage={hasMorePaymentMethods}
+            fetchNextPage={fetchNextPaymentMethods}
+            isFetchingNextPage={isFetchingNextPaymentMethods}
+          />
+        </CardContent>
+      </Card>
+      <PaymentMethodDeleteModal modals={modals} />
+    </>
   );
 }

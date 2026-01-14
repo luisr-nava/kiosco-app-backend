@@ -1,10 +1,13 @@
 import { useForm } from "react-hook-form";
+import { useEffect } from "react";
 import { CreatePaymentMethodDto, PaymentMethod } from "../types";
 import {
   usePaymentMethodCreateMutation,
   usePaymentMethodDeleteMutation,
   usePaymentMethodUpdateMutation,
 } from "./usePaymentMethodMutations";
+import { useShopStore } from "@/features/shop/shop.store";
+import { toast } from "sonner";
 
 const initialForm: CreatePaymentMethodDto = {
   name: "",
@@ -28,7 +31,7 @@ export const usePaymentMethodForm = (
   editPaymentMethod?: PaymentMethod,
   onEditDone?: () => void
 ) => {
-  // const { activeShopId } = useShopStore();
+  const { activeShopId } = useShopStore();
 
   const createMutation = usePaymentMethodCreateMutation();
   const updateMutation = usePaymentMethodUpdateMutation();
@@ -38,11 +41,12 @@ export const usePaymentMethodForm = (
     defaultValues: initialForm,
   });
 
-  const onSubmit = async (values: CreatePaymentMethodDto) => {};
-  //   if (!activeShopId) {
-  //     toast.error("No hay tienda activa");
-  //     return;
-  //   }
+  const onSubmit = async (values: CreatePaymentMethodDto) => {
+    if (!activeShopId) {
+      toast.error("No hay tienda activa");
+      return;
+    }
+  };
   //   const basePayload: CreatePaymentMethodDto = {
   //     ...values,
   //     shopIds: [activeShopId],
@@ -79,15 +83,14 @@ export const usePaymentMethodForm = (
   // };
   const isLoading = createMutation.isPending || updateMutation.isPending;
 
-  // useEffect(() => {
-  //   if (!editCategory) {
-  //     form.reset(initialForm);
-  //     return;
-  //   }
-  //   if (editCategory) {
-  //     form.reset(mapPaymentMethodForm(editCategory, initialForm));
-  //   }
-  // }, [editCategory]);
+  useEffect(() => {
+    if (!editPaymentMethod) {
+      form.reset(initialForm);
+      return;
+    }
+
+    form.reset(mapPaymentMethodForm(editPaymentMethod, initialForm));
+  }, [editPaymentMethod, form]);
 
   return {
     form,

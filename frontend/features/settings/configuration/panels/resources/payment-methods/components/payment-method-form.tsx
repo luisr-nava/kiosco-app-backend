@@ -54,8 +54,8 @@ export const PaymentMethodForm = ({
           />
         </div>
 
-        <div className="flex gap-5">
-          {!isEditing && (
+        <div className="flex items-end gap-5 self-end">
+          {isEditing && (
             <Button
               type="button"
               variant="destructive"
@@ -76,8 +76,8 @@ export const PaymentMethodForm = ({
                 ? "Actualizando..."
                 : "Creando..."
               : isEditing
-                ? "Actualizar categoría"
-                : "Crear categoría"}
+                ? "Actualizar Metodo de pago"
+                : "Crear Metodo de pago"}
           </Button>
         </div>
       </div>
