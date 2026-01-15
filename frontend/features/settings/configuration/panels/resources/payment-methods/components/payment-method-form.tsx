@@ -21,7 +21,8 @@ export const PaymentMethodForm = ({
 }: Props) => {
   const { register, handleSubmit } = form;
   const name = form.watch("name");
-  const canSubmit = name?.trim().length > 0;
+  const code = form.watch("code");
+  const canSubmit = name?.trim().length > 0 && code.trim().length > 0;
   return (
     <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
       <div className="grid items-center gap-4 md:grid-cols-4">

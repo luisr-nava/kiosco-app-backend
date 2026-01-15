@@ -41,36 +41,37 @@ export const PaymentMethodTable = ({
   };
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-md border">
-      <div className="min-h-0 flex-1 overflow-y-auto" onScroll={handleScroll}>
-        <BaseTable<PaymentMethod>
-          data={paymentMethods}
-          getRowId={(e) => e.id}
-          columns={paymentColums}
-          actions={(e) => [
-            {
-              type: "edit",
-              onClick: () => onEdit(e),
-            },
-            {
-              type: "delete",
-              onClick: () => onDelete(e),
-            },
-          ]}
-        />
-        {isFetchingNextPage && (
-          <div className="text-muted-foreground flex items-center justify-center gap-2 border-t px-4 py-3 text-xs">
-            <div className="border-primary h-3 w-3 animate-spin rounded-full border-2 border-t-transparent" />
-            Cargando más métodos de pago...
-          </div>
-        )}
-      </div>
-      {loading && (
+    <div className="min-w-0 overflow-hidden">
+      {/* <div className="min-h-0 flex-1 overflow-auto" onScroll={handleScroll}> */}
+      <BaseTable<PaymentMethod>
+        data={paymentMethods}
+        getRowId={(e) => e.id}
+        columns={paymentColums}
+        stickyHeader
+        actions={(e) => [
+          {
+            type: "edit",
+            onClick: () => onEdit(e),
+          },
+          {
+            type: "delete",
+            onClick: () => onDelete(e),
+          },
+        ]}
+      />
+      {/* {isFetchingNextPage && (
+        <div className="text-muted-foreground flex items-center justify-center gap-2 border-t px-4 py-3 text-xs">
+          <div className="border-primary h-3 w-3 animate-spin rounded-full border-2 border-t-transparent" />
+          Cargando más métodos de pago...
+        </div>
+      )} */}
+      {/* </div> */}
+      {/* {loading && (
         <div className="text-muted-foreground flex items-center gap-2 border-t px-4 py-3 text-xs">
           <div className="border-primary h-3 w-3 animate-spin rounded-full border-2 border-t-transparent" />
           Actualizando lista...
-        </div>
-      )}
+        </div> */}
+      {/* )} */}
     </div>
   );
 };

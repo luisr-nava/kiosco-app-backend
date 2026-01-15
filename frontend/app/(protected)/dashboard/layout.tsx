@@ -32,9 +32,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     currentMenu?.description || "Panel de administración.";
 
   return (
-    <div className="bg-background flex min-h-screen">
+    <div className="bg-background flex min-h-screen overflow-x-hidden">
       <Sidebar />
-      <div className="flex h-screen flex-1 flex-col md:ml-16">
+      <div className="flex h-screen min-w-0 flex-1 flex-col md:ml-16">
         <header className="bg-card sticky top-0 z-20 border-b">
           <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
@@ -68,7 +68,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </div>
           </div>
         </header>
-        <main className="flex-1 space-y-6 overflow-y-auto p-6">{children}</main>
+        <main className="min-w-0 flex-1 space-y-6 overflow-y-auto p-6">
+          {children}
+        </main>
       </div>
     </div>
   );

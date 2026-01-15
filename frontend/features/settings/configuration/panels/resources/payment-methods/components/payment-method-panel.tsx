@@ -30,8 +30,8 @@ export default function PaymentMethodPanel() {
   );
   return (
     <>
-      <Card className="max-h-90 min-h-90">
-        <CardContent className="flex h-full min-h-0 flex-col gap-6">
+      <Card>
+        <CardContent className="grid min-w-0 gap-6 overflow-hidden">
           <PaymentMethodForm
             form={form}
             onSubmit={onSubmit}

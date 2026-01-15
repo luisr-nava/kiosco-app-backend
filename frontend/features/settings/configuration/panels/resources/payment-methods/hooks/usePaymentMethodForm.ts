@@ -79,40 +79,6 @@ export const usePaymentMethodForm = (
       },
     });
   };
-  //   const basePayload: CreatePaymentMethodDto = {
-  //     ...values,
-  //     shopIds: [activeShopId],
-  //   };
-  //   if (editCategory) {
-  //     updateMutation.mutate(
-  //       {
-  //         id: editCategory.id,
-  //         payload: basePayload,
-  //       },
-  //       {
-  //         onSuccess: () => {
-  //           toast.success("Categoria actualizada");
-  //           form.reset({ ...initialForm });
-  //           onEditDone?.();
-  //         },
-  //         onError: () => {
-  //           toast.error("No se pudo actualizar la categoria");
-  //         },
-  //       }
-  //     );
-  //     return;
-  //   } else {
-  //     createMutation.mutate(basePayload, {
-  //       onSuccess: () => {
-  //         toast.success("Categoria creada");
-  //         form.reset({ ...initialForm });
-  //       },
-  //       onError: () => {
-  //         toast.error("No se pudo actualizar la categoria");
-  //       },
-  //     });
-  //   }
-  // };
   const isLoading = createMutation.isPending || updateMutation.isPending;
 
   useEffect(() => {
