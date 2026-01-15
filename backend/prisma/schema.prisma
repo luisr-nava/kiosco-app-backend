@@ -495,8 +495,8 @@ model MeasurementUnit {
   id               String                  @id @default(uuid())
   name             String
   code             String
-  category         MeasurementUnitCategory
-  baseUnit         MeasurementBaseUnit
+  category         MeasurementUnitCategory?
+  baseUnit         MeasurementBaseUnit?
   conversionFactor Decimal                 @db.Decimal(18, 6) @default(1)
   isBaseUnit       Boolean                 @default(false)
   isDefault        Boolean                 @default(false)
@@ -506,7 +506,7 @@ model MeasurementUnit {
   shopMeasurementUnits ShopMeasurementUnit[]
   products             Product[]
 
-  @@unique([code, baseUnit])
+  @@unique([code])
 }
 
 model ShopMeasurementUnit {

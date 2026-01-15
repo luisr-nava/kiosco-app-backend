@@ -32,18 +32,6 @@ export class MeasurementUnitService {
 
   async create(dto: CreateMeasurementUnitDto, user: JwtPayload) {
     const code = this.normalizeCode(dto.code);
-    const baseUnitCode = this.normalizeCode(dto.baseUnitCode);
-    const baseUnit = await this.prisma.measurementUnit.findFirst({
-      where: { code: baseUnitCode, isBaseUnit: true },
-      select: { baseUnit: true, category: true },
-    });
-
-    if (!baseUnit) {
-      throw new BadRequestException(
-        'La unidad base especificada no existe en el sistema',
-      );
-    }
-
     const targetShopIds = await this.resolveShopIdsForCreation(
       dto.shopIds,
       user,
@@ -51,7 +39,7 @@ export class MeasurementUnitService {
     );
 
     const duplicatedCode = await this.prisma.measurementUnit.findFirst({
-      where: { code, baseUnit: baseUnit.baseUnit },
+      where: { code },
     });
 
     if (duplicatedCode) {
@@ -64,8 +52,6 @@ export class MeasurementUnitService {
       data: {
         name: dto.name.trim(),
         code,
-        category: baseUnit.category,
-        baseUnit: baseUnit.baseUnit,
         isBaseUnit: false,
         isDefault: false,
         createdByUserId: user.id,
@@ -110,7 +96,7 @@ export class MeasurementUnitService {
         ],
       },
       include: { shopMeasurementUnits: { select: { shopId: true } } },
-      orderBy: [{ category: 'asc' }, { name: 'asc' }],
+      orderBy: [{ name: 'asc' }],
     });
 
     return {
@@ -207,7 +193,6 @@ export class MeasurementUnitService {
     const duplicatedCode = await this.prisma.measurementUnit.findFirst({
       where: {
         code: nextCode,
-        baseUnit: unit.baseUnit,
         NOT: { id: measurementUnitId },
       },
     });

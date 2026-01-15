@@ -20,11 +20,6 @@ export class CreateMeasurementUnitDto {
   @MaxLength(20)
   code: string;
 
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(20)
-  baseUnitCode: string;
-
   @IsOptional()
   @IsArray()
   @ArrayNotEmpty()
