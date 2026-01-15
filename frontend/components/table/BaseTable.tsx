@@ -46,15 +46,12 @@ export function BaseTable<T>({
     col.id ?? col.header ?? `col-${index}`;
 
   return (
-    <div className="relative w-full max-w-full overflow-hidden">
-      <div className="w-full overflow-x-auto">
-        <Table
-          className={`w-full min-w-max rounded-md border ${
-            stickyHeader ? "overflow-visible" : "overflow-hidden"
-          }`}
-        >
+    <div className="relative flex h-full w-full flex-col">
+      {/* HEADER + BODY */}
+      <div className="overflow-x-auto">
+        <Table className="w-full min-w-max rounded-md border">
           {/* HEADER */}
-          <TableHeader className="bg-muted">
+          <TableHeader className="bg-muted sticky top-0 z-30">
             <TableRow>
               {columns.map((col, index) => {
                 const isSorted = sortBy?.index === index;
@@ -95,7 +92,7 @@ export function BaseTable<T>({
 
               {actions && (
                 <TableHead
-                  className={`text-right ${stickyHeader ? "bg-muted sticky top-0 z-10" : ""}`}
+                  className="bg-muted sticky top-0 z-30 text-right"
                   key="actions-header"
                 >
                   Acción
@@ -166,33 +163,24 @@ export function BaseTable<T>({
               })
             )}
           </TableBody>
-
-          {/* FOOTER (opcional) */}
-          {pagination && (
-            <TableFooter>
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length + (actions ? 1 : 0)}
-                  className="text-muted-foreground text-center text-sm"
-                >
-                  <Pagination
-                    page={pagination.page}
-                    limit={pagination.limit}
-                    totalPages={pagination.totalPages}
-                    totalItems={pagination.totalItems}
-                    isLoading={pagination.isFetching}
-                    onPageChange={(page) => {
-                      if (page < 1) return;
-                      pagination.onPageChange(page);
-                    }}
-                    onLimitChange={pagination.onLimitChange}
-                  />
-                </TableCell>
-              </TableRow>
-            </TableFooter>
-          )}
         </Table>
       </div>
+      {pagination && (
+        <div className="bg-muted sticky bottom-0 z-20 border-t py-3">
+          <Pagination
+            page={pagination.page}
+            limit={pagination.limit}
+            totalPages={pagination.totalPages}
+            totalItems={pagination.totalItems}
+            isLoading={pagination.isFetching}
+            onPageChange={(page) => {
+              if (page < 1) return;
+              pagination.onPageChange(page);
+            }}
+            onLimitChange={pagination.onLimitChange}
+          />
+        </div>
+      )}
     </div>
   );
 }

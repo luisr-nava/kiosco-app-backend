@@ -76,36 +76,32 @@ export default function SalesHistoryPage() {
       {isLoading ? (
         <Loading />
       ) : (
-        <BaseTable<SaleHistory>
-          data={sales}
-          getRowId={(e) => e.id}
-          columns={salesColums}
-          actions={(sale) => [
-            {
-              type: "edit",
-              onClick: () => {
-                router.push(`/dashboard/sales?editSaleId=${sale.id}`);
-              },
-            },
-          ]}
-          // renderExpandedContent={(e) => (
-          // <PurchaseExpanded
-          //   purchase={e}
-          //   products={products}
-          //   suppliers={suppliers}
-          //   paymentMethods={paymentMethods}
-          // />
-          // )}
-          pagination={{
-            page,
-            limit,
-            totalPages: pagination?.totalPages || 0,
-            totalItems: pagination?.total || 0,
-            // isFetching,
-            onPageChange: setPage,
-            onLimitChange: setLimit,
-          }}
-        />
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-md border">
+          <div className="flex-1 overflow-y-auto">
+            <BaseTable<SaleHistory>
+              data={sales}
+              getRowId={(e) => e.id}
+              columns={salesColums}
+              actions={(sale) => [
+                {
+                  type: "edit",
+                  onClick: () => {
+                    router.push(`/dashboard/sales?editSaleId=${sale.id}`);
+                  },
+                },
+              ]}
+              pagination={{
+                page,
+                limit,
+                totalPages: pagination?.totalPages || 0,
+                totalItems: pagination?.total || 0,
+                // isFetching,
+                onPageChange: setPage,
+                onLimitChange: setLimit,
+              }}
+            />
+          </div>
+        </div>
       )}
     </div>
   );

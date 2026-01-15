@@ -1,5 +1,9 @@
 import { useForm } from "react-hook-form";
-import { CreateMeasurementUnitDto, MeasurementUnit } from "../types";
+import {
+  CreateMeasurementUnitDto,
+  MeasurementUnit,
+  UpdateMeasurementUnitDto,
+} from "../types";
 import { useShopStore } from "@/features/shop/shop.store";
 import {
   useMeasurementUnitCreateMutation,
@@ -43,14 +47,17 @@ export const useMeasurementUnitsForm = (
     }
     const basePayload: CreateMeasurementUnitDto = {
       ...values,
-      shopIds: [activeShopId],
+    };
+    const payload: UpdateMeasurementUnitDto = {
+      name: values.name,
+      code: values.code,
     };
 
     if (editMeasurementUnit) {
       updateMutation.mutate(
         {
           id: editMeasurementUnit.id,
-          payload: basePayload,
+          payload,
         },
         {
           onSuccess: () => {
@@ -66,17 +73,18 @@ export const useMeasurementUnitsForm = (
       return;
     }
 
-    createMutation.mutate(basePayload, {
-      onSuccess: () => {
-        toast.success("Unidad de medida creada");
-        form.reset({ ...initialForm });
-      },
-      onError: (err) => {
-        console.log("COMPONENT ON ERROR", err);
-
-        toast.error("No se pudo crear la unidad de medida");
-      },
-    });
+    createMutation.mutate(
+      { ...basePayload, shopIds: [activeShopId] },
+      {
+        onSuccess: () => {
+          toast.success("Unidad de medida creada");
+          form.reset({ ...initialForm });
+        },
+        onError: (err) => {
+          toast.error(err.message);
+        },
+      }
+    );
   };
   const isLoading = createMutation.isPending || updateMutation.isPending;
 

@@ -23,13 +23,15 @@ export default function MeasurementUnitPanel() {
     isFetchingNextMeasurement,
   } = useMeasurementUnits();
 
-  const [editingUnit, setEditingUnit] = useState<MeasurementUnit | null>(null);
+  const [editingUnit, setEditingUnit] = useState<MeasurementUnit | undefined>(
+    undefined
+  );
 
   const handleCancelEdit = () => {
-    setEditingUnit(null);
+    setEditingUnit(undefined);
   };
   const { form, onSubmit, isLoading, isEditing } = useMeasurementUnitsForm(
-    editingUnit!,
+    editingUnit,
     handleCancelEdit
   );
   return (

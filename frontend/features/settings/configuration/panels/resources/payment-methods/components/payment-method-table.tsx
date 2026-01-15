@@ -41,24 +41,28 @@ export const PaymentMethodTable = ({
   };
 
   return (
-    <div className="min-w-0 overflow-hidden">
-      {/* <div className="min-h-0 flex-1 overflow-auto" onScroll={handleScroll}> */}
-      <BaseTable<PaymentMethod>
-        data={paymentMethods}
-        getRowId={(e) => e.id}
-        columns={paymentColums}
-        stickyHeader
-        actions={(e) => [
-          {
-            type: "edit",
-            onClick: () => onEdit(e),
-          },
-          {
-            type: "delete",
-            onClick: () => onDelete(e),
-          },
-        ]}
-      />
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-md border">
+      <div
+        className="max-h-52 flex-1 overflow-y-hidden"
+        onScroll={handleScroll}
+      >
+        <BaseTable<PaymentMethod>
+          data={paymentMethods}
+          getRowId={(e) => e.id}
+          columns={paymentColums}
+          stickyHeader={true}
+          actions={(e) => [
+            {
+              type: "edit",
+              onClick: () => onEdit(e),
+            },
+            {
+              type: "delete",
+              onClick: () => onDelete(e),
+            },
+          ]}
+        />
+      </div>
     </div>
   );
 };

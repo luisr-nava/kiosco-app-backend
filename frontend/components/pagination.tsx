@@ -65,18 +65,15 @@ export function Pagination({
       )}
     >
       <div className="flex items-center justify-center gap-2">
-        {page > 1 ? (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => !prevDisabled && onPageChange(page - 1)}
-            className="border-primary/50 bg-card/80 text-primary hover:bg-primary/20 h-9 w-9 border p-0"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-        ) : (
-          <div className="h-9 w-9" />
-        )}
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={page === 1}
+          onClick={() => !prevDisabled && onPageChange(page - 1)}
+          className="border-primary/50 bg-card/80 text-primary hover:bg-primary/20 h-9 w-9 border p-0"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
 
         <div className="flex items-center gap-2">
           {pagesToRender.map((item, idx) => {
@@ -111,23 +108,20 @@ export function Pagination({
           })}
         </div>
 
-        {page < safeTotalPages ? (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => !nextDisabled && onPageChange(page + 1)}
-            className="border-primary/50 bg-card/80 text-primary hover:bg-primary/20 h-9 w-9 border p-0"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        ) : (
-          <div className="h-9 w-9" />
-        )}
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={page >= safeTotalPages}
+          onClick={() => !nextDisabled && onPageChange(page + 1)}
+          className="border-primary/50 bg-card/80 text-primary hover:bg-primary/20 h-9 w-9 border p-0"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
       </div>
 
       <div className="flex items-center justify-center gap-2 sm:absolute sm:right-4">
         <select
-          className="bg-background border-primary h-9 w-1/2 max-w-[220px] rounded-md border px-3 text-sm sm:w-44 sm:min-w-[170px]"
+          className="bg-background border-primary h-9 max-w-[220px] min-w-[120px] rounded-md border px-3 text-sm sm:w-44 sm:min-w-[170px]"
           value={limit}
           onChange={(e) => onLimitChange(Number(e.target.value))}
           disabled={disableLimitSelect}

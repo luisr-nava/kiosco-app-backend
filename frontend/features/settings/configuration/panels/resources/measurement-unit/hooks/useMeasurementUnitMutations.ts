@@ -8,7 +8,11 @@ import {
   deleteMeasurementUnitAction,
   updateMeasurementUnitAction,
 } from "../actions";
-import type { CreateMeasurementUnitDto, MeasurementUnit } from "../types";
+import type {
+  CreateMeasurementUnitDto,
+  MeasurementUnit,
+  UpdateMeasurementUnitDto,
+} from "../types";
 import { useShopStore } from "@/features/shop/shop.store";
 
 type MeasurementUnitPage = {
@@ -20,6 +24,8 @@ type MeasurementUnitPage = {
     totalPages: number;
   };
 };
+
+const DEFAULT_LIMIT = 10;
 
 const updateMeasurementUnitCache = (
   queryClient: ReturnType<typeof useQueryClient>,
@@ -39,40 +45,71 @@ const updateMeasurementUnitCache = (
   );
 };
 
+const seedMeasurementUnitCache = (
+  queryClient: ReturnType<typeof useQueryClient>,
+  activeShopId: string | null,
+  created: MeasurementUnit
+) => {
+  if (!activeShopId) return;
+
+  queryClient.setQueryData<InfiniteData<MeasurementUnitPage>>(
+    ["measurement-units", activeShopId],
+    (old) => {
+      if (old) return old;
+
+      return {
+        pages: [
+          {
+            measurementUnits: [created],
+            pagination: {
+              total: 1,
+              page: 1,
+              limit: DEFAULT_LIMIT,
+              totalPages: 1,
+            },
+          },
+        ],
+        pageParams: [1],
+      };
+    }
+  );
+};
+
 export const useMeasurementUnitCreateMutation = () => {
   const queryClient = useQueryClient();
   const { activeShopId } = useShopStore();
   return useMutation({
     mutationFn: (payload: CreateMeasurementUnitDto) =>
       createMeasurementUnitAction(payload),
-    onSuccess: (created) => {
-      console.log("SUCCESS DATA", created);
+    onSuccess: (created, payload) => {
+      const normalized = {
+        ...payload,
+        ...created,
+        name: created.name ?? payload.name,
+        code: created.code ?? payload.code,
+        shopIds: created.shopIds ?? payload.shopIds,
+      };
+      const data = queryClient.getQueryData<InfiniteData<MeasurementUnitPage>>([
+        "measurement-units",
+        activeShopId,
+      ]);
+
+      if (!data || data.pages.length === 0) {
+        seedMeasurementUnitCache(queryClient, activeShopId, normalized);
+        return;
+      }
+
       updateMeasurementUnitCache(
         queryClient,
         activeShopId,
         (page, pageIndex) => {
           if (pageIndex !== 0) return page;
+
           const units = page.measurementUnits ?? [];
-
-          if (units.some((item) => item.id === created.id)) {
-            return page;
-          }
-
-          const total = page.pagination?.total
-            ? page.pagination.total + 1
-            : units.length + 1;
-          const limit =
-            page.pagination?.limit ?? units.length + 1;
-          const totalPages = Math.max(1, Math.ceil(total / limit));
 
           return {
             ...page,
-            measurementUnits: [created, ...units],
-            pagination: {
-              ...page.pagination,
-              total,
-              totalPages,
-            },
+            measurementUnits: [normalized, ...units],
           };
         }
       );
@@ -89,7 +126,7 @@ export const useMeasurementUnitUpdateMutation = () => {
       payload,
     }: {
       id: string;
-      payload: Partial<CreateMeasurementUnitDto>;
+      payload: UpdateMeasurementUnitDto;
     }) => updateMeasurementUnitAction(id, payload),
     onSuccess: (updated) => {
       updateMeasurementUnitCache(queryClient, activeShopId, (page) => ({

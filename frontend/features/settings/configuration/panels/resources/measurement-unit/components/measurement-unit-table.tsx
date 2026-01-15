@@ -33,7 +33,7 @@ export const MeasurementUnitTable = ({
   }
 
   const columns = useMeasurementUnitColumns();
-  const isLocked = (unit: MeasurementUnit) => unit.isDefault || unit.isBaseUnit;
+  const isLocked = (unit: MeasurementUnit) => unit.isDefault;
 
   const handleScroll = (event: UIEvent<HTMLDivElement>) => {
     if (!hasNextPage || isFetchingNextPage || loading) return;
@@ -45,8 +45,8 @@ export const MeasurementUnitTable = ({
   };
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-md border">
-      <div className="min-h-0 flex-1 overflow-y-auto" onScroll={handleScroll}>
+    <div className="flex  flex-1 flex-col overflow-hidden rounded-md border">
+      <div className="max-h-52 flex-1 overflow-y-auto" onScroll={handleScroll}>
         <BaseTable<MeasurementUnit>
           data={measurementUnits}
           getRowId={(e) => e.id}
