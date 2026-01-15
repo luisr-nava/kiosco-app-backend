@@ -346,10 +346,15 @@ export class ProductService {
 
     const normalizedSearch = search?.trim();
 
+    const normalizedIsActive =
+      typeof isActive === 'string' ? isActive === 'true' : isActive;
+
     const baseFilters: Prisma.ShopProductWhereInput = {
       shopId: { in: targetShopIds },
-      ...(isActive !== undefined ? { isActive } : {}),
     };
+    if (normalizedIsActive !== undefined) {
+      baseFilters.isActive = normalizedIsActive;
+    }
 
     const productFilters: Prisma.ProductWhereInput = {};
     if (categoryId) {

@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { IsBoolean, IsOptional, IsString, IsUUID } from 'class-validator';
 import { SearchQueryWithShopDto } from '../../common/dto';
 
@@ -12,7 +12,18 @@ export class ProductQueryDto extends SearchQueryWithShopDto {
   supplierId?: string;
 
   @IsOptional()
-  @Type(() => Boolean)
+  @Transform(({ value }) => {
+    if (value === undefined) {
+      return undefined;
+    }
+    if (value === true || value === 'true') {
+      return true;
+    }
+    if (value === false || value === 'false') {
+      return false;
+    }
+    return value;
+  })
   @IsBoolean({ message: 'isActive debe ser un booleano' })
   isActive?: boolean;
 
