@@ -1,13 +1,4 @@
-import {
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsPositive,
-  IsString,
-  MaxLength,
-} from 'class-validator';
-import { MeasurementBaseUnit, MeasurementUnitCategory } from '@prisma/client';
+import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class UpdateMeasurementUnitDto {
   @IsOptional()
@@ -21,17 +12,4 @@ export class UpdateMeasurementUnitDto {
   @IsNotEmpty()
   @MaxLength(20)
   code?: string;
-
-  @IsOptional()
-  @IsEnum(MeasurementUnitCategory)
-  category?: MeasurementUnitCategory;
-
-  @IsOptional()
-  @IsEnum(MeasurementBaseUnit)
-  baseUnit?: MeasurementBaseUnit;
-
-  @IsOptional()
-  @IsNumber({ maxDecimalPlaces: 6 })
-  @IsPositive()
-  conversionFactor?: number;
 }

@@ -21,10 +21,6 @@ type MeasurementUnitLike = {
   id: string;
   name: string;
   code: string;
-  category: string;
-  baseUnit: string;
-  conversionFactor: Prisma.Decimal | number;
-  isBaseUnit: boolean;
   isDefault: boolean;
 };
 
@@ -594,19 +590,10 @@ export class ProductService {
       return null;
     }
 
-    const conversionFactor =
-      typeof unit.conversionFactor === 'number'
-        ? unit.conversionFactor
-        : Number(unit.conversionFactor);
-
     return {
       id: unit.id,
       name: unit.name,
       code: unit.code,
-      category: unit.category,
-      baseUnit: unit.baseUnit,
-      conversionFactor,
-      isBaseUnit: unit.isBaseUnit,
       isDefault: unit.isDefault,
     };
   }

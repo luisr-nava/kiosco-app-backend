@@ -497,7 +497,7 @@ model MeasurementUnit {
   code             String
   category         MeasurementUnitCategory
   baseUnit         MeasurementBaseUnit
-  conversionFactor Decimal                 @db.Decimal(18, 6)
+  conversionFactor Decimal                 @db.Decimal(18, 6) @default(1)
   isBaseUnit       Boolean                 @default(false)
   isDefault        Boolean                 @default(false)
   createdByUserId  String?

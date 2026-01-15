@@ -1,7 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { MeasurementBaseUnit, MeasurementUnitCategory } from '@prisma/client';
-import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class MeasurementUnitSeed implements OnModuleInit {
@@ -50,9 +49,9 @@ export class MeasurementUnitSeed implements OnModuleInit {
             code: unit.code,
             category: unit.category,
             baseUnit: unit.baseUnit,
-            conversionFactor: new Prisma.Decimal(1),
             isBaseUnit: true,
             isDefault: true,
+            conversionFactor: 1,
             createdByUserId: null,
           },
         });

@@ -5,11 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  MeasurementBaseUnit,
-  MeasurementUnitCategory,
-  Prisma,
-} from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtPayload } from '../auth-client/interfaces/jwt-payload.interface';
 import { CreateMeasurementUnitDto } from './dto/create-measurement-unit.dto';
@@ -34,39 +30,28 @@ type MeasurementUnitWithOwnership = Prisma.MeasurementUnitGetPayload<{
 export class MeasurementUnitService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private readonly baseUnitByCategory: Record<
-    MeasurementUnitCategory,
-    MeasurementBaseUnit
-  > = {
-    UNIT: MeasurementBaseUnit.UNIT,
-    WEIGHT: MeasurementBaseUnit.KG,
-    VOLUME: MeasurementBaseUnit.L,
-  };
-
   async create(dto: CreateMeasurementUnitDto, user: JwtPayload) {
-    const isOwner = user.role === 'OWNER';
     const code = this.normalizeCode(dto.code);
-    const isBaseUnit = dto.isBaseUnit ?? false;
-    const requestedIsDefault = dto.isDefault ?? false;
-    const isDefault = requestedIsDefault || isBaseUnit;
+    const baseUnitCode = this.normalizeCode(dto.baseUnitCode);
+    const baseUnit = await this.prisma.measurementUnit.findFirst({
+      where: { code: baseUnitCode, isBaseUnit: true },
+      select: { baseUnit: true, category: true },
+    });
 
-    this.ensureCategoryBaseUnit(dto.category, dto.baseUnit);
-    this.validateConversion(dto.conversionFactor, isBaseUnit);
-
-    if (requestedIsDefault && !isOwner) {
-      throw new ForbiddenException(
-        'Solo un OWNER puede crear unidades globales por defecto',
-      );
-    }
-
-    if (isBaseUnit && code !== dto.baseUnit) {
+    if (!baseUnit) {
       throw new BadRequestException(
-        'Las unidades base deben usar el mismo código que la unidad base',
+        'La unidad base especificada no existe en el sistema',
       );
     }
+
+    const targetShopIds = await this.resolveShopIdsForCreation(
+      dto.shopIds,
+      user,
+      false,
+    );
 
     const duplicatedCode = await this.prisma.measurementUnit.findFirst({
-      where: { code, baseUnit: dto.baseUnit },
+      where: { code, baseUnit: baseUnit.baseUnit },
     });
 
     if (duplicatedCode) {
@@ -75,33 +60,14 @@ export class MeasurementUnitService {
       );
     }
 
-    if (isBaseUnit) {
-      const existingBase = await this.prisma.measurementUnit.findFirst({
-        where: { baseUnit: dto.baseUnit, isBaseUnit: true },
-      });
-
-      if (existingBase) {
-        throw new BadRequestException(
-          'Las unidades base son únicas y ya existen en el sistema',
-        );
-      }
-    }
-
-    const targetShopIds = await this.resolveShopIdsForCreation(
-      dto.shopIds,
-      user,
-      isDefault,
-    );
-
     const createdUnit = await this.prisma.measurementUnit.create({
       data: {
         name: dto.name.trim(),
         code,
-        category: dto.category,
-        baseUnit: dto.baseUnit,
-        conversionFactor: new Prisma.Decimal(dto.conversionFactor),
-        isBaseUnit,
-        isDefault,
+        category: baseUnit.category,
+        baseUnit: baseUnit.baseUnit,
+        isBaseUnit: false,
+        isDefault: false,
         createdByUserId: user.id,
       },
       include: { shopMeasurementUnits: { select: { shopId: true } } },
@@ -149,7 +115,7 @@ export class MeasurementUnitService {
 
     return {
       message: 'Unidades de medida disponibles',
-      data: units.map((unit) => this.mapUnit(unit, shopId)),
+      data: units.map((unit) => this.mapUnit(unit)),
     };
   }
 
@@ -236,24 +202,12 @@ export class MeasurementUnitService {
 
     this.ensureUnitOwnership(unit, user);
 
-    const nextCategory = dto.category ?? unit.category;
-    const nextBaseUnit =
-      dto.baseUnit ??
-      (dto.category ? this.baseUnitByCategory[dto.category] : unit.baseUnit);
     const nextCode = dto.code ? this.normalizeCode(dto.code) : unit.code;
-    const currentConversion =
-      typeof unit.conversionFactor === 'number'
-        ? unit.conversionFactor
-        : Number(unit.conversionFactor);
-    const conversionFactor = dto.conversionFactor ?? currentConversion;
-
-    this.ensureCategoryBaseUnit(nextCategory, nextBaseUnit);
-    this.validateConversion(conversionFactor, unit.isBaseUnit);
 
     const duplicatedCode = await this.prisma.measurementUnit.findFirst({
       where: {
         code: nextCode,
-        baseUnit: nextBaseUnit,
+        baseUnit: unit.baseUnit,
         NOT: { id: measurementUnitId },
       },
     });
@@ -269,9 +223,6 @@ export class MeasurementUnitService {
       data: {
         name: dto.name?.trim() ?? unit.name,
         code: nextCode,
-        category: nextCategory,
-        baseUnit: nextBaseUnit,
-        conversionFactor: new Prisma.Decimal(conversionFactor),
       },
       include: { shopMeasurementUnits: { select: { shopId: true } } },
     });
@@ -334,32 +285,6 @@ export class MeasurementUnitService {
 
   private normalizeCode(code: string) {
     return code.trim().toUpperCase();
-  }
-
-  private ensureCategoryBaseUnit(
-    category: MeasurementUnitCategory,
-    baseUnit: MeasurementBaseUnit,
-  ) {
-    const expected = this.baseUnitByCategory[category];
-    if (expected !== baseUnit) {
-      throw new BadRequestException(
-        'La unidad base no coincide con la categoría de la unidad',
-      );
-    }
-  }
-
-  private validateConversion(conversionFactor: number, isBaseUnit: boolean) {
-    if (conversionFactor <= 0) {
-      throw new BadRequestException(
-        'El factor de conversión debe ser mayor a 0',
-      );
-    }
-
-    if (isBaseUnit && conversionFactor !== 1) {
-      throw new BadRequestException(
-        'Las unidades base deben tener factor de conversión 1',
-      );
-    }
   }
 
   private async resolveShopIdsForCreation(
@@ -502,24 +427,13 @@ export class MeasurementUnitService {
     }
   }
 
-  private mapUnit(unit: MeasurementUnitWithShops, shopId?: string) {
+  private mapUnit(unit: MeasurementUnitWithShops) {
     return {
       id: unit.id,
       name: unit.name,
       code: unit.code,
-      category: unit.category,
-      baseUnit: unit.baseUnit,
-      conversionFactor: Number(unit.conversionFactor),
-      isBaseUnit: unit.isBaseUnit,
       isDefault: unit.isDefault,
-      createdByUserId: unit.createdByUserId,
-      createdAt: unit.createdAt,
       shopIds: unit.shopMeasurementUnits.map((item) => item.shopId),
-      assignedToShop:
-        shopId !== undefined
-          ? unit.isDefault ||
-            unit.shopMeasurementUnits.some((item) => item.shopId === shopId)
-          : undefined,
     };
   }
 }
