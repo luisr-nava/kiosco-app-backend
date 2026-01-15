@@ -1,5 +1,5 @@
 import type { UIEvent } from "react";
-import type { MeasurementUnit } from "../interfaces";
+import type { MeasurementUnit } from "../types";
 import { BaseTable } from "@/components/table/BaseTable";
 import { useMeasurementUnitColumns } from "./measurement-unit.columns";
 
@@ -33,8 +33,7 @@ export const MeasurementUnitTable = ({
   }
 
   const columns = useMeasurementUnitColumns();
-  const isLocked = (unit: MeasurementUnit) =>
-    unit.isDefault || unit.isBaseUnit;
+  const isLocked = (unit: MeasurementUnit) => unit.isDefault || unit.isBaseUnit;
 
   const handleScroll = (event: UIEvent<HTMLDivElement>) => {
     if (!hasNextPage || isFetchingNextPage || loading) return;

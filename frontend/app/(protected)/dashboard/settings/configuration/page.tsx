@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import type {
   MeasurementBaseUnit,
   MeasurementUnitCategory,
-} from "../../../../../features/settings/configuration/panels/resources/measurement-unit/interfaces";
+} from "../../../../../features/settings/configuration/panels/resources/measurement-unit/types";
 import {
   CategoriesPanel,
   ResourcesPanel,

@@ -6,7 +6,7 @@ export default function ResourcesPanel() {
   return (
     <div className="space-y-4">
       <PaymentMethodPanel />
-      {/* <MeasurementUnitPanel /> */}
+      <MeasurementUnitPanel />
     </div>
   );
 }

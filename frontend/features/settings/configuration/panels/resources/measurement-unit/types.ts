@@ -20,23 +20,16 @@ export interface MeasurementUnit {
 export interface CreateMeasurementUnitDto {
   name: string;
   code: string;
-  category: MeasurementUnitCategory;
-  baseUnit: MeasurementBaseUnit;
-  conversionFactor: number;
-  isBaseUnit?: boolean;
-  isDefault?: boolean;
   shopIds?: string[];
 }
 
-export interface UpdateMeasurementUnitDto {
-  name?: string;
-  code?: string;
-  category?: MeasurementUnitCategory;
-  baseUnit?: MeasurementBaseUnit;
-  conversionFactor?: number;
-}
-
 export interface GetMeasurementUnitsResponse {
-  message: string;
+  message?: string;
   data: MeasurementUnit[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 }

@@ -59,19 +59,6 @@ export const PaymentMethodTable = ({
           },
         ]}
       />
-      {/* {isFetchingNextPage && (
-        <div className="text-muted-foreground flex items-center justify-center gap-2 border-t px-4 py-3 text-xs">
-          <div className="border-primary h-3 w-3 animate-spin rounded-full border-2 border-t-transparent" />
-          Cargando más métodos de pago...
-        </div>
-      )} */}
-      {/* </div> */}
-      {/* {loading && (
-        <div className="text-muted-foreground flex items-center gap-2 border-t px-4 py-3 text-xs">
-          <div className="border-primary h-3 w-3 animate-spin rounded-full border-2 border-t-transparent" />
-          Actualizando lista...
-        </div> */}
-      {/* )} */}
     </div>
   );
 };

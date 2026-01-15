@@ -1,5 +1,5 @@
 import { useModal } from "@/features/modal/hooks/useModal";
-import type { MeasurementUnit } from "../interfaces";
+import type { MeasurementUnit } from "../types";
 
 export const useMeasurementUnitModals = () => {
   const deleteMeasurementUnitModal = useModal<MeasurementUnit>(

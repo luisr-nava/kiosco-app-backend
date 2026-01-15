@@ -1,7 +1,8 @@
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
-import { useMeasurementUnitMutations } from "../hooks/useMeasurementUnitMutations";
+
 import { useMeasurementUnitModals } from "../hooks/useMeasurementUnitModals";
+import { useMeasurementUnitDeleteMutation } from "../hooks/useMeasurementUnitMutations";
 
 interface MeasurementUnitDeleteModalProps {
   modals: ReturnType<typeof useMeasurementUnitModals>;
@@ -10,8 +11,9 @@ interface MeasurementUnitDeleteModalProps {
 export default function MeasurementUnitDeleteModal({
   modals,
 }: MeasurementUnitDeleteModalProps) {
-  const { deleteMeasurementUnitModal, deleteMeasurementUnit, closeAll } = modals;
-  const { deleteMutation } = useMeasurementUnitMutations();
+  const { deleteMeasurementUnitModal, deleteMeasurementUnit, closeAll } =
+    modals;
+  const deleteMutation = useMeasurementUnitDeleteMutation();
 
   const handleClose = () => {
     if (!deleteMutation.isPending) {

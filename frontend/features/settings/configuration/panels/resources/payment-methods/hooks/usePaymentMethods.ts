@@ -30,7 +30,7 @@ export const usePaymentMethods = () => {
   return {
     paymentMethods: query.data?.pages.flatMap((page) => page.paymentMethods) || [],
     pagination: query.data?.pages.at(-1)?.pagination,
-    isLoading: query.isLoading,
+    isLoadingPayment: query.isLoading,
     isFetching: query.isFetching,
     fetchNextPaymentMethods: query.fetchNextPage,
     hasMorePaymentMethods: query.hasNextPage ?? false,
