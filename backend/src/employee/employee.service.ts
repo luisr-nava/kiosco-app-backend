@@ -170,7 +170,7 @@ export class EmployeeService {
     page = 1,
     limit = 10,
     role?: string,
-    isActive?: boolean,
+    isActive?: boolean | string,
     search?: string,
   ) {
     if (user.role !== 'OWNER') {
@@ -189,15 +189,29 @@ export class EmployeeService {
 
     const skip = (page - 1) * limit;
 
+    const normalizedIsActive =
+      isActive === undefined
+        ? undefined
+        : isActive === true || isActive === 'true'
+          ? true
+          : isActive === false || isActive === 'false'
+            ? false
+            : undefined;
+    const normalizedRole = role?.trim();
+
     const where: Prisma.EmployeeWhereInput = {
       employeeShops: {
         some: {
           shopId,
         },
       },
-      ...(role ? { role } : {}),
-      ...(isActive !== undefined ? { isActive } : {}),
     };
+    if (normalizedRole !== undefined && normalizedRole !== '') {
+      where.role = normalizedRole;
+    }
+    if (normalizedIsActive !== undefined) {
+      where.isActive = normalizedIsActive;
+    }
 
     const normalizedSearch = search?.trim();
     if (normalizedSearch) {
